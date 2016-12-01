@@ -602,7 +602,6 @@ void UI() {
 
 }
 
-
 /*‰Šú‰»ŠÖ”*/
 void lcd_Start(char* ver) {
 
