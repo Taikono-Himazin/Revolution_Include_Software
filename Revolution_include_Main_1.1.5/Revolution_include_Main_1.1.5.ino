@@ -37,7 +37,7 @@ LiquidCrystal_I2C lcd(0x3f, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);  // Set the LCD I
 
 /*変数宣言*/
 uint8_t LINE_Status = 0, UI_status = 0;
-uint16_t IR_Force = 0, IR_Degree = 0, old_Moter_Force = 0, old_Moter_Degree = 0, Gyro_Now = 0, Gyro = 0, Gyro_Offset = 0;
+uint16_t IR_F = 0, IR_D = 0, old_M_F = 0, old_M_D = 0, Gyro_Now = 0, Gyro = 0, Gyro_Offset = 0;
 boolean change1 = true, change2 = false;
 /*ここまで*/
 
@@ -81,10 +81,10 @@ void loop() {
 		  change2 = true;
 	  }
     IR_Get();
-	//   LINE_Statustatus_Get();
+	//   LINE_Get();
     //GyroGet();
-     Motion_System(IR_Force, IR_Degree);
-	 //moter(IR_Force, IR_Degree);
+     Motion_System(IR_F, IR_D);
+	 //moter(IR_F, IR_D);
   }
   else {
 	  if (change2) {
@@ -99,13 +99,13 @@ void loop() {
 
 /*--自作関数--*/
 void moter(uint8_t Force, uint16_t Degree) { //一応解読したがいじれるほどはわからん。とりあえず同じ形ならそのままいこう
-	old_Moter_Degree = old_Moter_Degree*Old_Persenterse + Degree*(1- Old_Persenterse);
-	old_Moter_Force = old_Moter_Force*0.9 + Force*0.1;
-  int16_t m1_Degree = old_Moter_Degree - 45;
+	old_M_D = old_M_D*Old_Persenterse + Degree*(1- Old_Persenterse);
+	old_M_F = old_M_F*0.9 + Force*0.1;
+  int16_t m1_Degree = old_M_D - 45;
   if (m1_Degree < 0) m1_Degree = m1_Degree + 360;
   else if (m1_Degree > 359) m1_Degree = m1_Degree - 360;
 
-  int16_t m2_Degree = old_Moter_Degree - 315;
+  int16_t m2_Degree = old_M_D - 315;
   if (m2_Degree < 0) m2_Degree = m2_Degree + 360;
   else if (m2_Degree > 359) m2_Degree = m2_Degree - 360;
   /*
@@ -222,11 +222,11 @@ void moter_Brake() {
 void IR_Get() {
   Wire.requestFrom(9, 4);
   while (Wire.available()) {
-    IR_Force = (Wire.read() << 8) | Wire.read(); // Force Read
-    IR_Degree = (Wire.read() << 8) | Wire.read(); // Degree Read
+    IR_F = (Wire.read() << 8) | Wire.read(); // Force Read
+    IR_D = (Wire.read() << 8) | Wire.read(); // Degree Read
   }/*
-	 Serial.print(IR_Force);
-	 Serial.println(IR_Degree);*/
+	 Serial.print(IR_F);
+	 Serial.println(IR_D);*/
 }
 
 static inline void GyroGet()
@@ -257,7 +257,7 @@ static inline void GyroGet()
   }
 }
 
-void Motion_System(uint8_t Force, uint16_t Degree) { //挙動制御 Force=IR_Force Degree=IR_Degree
+void Motion_System(uint8_t Force, uint16_t Degree) { //挙動制御 Force=IR_F Degree=IR_D
   int16_t Dir = 0;
   if (Force != 0) {  // Ball Found                                           //ここから挙動制御
     if ((270 <= Degree) && (Degree < 290)) {                        //a
@@ -346,7 +346,7 @@ void Melody(uint8_t mode) {
   }
 }
 
-void LINE_Statustatus_Get() {
+void LINE_Get() {
   Wire.requestFrom(11, 1);
   uint8_t buf;
   while (Wire.available()) {

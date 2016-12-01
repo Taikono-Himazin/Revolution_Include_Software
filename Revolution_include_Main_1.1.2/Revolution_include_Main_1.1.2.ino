@@ -19,7 +19,7 @@ PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 LiquidCrystal_I2C lcd(0x3f, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);  // Set the LCD I2C address
 
 uint8_t LINE_Status = 0;
-uint16_t IR_Force = 0, IR_Degree = 0, Gyro_Now = 0, Gyro = 0, Gyro_Offset = 0;
+uint16_t IR_F = 0, IR_D = 0, Gyro_Now = 0, Gyro = 0, Gyro_Offset = 0;
 /*プロトタイプ宣言*/
 void Melody(bool mode);
 void IR_Get();
@@ -65,13 +65,13 @@ lcd.clear();
 
 
 void loop() {
-  if (digitalRead(M_sw) == LOW) {
-    lcd.end();
-    //   LINE_Statustatus_Get();
+  if (digitalRead(M_sw) == LOW){
+
+    //   LINE_Get();
     IR_Get();
     //GyroGet();
-    //   Motion_System(IR_Force, IR_Degree);
-    moter(IR_Force, IR_Degree);
+    //   Motion_System(IR_F, IR_D);
+    moter(IR_F, IR_D);
   }
   else {
     sleep();
@@ -204,11 +204,11 @@ void moter_Brake() {
 void IR_Get() {
   Wire.requestFrom(9, 4);
   while (Wire.available()) {
-    IR_Force = (Wire.read() << 8) | Wire.read(); // Force Read
-    IR_Degree = (Wire.read() << 8) | Wire.read(); // Degree Read
+    IR_F = (Wire.read() << 8) | Wire.read(); // Force Read
+    IR_D = (Wire.read() << 8) | Wire.read(); // Degree Read
   }/*
-	 Serial.print(IR_Force);
-	 Serial.println(IR_Degree);*/
+	 Serial.print(IR_F);
+	 Serial.println(IR_D);*/
 }
 
 static inline void GyroGet()
@@ -240,7 +240,7 @@ static inline void GyroGet()
 }
 
 
-void Motion_System(uint8_t Force, uint16_t Degree) { //挙動制御 Force=IR_Force Degree=IR_Degree
+void Motion_System(uint8_t Force, uint16_t Degree) { //挙動制御 Force=IR_F Degree=IR_D
   int16_t Dir = 0;
   if (Force != 0) {  // Ball Found                                           //ここから挙動制御
     if ((270 <= Degree) && (Degree < 290)) {                        //a
@@ -325,7 +325,7 @@ void Melody(bool mode) {
 }
 
 
-void LINE_Statustatus_Get() {
+void LINE_Get() {
   Wire.requestFrom(11, 1);
   uint8_t buf;
   while (Wire.available()) {

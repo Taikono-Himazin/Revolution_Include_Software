@@ -1,3 +1,4 @@
+#include <Utility.h>
 #include <Wire.h>
 
 #define LINE1 1 //右
@@ -15,29 +16,21 @@
 #define LINE13 13 //後ろ
 #define LINE14 14
 #define LINE15 15
-#define LINE16 16
-
-/*
-  #define Photo1 7 //右
-  #define Photo2 8 //後ろ　　　　　光センサはi2c
-  #define Photo3 9 //左
-  #define Photo4 10 //前
-  /*
-  #define Photo7 13 //前1
-  #define Photo8 14 //前2
-*/
+#define LINE16 16//後ろ
 
 void setup() {
   Serial.begin(9600);
   Wire.begin(11);
+  i2c_faster();
   Wire.onRequest(requestEvent);
-
+  int pin[16] = { LINE1,LINE2,LINE3,LINE4,LINE5,LINE6,LINE7,LINE8,LINE9,LINE10,LINE11,LINE12,LINE13,LINE14,LINE15,LINE16 };
+  forPinMode(pin, 16,INPUT);
 }
-uint8_t  LINE_interrupt = 0;
+ uint8_t LINE_interrupt = 0;
 
 void loop() {
   noInterrupts();
-  LINE_interrupt = 0;
+ uint8_t LINE_interrupt = 0;
   if ((digitalRead(LINE1) == HIGH) || (digitalRead(LINE2) == HIGH) || (digitalRead(LINE3) == HIGH) || (digitalRead(LINE4) == HIGH)) { //右が反応したら
     bitSet(LINE_interrupt, 0);
     bitSet(LINE_interrupt, 4);

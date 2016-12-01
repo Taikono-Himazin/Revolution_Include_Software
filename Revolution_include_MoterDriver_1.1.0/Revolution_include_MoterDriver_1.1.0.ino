@@ -45,10 +45,12 @@ void setup() {
   pinMode(M4A, OUTPUT);   // 出力に設定
   pinMode(M4B, OUTPUT);   // 出力に設定
   pinMode(M4P, OUTPUT);   // 出力に設定
+  
   setPWMFrequency(M1P, PWM_DIV1);//PWM高速化（分周比を1に）
   setPWMFrequency(M2P, PWM_DIV1);
   setPWMFrequency(M3P, PWM_DIV1);
   setPWMFrequency(M4P, PWM_DIV1);
+  
   }
 
 boolean Power_Status;
