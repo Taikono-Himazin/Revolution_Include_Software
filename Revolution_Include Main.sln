@@ -29,6 +29,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Revolution_include_Main_2.0
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Revolution_include_Main_2.1.1", "Revolution_include_Main_2.1.1\Revolution_include_Main_2.1.1.vcxproj", "{F1561B84-E3B0-47B7-AAFC-8A3ED8EE4D29}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Revolution_include_Main_2.1.2", "Revolution_include_Main_2.1.2\Revolution_include_Main_2.1.2.vcxproj", "{80D6100A-CF2D-4A43-B222-7251FBB1332B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -75,6 +77,10 @@ Global
 		{F1561B84-E3B0-47B7-AAFC-8A3ED8EE4D29}.Debug|x86.Build.0 = Debug|Win32
 		{F1561B84-E3B0-47B7-AAFC-8A3ED8EE4D29}.Release|x86.ActiveCfg = Release|Win32
 		{F1561B84-E3B0-47B7-AAFC-8A3ED8EE4D29}.Release|x86.Build.0 = Release|Win32
+		{80D6100A-CF2D-4A43-B222-7251FBB1332B}.Debug|x86.ActiveCfg = Debug|Win32
+		{80D6100A-CF2D-4A43-B222-7251FBB1332B}.Debug|x86.Build.0 = Debug|Win32
+		{80D6100A-CF2D-4A43-B222-7251FBB1332B}.Release|x86.ActiveCfg = Release|Win32
+		{80D6100A-CF2D-4A43-B222-7251FBB1332B}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
