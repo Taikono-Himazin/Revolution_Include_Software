@@ -12,10 +12,11 @@ delay(1000);
 }
 
 void loop() {
-  for(int i=0;i<200;i++){
-  myservo1.write(i);//最低107あたり、最高は180
-  Serial.println(i);
-  delay(200);
-  }
+  myservo1.write(100);
+//  for(int i=0;i<200;i++){
+//  myservo1.write(i);//最低107あたり、最高は180
+//  Serial.println(i);
+//  delay(200);
+//  }
 }
 
