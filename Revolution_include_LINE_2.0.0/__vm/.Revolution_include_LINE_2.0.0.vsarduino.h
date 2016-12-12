@@ -15,7 +15,7 @@
 #define _VMDEBUG 1
 #define F_CPU 16000000L
 #define ARDUINO 106013
-#define ARDUINO_AVR_MINI
+#define ARDUINO_AVR_NANO
 #define ARDUINO_ARCH_AVR
 #define __cplusplus 201103L
 #define __AVR__
@@ -51,5 +51,5 @@ extern "C" void __cxa_pure_virtual() {;}
 #define F(string_literal) ((const PROGMEM char *)(string_literal))
 #undef PSTR
 #define PSTR(string_literal) ((const PROGMEM char *)(string_literal))
-#include "Revolution_include_LINE_1.0.0.ino"
+#include "Revolution_include_LINE_2.0.0.ino"
 #endif
