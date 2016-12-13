@@ -84,6 +84,8 @@ void setup() {
 	Gryo_Start();
 
 	Servo_Start();
+	
+	LINE_Set(48);
 
 	while (digitalRead(M_sw) == LOW) {
 		Melody(1);
@@ -671,4 +673,13 @@ void PID_Start() {
 	myPID.SetMode(AUTOMATIC);
 	myPID.SetSampleTime(15);
 	Setpoint = 180;
+}
+
+void LINE_Set(uint16_t val) {
+	uint8_t buf[2];
+	buf[0] = (val >> 8) & 0x00ff;
+	buf[1] = val & 0x00ff;
+	Wire.beginTransmission(11);
+	Wire.write(buf, 2);
+	Wire.endTransmission();
 }
