@@ -79,7 +79,7 @@ void setup() {
 
 	PID_Start();
 
-	lcd_Start("2.1.1 Makao");//lcd‰Šú‰»ŠÖ”
+	lcd_Start("2.1.2 LINE");//lcd‰Šú‰»ŠÖ”
 
 	Gryo_Start();
 
