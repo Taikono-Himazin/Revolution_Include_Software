@@ -4,6 +4,7 @@
 
 #define mcp1SS 10
 #define mcp2SS 9
+#define LINE_val 48
 
 void setup() {
   Serial.begin(9600);
@@ -21,6 +22,7 @@ void setup() {
 }
 uint8_t LINE_status = 0;
 int16_t LINE[16];
+bool i2c_flag = false;
 
 void loop() {
 	for (uint8_t i = 0; i < 8; i++) {
@@ -29,6 +31,54 @@ void loop() {
 	for (uint8_t i = 8; i<16; i++) {
 		LINE[i] = mcp2Get(i-8)-800;
 		}
+
+	for (uint8_t i=0;i<16;i++){
+		switch (i)
+		{
+		case 0://‘O
+		case 1:
+		case 2:
+		case 3:
+			if (LINE[i] > LINE_val) {
+				bitSet(LINE_status, 3);
+			}
+			break;
+
+		case 4://¶
+		case 5:
+		case 6:
+		case 7:
+			if (LINE[i] > LINE_val) {
+				bitSet(LINE_status, 2);
+			}
+			break;
+
+		case 15://Œã‚ë
+		case 14:
+		case 13:
+		case 12:
+			if (LINE[i] >LINE_val) {
+				bitSet(LINE_status, 1);
+			}
+			break;
+
+		case 8://‰E
+		case 9:
+		case 10:
+		case 11:
+			if (LINE[i] > LINE_val) {
+				bitSet(LINE_status, 0);
+			}
+			break;
+		default:
+			break;
+		}
+	}
+
+	if (i2c_flag) {
+		Wire.write(LINE_status);
+		i2c_flag = false;
+	}
 // Serial.println(LINE_interrupt,BIN);.
 }
 
@@ -59,8 +109,6 @@ int16_t mcp2Get(uint8_t ch)
 }
 
 void requestEvent() {
-  uint8_t buf;
-  buf = LINE_status;
-  Wire.write(buf);
+	i2c_flag = true;
 }
 

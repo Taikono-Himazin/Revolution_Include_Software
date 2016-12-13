@@ -11,9 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{80D6100A-CF2D-4A43-B222-7251FBB1332B}</ProjectGuid>
-    <RootNamespace>Revolution_include_Main_2_1_2</RootNamespace>
-    <ProjectName>Revolution_include_Main_2.1.2</ProjectName>
+    <ProjectGuid>{B4057414-D8CD-404F-9294-011CAA870168}</ProjectGuid>
+    <RootNamespace>Revolution_include_LINE_2_1_0</RootNamespace>
+    <ProjectName>Revolution_include_LINE_2.1.0</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -47,8 +47,8 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\Users\Owner\Documents\Arduino\libraries\Servo\src;C:\Users\Owner\Documents\Arduino\libraries\Utility;C:\Users\Owner\Documents\Arduino\libraries\Wire;C:\Users\Owner\Documents\Arduino\libraries\br3ttb-Arduino-PID-Library-fb095d8;C:\Users\Owner\Documents\Arduino\libraries\MPU6050;C:\Users\Owner\Documents\Arduino\libraries\I2Cdev;C:\Users\Owner\Documents\Arduino\libraries\NewliquidCrystal;C:\Users\Owner\Documents\Arduino\libraries\br3ttb-Arduino-PID-Library-fb095d8\utility;C:\Users\Owner\Documents\Arduino\libraries\I2Cdev\utility;C:\Users\Owner\Documents\Arduino\libraries\MPU6050\utility;C:\Users\Owner\Documents\Arduino\libraries\NewliquidCrystal\utility;C:\Users\Owner\Documents\Arduino\libraries\Servo\src\utility;C:\Users\Owner\Documents\Arduino\libraries\Utility\utility;C:\Users\Owner\Documents\Arduino\libraries\Wire\utility;C:\Program Files (x86)\Arduino\libraries;C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries;C:\Users\Owner\Documents\Arduino\libraries;C:\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino;C:\Program Files (x86)\Arduino\hardware\arduino\avr\variants\eightanaloginputs;C:\Users\Owner\Source\Repos\Revolution_include SoftWare\Revolution_include_Main_2.1.2;C:\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino;C:\Program Files (x86)\Arduino\hardware\arduino\avr\variants\eightanaloginputs;C:\Users\Owner\Documents\Arduino\libraries\Servo\src;C:\Users\Owner\Documents\Arduino\libraries\Utility;C:\Users\Owner\Documents\Arduino\libraries\Wire;C:\Users\Owner\Documents\Arduino\libraries\br3ttb-Arduino-PID-Library-fb095d8;C:\Users\Owner\Documents\Arduino\libraries\MPU6050;C:\Users\Owner\Documents\Arduino\libraries\I2Cdev;C:\Users\Owner\Documents\Arduino\libraries\NewliquidCrystal;C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\Extensions\jenhbqd0.ohz\Micro Platforms\default\debuggers\VM_DBG;C:\Program Files (x86)\Arduino\libraries;C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries;C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\Extensions\jenhbqd0.ohz\Micro Platforms\default\debuggers;C:\Users\Owner\Documents\Arduino\libraries;C:\Users\Owner\Documents\Arduino\libraries\NewliquidCrystal\utility;C:\Users\Owner\Documents\Arduino\libraries\Wire\utility;C:\Program Files (x86)\Arduino\hardware\tools\avr/avr/include/;C:\Program Files (x86)\Arduino\hardware\tools\avr//avr/include/avr/;C:\Program Files (x86)\Arduino\hardware\tools\avr/lib\gcc\avr\4.8.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <ForcedIncludeFiles>C:\Users\Owner\Source\Repos\Revolution_include SoftWare\Revolution_include_Main_2.1.2\__vm\.Revolution_include_Main_2.1.2.vsarduino.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <AdditionalIncludeDirectories>C:\Users\Owner\Documents\Arduino\libraries\SPI;C:\Users\Owner\Documents\Arduino\libraries\Utility;C:\Users\Owner\Documents\Arduino\libraries\Wire;C:\Users\Owner\Documents\Arduino\libraries\SPI\utility;C:\Users\Owner\Documents\Arduino\libraries\Utility\utility;C:\Users\Owner\Documents\Arduino\libraries\Wire\utility;C:\Program Files (x86)\Arduino\libraries;C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries;C:\Users\Owner\Documents\Arduino\libraries;C:\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino;C:\Program Files (x86)\Arduino\hardware\arduino\avr\variants\eightanaloginputs;C:\Users\Owner\Source\Repos\Revolution_include SoftWare\Revolution_include_LINE_2.1.0;C:\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino;C:\Program Files (x86)\Arduino\hardware\arduino\avr\variants\eightanaloginputs;C:\Users\Owner\Documents\Arduino\libraries\SPI;C:\Users\Owner\Documents\Arduino\libraries\Utility;C:\Users\Owner\Documents\Arduino\libraries\Wire;C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\Extensions\jenhbqd0.ohz\Micro Platforms\default\debuggers\VM_DBG;C:\Program Files (x86)\Arduino\libraries;C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries;C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\Extensions\jenhbqd0.ohz\Micro Platforms\default\debuggers;C:\Users\Owner\Documents\Arduino\libraries;C:\Users\Owner\Documents\Arduino\libraries\Wire\utility;C:\Program Files (x86)\Arduino\hardware\tools\avr/avr/include/;C:\Program Files (x86)\Arduino\hardware\tools\avr//avr/include/avr/;C:\Program Files (x86)\Arduino\hardware\tools\avr/lib\gcc\avr\4.8.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ForcedIncludeFiles>C:\Users\Owner\Source\Repos\Revolution_include SoftWare\Revolution_include_LINE_2.1.0\__vm\.Revolution_include_LINE_2.1.0.vsarduino.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
       <IgnoreStandardIncludePath>false</IgnoreStandardIncludePath>
       <PreprocessorDefinitions>__AVR_ATmega328p__;__AVR_ATmega328P__;_VMDEBUG=1;F_CPU=16000000L;ARDUINO=10609;ARDUINO_AVR_NANO;ARDUINO_ARCH_AVR;__cplusplus=201103L;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -73,17 +73,17 @@
   <ItemGroup>
     <ProjectCapability Include="VisualMicro" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="Revolution_include_Main_2.1.2.ino">
-      <FileType>CppCode</FileType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="__vm\.Revolution_include_Main_2.1.2.vsarduino.h" />
-  </ItemGroup>
   <PropertyGroup>
     <DebuggerFlavor>VisualMicroDebugger</DebuggerFlavor>
   </PropertyGroup>
+  <ItemGroup>
+    <ClInclude Include="__vm\.Revolution_include_LINE_2.1.0.vsarduino.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Revolution_include_LINE_2.1.0.ino">
+      <FileType>CppCode</FileType>
+    </None>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
