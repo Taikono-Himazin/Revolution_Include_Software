@@ -30,8 +30,8 @@
 
 #define LED(a) digitalWrite(a, HIGH)
 #define LEDoff(a) digitalWrite(a, LOW)
-#define Servo_idel myServo1.write(85)
-#define Servo_Dri myServo1.write(120)
+#define Servo_idel Dri_P=85
+#define Servo_Dri Dri_P=120
 /*ここまで*/
 
 /*川野さんからコピペ関数宣言*/
@@ -188,12 +188,12 @@ void moter(uint8_t Force, int16_t Degree) { //一応解読したがいじれるほどはわから
 	if (m1 < 0) bitSet(buf[4], 0);
 	else bitClear(buf[4], 0);
 	buf[0] = abs(m1);
-	if (m3 < 0) bitSet(buf[4], 1);//モーターの配線を間違えた
+	if ( m2< 0) bitSet(buf[4], 1);//モーターの配線を間違えた
 	else bitClear(buf[4], 1);
-	buf[1] = abs(m3);
-	if (m2 < 0) bitSet(buf[4], 2);
+	buf[1] = abs(m2);
+	if (m3 < 0) bitSet(buf[4], 2);
 	else bitClear(buf[4], 2);
-	buf[2] = abs(m2);
+	buf[2] = abs(m3);
 	if (m4 < 0) bitSet(buf[4], 3);
 	else bitClear(buf[4], 3);
 	buf[3] = abs(m4);
@@ -254,7 +254,7 @@ void IR_Get() {
 }
 
 void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F Degree=IR_D
-	int16_t Deg = 0;
+	int16_t Deg = 0,Dri_P;
 	uint8_t	For = 200;
 	Degree = Degree - IR_offset;
 	if (Force != 0) {  // Ball Found                                           //ここから挙動制御
@@ -288,7 +288,7 @@ void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F Degree
 		}
 		else if ((80 <= Degree) && (Degree < 100)) {               //真ん中
 			Deg = 84;
-			Servo_Dri;
+			Servo_idel;
 		}
 		else if ((100 <= Degree) && (Degree < 110)) {              //g
 			Deg = Degree + 8;
@@ -316,7 +316,7 @@ void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F Degree
 		}
 		else if ((250 <= Degree) && (Degree < 270)) {              //a
 			Deg = Degree + 55;
-			Servo_idel;
+			Servo_Dri;
 		}
 		if (Deg < 0) {
 			Deg = 360 + Deg;
@@ -326,7 +326,10 @@ void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F Degree
 		Deg = 90;
 		For = 0;
 		myServo1.write(0);
+		myServo2.write(0);
+		Dri_P = 0;
 	}
+	myServo1.write(Dri_P);
 	moter(For, Deg);
 }
 
