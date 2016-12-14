@@ -25,8 +25,8 @@
 #define M4P 11          // M4はデジタル11番ピン(PWM)
 
 void setup() {
-  Serial.begin(9600);
-  Serial.print("Moter_Driver");
+  //Serial.begin(9600);
+  //Serial.print("Moter_Driver");
   Wire.begin(10);
  Wire.onReceive(readEvent);
 
