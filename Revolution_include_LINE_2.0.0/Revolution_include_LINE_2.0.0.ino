@@ -24,16 +24,21 @@ int16_t LINE[16];
 
 void loop() {
 	for (uint8_t i = 0; i < 8; i++) {
-		LINE[i] = mcp1Get(i) - 800;
-		Serial.print(LINE[i]);
-		Serial.print(",");
+		if ((i == 7)||(i==6)) {
+			Serial.print("0,");
+		}
+		else {
+
+			LINE[i] = mcp1Get(i) - 800;
+			Serial.print(LINE[i]);
+			Serial.print(",");
+		}
 	}
-	for (uint8_t i = 8; i<16; i++) {
-		LINE[i] = mcp2Get(i-8)-800;
+	for (uint8_t i = 8; i < 16; i++) {
+		LINE[i] = mcp2Get(i - 8) - 800;
 		Serial.print(LINE[i]);
 		Serial.print(",");
 		}
-
 	Serial.println("");
 // Serial.println(LINE_interrupt,BIN);.
 }
