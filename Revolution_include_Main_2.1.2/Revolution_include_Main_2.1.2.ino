@@ -85,7 +85,7 @@ void setup() {
 
 	Servo_Start();
 	
-	LINE_Set(48);
+	LINE_Set(400);
 
 	while (digitalRead(M_sw) == LOW) {
 		Melody(1);
@@ -116,7 +116,7 @@ void loop() {
 			LEDoff(LED_L);
 		}
 		IR_Get();
-		// LINE_Get();
+		LINE_Get();
 		Motion_System(IR_F, IR_D);
 		//moter(IR_F, IR_D);
 	}

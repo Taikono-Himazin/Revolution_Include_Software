@@ -26,10 +26,10 @@ bool i2c_flag = false;
 
 void loop() {
 	for (uint8_t i = 0; i < 8; i++) {
-		LINE[i] = mcp1Get(i) - 800;
+		LINE[i] = mcp1Get(i);
 	}
 	for (uint8_t i = 8; i<16; i++) {
-		LINE[i] = mcp2Get(i-8)-800;
+		LINE[i] = mcp2Get(i-8);
 		}
 
 	for (uint8_t i=0;i<16;i++){

@@ -21,15 +21,15 @@ void setup() {
   SPI.begin();
 }
 uint8_t LINE_status = 0;
-int16_t LINE[16],LINE_val=48;
+int16_t LINE[16],LINE_val=400;
 bool i2c_flag = false;
 
 void loop() {
 	for (uint8_t i = 0; i < 8; i++) {
-		LINE[i] = mcp1Get(i) - 800;
+		LINE[i] = mcp1Get(i);
 	}
 	for (uint8_t i = 8; i<16; i++) {
-		LINE[i] = mcp2Get(i-8)-800;
+		LINE[i] = mcp2Get(i-8);
 		}
 
 	for (uint8_t i=0;i<16;i++){

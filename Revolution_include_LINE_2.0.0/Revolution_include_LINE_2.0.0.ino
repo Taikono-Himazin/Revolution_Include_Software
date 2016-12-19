@@ -29,13 +29,13 @@ void loop() {
 		}
 		else {
 
-			LINE[i] = mcp1Get(i) - 800;
+			LINE[i] = mcp1Get(i);
 			Serial.print(LINE[i]);
 			Serial.print(",");
 		}
 	}
 	for (uint8_t i = 8; i < 16; i++) {
-		LINE[i] = mcp2Get(i - 8) - 800;
+		LINE[i] = mcp2Get(i - 8);
 		Serial.print(LINE[i]);
 		Serial.print(",");
 		}
