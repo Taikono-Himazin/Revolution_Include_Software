@@ -6,7 +6,7 @@
 #define mcp2SS 9
 
 void setup() {
-  Serial.begin(9600);
+ // Serial.begin(9600);
   Wire.begin(11);
   i2c_faster();
   Wire.onRequest(requestEvent);
@@ -20,11 +20,12 @@ void setup() {
   SPI.setDataMode(SPI_MODE0);
   SPI.begin();
 }
-uint8_t LINE_status = 0;
-int16_t LINE[16],LINE_val=400;
+uint8_t LINE_status = 0,Old_LINE = 0;
+int16_t LINE[16], LINE_val = 400 ;
 bool i2c_flag = false;
 
 void loop() {
+	LINE_status = 0;
 	for (uint8_t i = 0; i < 8; i++) {
 		LINE[i] = mcp1Get(i);
 	}
@@ -32,10 +33,10 @@ void loop() {
 		LINE[i] = mcp2Get(i-8);
 		}
 
-	for (uint8_t i=0;i<16;i++){
+	for (uint8_t i = 0; i < 16; i++) {
 		switch (i)
 		{
-		case 0://‘O
+			//	case 0://‘O
 		case 1:
 		case 2:
 		case 3:
@@ -43,11 +44,10 @@ void loop() {
 				bitSet(LINE_status, 3);
 			}
 			break;
-
 		case 4://¶
 		case 5:
-		case 6:
-		case 7:
+			//case 6:
+		//	case 7:
 			if (LINE[i] > LINE_val) {
 				bitSet(LINE_status, 2);
 			}
@@ -57,15 +57,15 @@ void loop() {
 		case 14:
 		case 13:
 		case 12:
-			if (LINE[i] >LINE_val) {
+			if (LINE[i] > LINE_val) {
 				bitSet(LINE_status, 1);
 			}
 			break;
 
 		case 8://‰E
 		case 9:
-		case 10:
-		case 11:
+			//case 10:
+			//	case 11:
 			if (LINE[i] > LINE_val) {
 				bitSet(LINE_status, 0);
 			}
@@ -73,12 +73,11 @@ void loop() {
 		default:
 			break;
 		}
+		if (bitRead(LINE_status, 0) == 1 || bitRead(LINE_status, 1) == 1 || bitRead(LINE_status, 2) == 1 || bitRead(LINE_status, 3) == 1) {
+			bitSet(LINE_status, 4);
+		}
 	}
-
-	if (i2c_flag) {
-		Wire.write(LINE_status);
-		i2c_flag = false;
-	}
+	Old_LINE = LINE_status;
 // Serial.println(LINE_interrupt,BIN);.
 }
 
@@ -109,7 +108,7 @@ int16_t mcp2Get(uint8_t ch)
 }
 
 void requestEvent() {
-	i2c_flag = true;
+	Wire.write(Old_LINE);
 }
 
 void receiveEvent(int x) {

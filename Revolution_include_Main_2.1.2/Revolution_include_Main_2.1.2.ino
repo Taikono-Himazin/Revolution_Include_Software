@@ -73,7 +73,7 @@ void LED_Check();
 
 /*--ƒvƒƒOƒ‰ƒ€--*/
 void setup() {
-	// Serial.begin(115200);
+ Serial.begin(115200);
 	Wire.begin();
 	i2c_faster();
 
@@ -366,6 +366,7 @@ void LINE_Get() {
 	}
 
 	LINE_Status = buf;
+	Serial.println(LINE_Status,BIN);
 
 	if (bitRead(LINE_Status, 4) == 1) {
 		digitalWrite(LED_L, HIGH);
