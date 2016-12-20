@@ -36,7 +36,7 @@ void loop() {
 	for (uint8_t i = 0; i < 16; i++) {
 		switch (i)
 		{
-			//	case 0://‘O
+		//case 0://‘O
 		case 1:
 		case 2:
 		case 3:
@@ -46,8 +46,8 @@ void loop() {
 			break;
 		case 4://¶
 		case 5:
-			//case 6:
-		//	case 7:
+		//case 6:
+		//case 7:
 			if (LINE[i] > LINE_val) {
 				bitSet(LINE_status, 2);
 			}
@@ -64,8 +64,8 @@ void loop() {
 
 		case 8://‰E
 		case 9:
-			//case 10:
-			//	case 11:
+		//case 10:
+		//case 11:
 			if (LINE[i] > LINE_val) {
 				bitSet(LINE_status, 0);
 			}

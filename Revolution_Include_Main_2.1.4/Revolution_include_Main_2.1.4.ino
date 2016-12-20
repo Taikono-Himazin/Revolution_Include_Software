@@ -27,12 +27,12 @@
 #define Check_Delay 100
 #define UI_Delay 200
 #define IR_offset 0
-#define  C_Reset 2
+#define  C_Reset 100
 
 #define LED(a) digitalWrite(a, HIGH)
 #define LEDoff(a) digitalWrite(a, LOW)
 #define Servo_idel Dri_P=85
-#define Servo_Dri Dri_P=180
+#define Servo_Dri Dri_P=120
 /*‚±‚±‚Ü‚Å*/
 
 /*ì–ì‚³‚ñ‚©‚çƒRƒsƒyŠÖ”éŒ¾*/
@@ -430,6 +430,7 @@ void Motion_System(uint8_t Force, int16_t Degree) { //‹““®§Œä Force=IR_F Degree
 		if (M_Degree < 0) {
 			M_Degree = 360 + M_Degree;
 		}
+
 		if (Ball1) {
 			count--;
 		}else {
@@ -438,12 +439,9 @@ void Motion_System(uint8_t Force, int16_t Degree) { //‹““®§Œä Force=IR_F Degree
 	}else {
 		M_Degree = 90;
 		M_Force = 0;
-		myServo1.write(0);
-		myServo2.write(0);
 		Dri_P = 0;
 	}
 
-	myServo1.write(Dri_P);
 
 	if (count <= 0) {
 		Spin();
@@ -451,10 +449,13 @@ void Motion_System(uint8_t Force, int16_t Degree) { //‹““®§Œä Force=IR_F Degree
 	}
 	else {
 		moter(M_Force, M_Degree);
+		myServo1.write(Dri_P);
 	}
+
 }
 
 void Spin() {
+	myServo1.write(180);
 	uint8_t m1, m2, m3, m4;
 	m1 = 255;
 	m2 = m1;
