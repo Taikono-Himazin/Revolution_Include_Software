@@ -5,10 +5,10 @@
 
 
 /*Include*/
-#include "Moter.h"
 #include <Servo.h>
 #include <Utility.h>
 #include <Wire.h>
+#include <PID_v1.h>
 #include "MPU6050_6Axis_MotionApps20.h"
 #include <LiquidCrystal_I2C.h>
 /*ここまで*/
@@ -35,14 +35,15 @@
 /*ここまで*/
 
 /*川野さんからコピペ関数宣言*/
-
-
+static double Setpoint, Input, Output;
+static const double Kp = 2, Ki = 0, Kd = 0.01;
 MPU6050 mpu;
 Servo myServo1;
 Servo myServo2;
 static uint8_t mpuIntStatus;
 static bool dmpReady = false;  // set true if DMP init was successful
 static uint16_t packetSize;    // expected DMP packet size (default is 42 bytes)
+PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 /*ここまで*/
 
 /*リキッドクリスタル関数宣言*/
@@ -58,7 +59,8 @@ boolean change1 = true, change2 = false;
 /*ここまで*/
 
 //プロトタイプ宣言(不必要のため途中からコメントアウト　エラー起こしたらしてみて
-/*
+/*void moter(uint8_t Force, uint16_t Degree);
+void sleep();
 void IR_Get();
 void GyroGet();
 void Motion_System(uint8_t Force, uint16_t Degree);
@@ -71,19 +73,19 @@ void LED_Check();
 
 /*--プログラム--*/
 void setup() {
-	// Serial.begin(115200);
+ Serial.begin(115200);
 	Wire.begin();
 	i2c_faster();
 
 	PID_Start();
 
-	lcd_Start("2.1.2 LINE");//lcd初期化関数
+	lcd_Start("2.1.3 Motion");//lcd初期化関数
 
 	Gryo_Start();
 
 	Servo_Start();
 	
-	LINE_Set(48);
+	LINE_Set(350);
 
 	while (digitalRead(M_sw) == LOW) {
 		Melody(1);
@@ -114,9 +116,9 @@ void loop() {
 			LEDoff(LED_L);
 		}
 		IR_Get();
-		// LINE_Get();
+		LINE_Get();
 		Motion_System(IR_F, IR_D);
-		//Moter.nomal(IR_F, IR_D);
+		//moter(IR_F, IR_D);
 	}
 	else {
 		if (change2) {
@@ -125,12 +127,82 @@ void loop() {
 			change2 = false;
 			myServo1.write(0);
 		}
-		Moter.off();
+		sleep();
 		UI();
 	}
 }
 
 /*--自作関数--*/
+void moter(uint8_t Force, int16_t Degree) { //一応解読したがいじれるほどはわからん。とりあえず同じ形ならそのままいこう
+
+	int16_t m1, m2;
+	old_M_D = old_M_D*Old_Persent + Degree*(1 - Old_Persent);
+	old_M_F = old_M_F*Old_Persent + Force*(1 - Old_Persent);
+
+	int16_t m1_D = old_M_D - 45;
+	if (m1_D < 0) m1_D = m1_D + 360;
+	else if (m1_D > 359) m1_D = m1_D - 360;
+
+	m1 = sin((float)m1_D * 0.01745329) * old_M_F; // sin でもcosじゃないと理解不能
+
+	int16_t m2_D = old_M_D - 315;
+	if (m2_D < 0) m2_D = m2_D + 360;
+	else if (m2_D > 359) m2_D = m2_D - 360;
+
+	m2 = sin((float)m2_D * 0.01745329) * old_M_F;
+
+	int16_t F_max = abs(m1);
+	if (F_max < abs(m2)) F_max = abs(m2);
+
+	float k = (float)old_M_F / F_max;//各モーターの比を保ちながら最大値を225に
+	m1 = m1 * k;
+	m2 = m2 * k;
+
+	int16_t m3 = -m1;//反対に位置しているから反転
+	int16_t m4 = -m2;
+
+	GyroGet();//ジャイロのデータを取得
+	Input = Gyro; //ジャイロのデータをInput関数に突っ込む
+	myPID.Compute(); //pid計算
+
+	m1 = m1 - Output;//pidのデータをモーターに突っ込む
+	m2 = m2 - Output;
+	m3 = m3 - Output;
+	m4 = m4 - Output;
+	m1 = constrain(m1, -255, 255);
+	m2 = constrain(m2, -255, 255);
+	m3 = constrain(m3, -255, 255);
+	m4 = constrain(m4, -255, 255);
+
+	/*lcd.print(m1);
+	lcd.print(",");
+	lcd.print(m2);
+	lcd.setCursor(0, 1);
+	lcd.print(m3);
+	lcd.print(",");
+	lcd.print(m4);
+	lcd.print(",");*/
+
+	uint8_t buf[5];//送信
+	bitSet(buf[4], 4); //モータの電源on
+	if (m1 < 0) bitSet(buf[4], 0);
+	else bitClear(buf[4], 0);
+	buf[0] = abs(m1);
+	if ( m2< 0) bitSet(buf[4], 1);//モーターの配線を間違えた
+	else bitClear(buf[4], 1);
+	buf[1] = abs(m2);
+	if (m3 < 0) bitSet(buf[4], 2);
+	else bitClear(buf[4], 2);
+	buf[2] = abs(m3);
+	if (m4 < 0) bitSet(buf[4], 3);
+	else bitClear(buf[4], 3);
+	buf[3] = abs(m4);
+
+	Wire.beginTransmission(10);
+	Wire.write(buf, 5);
+	Wire.endTransmission();
+}
+
 void GyroGet() {
 	static uint16_t fifoCount;
 	static uint8_t fifoBuffer[64]; // FIFO storage buffer
@@ -156,6 +228,19 @@ void GyroGet() {
 		if (Gyro < 0) Gyro += 360;
 		if (Gyro > 359) Gyro -= 360;
 	}
+}
+
+void sleep() {
+	uint8_t buf[5];//モータに送信
+	buf[0] = 0;
+	buf[1] = 0;
+	buf[2] = 0;
+	buf[3] = 0;
+	bitClear(buf[4], 4); //モーター電源off
+
+	Wire.beginTransmission(10);
+	Wire.write(buf, 5);
+	Wire.endTransmission();
 }
 
 void IR_Get() {
@@ -245,7 +330,7 @@ void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F Degree
 		Dri_P = 0;
 	}
 	myServo1.write(Dri_P);
-	Moter.nomal(For, Deg);
+	moter(For, Deg);
 }
 
 void Melody(uint8_t mode) {
@@ -281,21 +366,22 @@ void LINE_Get() {
 	}
 
 	LINE_Status = buf;
+	Serial.println(LINE_Status,BIN);
 
 	if (bitRead(LINE_Status, 4) == 1) {
 		digitalWrite(LED_L, HIGH);
 		if (bitRead(LINE_Status, 0) == 1) {//右
 			if (bitRead(LINE_Status, 1) == 1) {//右かつ後ろ
-				Moter.nomal(255, 135);
+				moter(255, 135);
 			}
 			else if (bitRead(LINE_Status, 2) == 1) {//右かつ左
 				return;
 			}
 			else if (bitRead(LINE_Status, 3) == 1) { //右かつ前
-				Moter.nomal(255, 215);
+				moter(255, 215);
 			}
 			else {//右のみ
-				Moter.nomal(255, 180);
+				moter(255, 180);
 			}
 		}
 		else if (bitRead(LINE_Status, 1) == 1) { //後ろ
@@ -303,22 +389,22 @@ void LINE_Get() {
 				return;
 			}
 			else if (bitRead(LINE_Status, 2) == 1) { //後ろかつ左
-				Moter.nomal(255, 45);
+				moter(255, 45);
 			}
 			else {//後ろのみ
-				Moter.nomal(255, 90);
+				moter(255, 90);
 			}
 		}
 		else if (bitRead(LINE_Status, 2) == 1) {//左
 			if (bitRead(LINE_Status, 3) == 1) { //左かつ前
-				Moter.nomal(255, 315);
+				moter(255, 315);
 			}
 			else { //左のみ
-				Moter.nomal(255, 0);
+				moter(255, 0);
 			}
 		}
 		else if (bitRead(LINE_Status, 3) == 1) {//前のみ
-			Moter.nomal(255, 270);
+			moter(255, 270);
 		}
 	}
 	else {

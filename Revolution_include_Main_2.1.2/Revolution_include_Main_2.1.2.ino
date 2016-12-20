@@ -85,7 +85,7 @@ void setup() {
 
 	Servo_Start();
 	
-	LINE_Set(400);
+	LINE_Set(350);
 
 	while (digitalRead(M_sw) == LOW) {
 		Melody(1);
