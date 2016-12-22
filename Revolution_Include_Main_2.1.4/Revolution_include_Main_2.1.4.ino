@@ -26,13 +26,14 @@
 #define LED_R A1
 #define Check_Delay 100
 #define UI_Delay 200
-#define IR_offset 0
-#define  C_Reset 100
+#define IR_offset 5
+#define  C_Reset 30
+#define  C_Reset2 10
 
 #define LED(a) digitalWrite(a, HIGH)
 #define LEDoff(a) digitalWrite(a, LOW)
 #define Servo_idel Dri_P=85
-#define Servo_Dri Dri_P=120
+#define Servo_Dri Dri_P=180
 /*ここまで*/
 
 /*川野さんからコピペ関数宣言*/
@@ -70,6 +71,7 @@ void LINE_Get();
 void lcd_Start(char* ver);
 void UI();
 void LED_Check();
+
 /*ここまで*/
 
 /*--プログラム--*/
@@ -80,7 +82,7 @@ void setup() {
 
 	PID_Start();
 
-	lcd_Start("2.1.3 Motion");//lcd初期化関数
+	lcd_Start("2.1.4 MAKAO");//lcd初期化関数
 
 	Gryo_Start();
 
@@ -250,7 +252,7 @@ void IR_Get() {
 		IR_F = (Wire.read() << 8) | Wire.read(); // Force Read
 		IR_D = (Wire.read() << 8) | Wire.read(); // Degree Read
 	}
-	IR_D= IR_D-IR_offset;
+	IR_D= IR_D+IR_offset;
 	if (IR_D < 0) {
 		IR_D = IR_D + 360;
 	}
@@ -265,7 +267,7 @@ void IR_Get() {
 void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F Degree=IR_D
 	int16_t M_Degree = 0, Dri_P;
 	uint8_t	M_Force = 255;
-	static uint8_t count = C_Reset;
+	static uint8_t count = C_Reset,count2=C_Reset2;
 	bool Ball1 = analogRead(A6) > 950;
 
 	if (Force != 0) {  // Ball Found                                           //ここから挙動制御
@@ -417,12 +419,12 @@ void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F Degree
 			M_Force = 150;
 			Servo_idel;
 		}
-		else if ((250 <= Degree) && (Degree < 260)) {//b
+		else if ((250 <= Degree) && (Degree < 265)) {//b
 			M_Degree = Degree - 5;
 			M_Force = 150;
 			Servo_Dri;
 		}
-		else if ((260 <= Degree) && (Degree < 270)) {//a
+		else if ((265 <= Degree) && (Degree < 270)) {//a
 			M_Degree = 270;
 			M_Force = 100;
 			Servo_Dri;
@@ -433,8 +435,13 @@ void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F Degree
 
 		if (Ball1) {
 			count--;
+			count2 = C_Reset2;
 		}else {
-			count = C_Reset;
+			count2--;
+			if (count2 == 0) {
+				count = C_Reset;
+				count2 = C_Reset2;
+			}
 		}
 	}else {
 		M_Degree = 90;
@@ -446,6 +453,7 @@ void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F Degree
 	if (count <= 0) {
 		Spin();
 		count = C_Reset;
+		count2 = C_Reset2;
 	}
 	else {
 		moter(M_Force, M_Degree);
@@ -455,9 +463,8 @@ void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F Degree
 }
 
 void Spin() {
-	myServo1.write(180);
 	uint8_t m1, m2, m3, m4;
-	m1 = 255;
+	m1 = 100;
 	m2 = m1;
 	m3 = m2;
 	m4 = m3;
@@ -480,10 +487,32 @@ void Spin() {
 	Wire.beginTransmission(10);
 	Wire.write(buf, 5);
 	Wire.endTransmission();
-	
-	delay(500);
-	myServo1.write(0);
-	myServo2.write(0);
+
+	delay(200);
+
+	m1 = 255;
+	m2 = m1;
+	m3 = m2;
+	m4 = m3;
+
+	bitSet(buf[4], 4); //モータの電源on
+	if (m1 < 0) bitSet(buf[4], 0);
+	else bitClear(buf[4], 0);
+	buf[0] = abs(m1);
+	if (m2< 0) bitSet(buf[4], 1);//モーターの配線を間違えた
+	else bitClear(buf[4], 1);
+	buf[1] = abs(m2);
+	if (m3 < 0) bitSet(buf[4], 2);
+	else bitClear(buf[4], 2);
+	buf[2] = abs(m3);
+	if (m4 < 0) bitSet(buf[4], 3);
+	else bitClear(buf[4], 3);
+	buf[3] = abs(m4);
+
+	Wire.beginTransmission(10);
+	Wire.write(buf, 5);
+	Wire.endTransmission();
+	delay(250);
 }
 
 void Melody(uint8_t mode) {
@@ -757,12 +786,14 @@ void UI() {
 		break;
 	case 10:
 		lcd.home();
-		lcd.print("LINE_Val:");
-		lcd.print(LINE_NOW);
+		lcd.print("cout2:          ");
+		lcd.setCursor(6, 0);
+		lcd.print(C_Reset2);
 		lcd.setCursor(0, 1);
 		lcd.print("L:up D:next R:down");
 		if (L) {
 			LINE_Set(LINE_NOW + 10);
+		delay(UI_Delay);
 		}
 		else if (D) {
 			UI_status = 2;
@@ -770,6 +801,7 @@ void UI() {
 			delay(UI_Delay);
 		}else if (R) {
 			LINE_Set(LINE_NOW - 10);
+			delay(UI_Delay);
 		}
 
 	default:

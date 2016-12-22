@@ -11,6 +11,7 @@ void setup() {
   i2c_faster();
   Wire.onRequest(requestEvent);
   Wire.onReceive(receiveEvent);
+
   pinMode(mcp1SS, OUTPUT);		//CS(10)
   pinMode(mcp2SS, OUTPUT);		//CS(9)
   digitalWrite(mcp1SS, HIGH);
@@ -28,10 +29,15 @@ void loop() {
 	LINE_status = 0;
 	for (uint8_t i = 0; i < 8; i++) {
 		LINE[i] = mcp1Get(i);
+	//	Serial.print(LINE[i]);
+	//	Serial.print(",");
 	}
 	for (uint8_t i = 8; i<16; i++) {
 		LINE[i] = mcp2Get(i-8);
+	//	Serial.print(LINE[i]);
+	//	Serial.print(",");
 		}
+	Serial.println("");
 
 	for (uint8_t i = 0; i < 16; i++) {
 		switch (i)
