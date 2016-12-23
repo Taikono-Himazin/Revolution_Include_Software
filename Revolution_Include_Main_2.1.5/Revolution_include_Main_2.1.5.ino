@@ -17,7 +17,7 @@
 #define M_sw 0
 #define SPEAKER 13
 #define BEEP 100
-#define Old_Persent 0
+#define Old_Persent 0  //MOterの過去の値の割合
 #define L_sw 4 
 #define D_sw 7
 #define R_sw 10
@@ -54,9 +54,9 @@ LiquidCrystal_I2C lcd(0x3f, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);  // Set the LCD I
 /*ここまで*/
 
 /*変数宣言*/
-int16_t  Gyro_Now = 0, Gyro = 0, Gyro_Offset = 0, old_M_D = 0;
-uint8_t LINE_Status = 0, UI_status = 0,LINE_count = 0;
-uint16_t IR_F = 0, IR_D = 0, old_M_F = 0, LINE_NOW;
+int16_t  Gyro_Now = 0, Gyro = 0, Gyro_Offset = 0, old_Moter_D = 0,LINE_count = 0;
+uint8_t LINE_Status = 0, UI_status = 0;
+uint16_t IR_F = 0, IR_D = 0, old_Moter_F = 0, LINE_NOW;
 
 boolean change1 = true, change2 = false;
 /*ここまで*/
@@ -77,7 +77,7 @@ void LED_Check();
 
 /*--プログラム--*/
 void setup() {
- //Serial.begin(115200);
+	//Serial.begin(115200);
 	Wire.begin();
 	i2c_faster();
 
@@ -88,7 +88,7 @@ void setup() {
 	Gryo_Start();
 
 	Servo_Start();
-	
+
 	LINE_Set(350);
 
 	while (digitalRead(M_sw) == LOW) {
@@ -119,11 +119,11 @@ void loop() {
 			LEDoff(LED_M);
 			LEDoff(LED_L);
 		}
-		IR_Get();
 		LINE_Get();
-		if (LINE_count==0) {
+		if (LINE_count <= 0) {
+			IR_Get();
 			Motion_System(IR_F, IR_D);
-		}
+	}
 		else {
 			LINE_count--;
 		}
@@ -134,6 +134,7 @@ void loop() {
 			change1 = true;
 			change2 = false;
 			myServo1.write(0);
+			myServo2.write(0);
 		}
 		sleep();
 		UI();
@@ -144,25 +145,25 @@ void loop() {
 void moter(uint8_t Force, int16_t Degree) { //一応解読したがいじれるほどはわからん。とりあえず同じ形ならそのままいこう
 
 	int16_t m1, m2;
-	old_M_D = old_M_D*Old_Persent + Degree*(1 - Old_Persent);
-	old_M_F = old_M_F*Old_Persent + Force*(1 - Old_Persent);
+	old_Moter_D = old_Moter_D*Old_Persent + Degree*(1 - Old_Persent);
+	old_Moter_F = old_Moter_F*Old_Persent + Force*(1 - Old_Persent);
 
-	int16_t m1_D = old_M_D - 45;
+	int16_t m1_D = old_Moter_D - 45;
 	if (m1_D < 0) m1_D = m1_D + 360;
 	else if (m1_D > 359) m1_D = m1_D - 360;
 
-	m1 = sin((float)m1_D * 0.01745329) * old_M_F; // sin でもcosじゃないと理解不能
+	m1 = sin((float)m1_D * 0.01745329) * old_Moter_F; // sin でもcosじゃないと理解不能
 
-	int16_t m2_D = old_M_D - 315;
+	int16_t m2_D = old_Moter_D - 315;
 	if (m2_D < 0) m2_D = m2_D + 360;
 	else if (m2_D > 359) m2_D = m2_D - 360;
 
-	m2 = sin((float)m2_D * 0.01745329) * old_M_F;
+	m2 = sin((float)m2_D * 0.01745329) * old_Moter_F;
 
 	int16_t F_max = abs(m1);
 	if (F_max < abs(m2)) F_max = abs(m2);
 
-	float k = (float)old_M_F / F_max;//各モーターの比を保ちながら最大値を225に
+	float k = (float)old_Moter_F / F_max;//各モーターの比を保ちながら最大値を225に
 	m1 = m1 * k;
 	m2 = m2 * k;
 
@@ -196,7 +197,7 @@ void moter(uint8_t Force, int16_t Degree) { //一応解読したがいじれるほどはわから
 	if (m1 < 0) bitSet(buf[4], 0);
 	else bitClear(buf[4], 0);
 	buf[0] = abs(m1);
-	if ( m2< 0) bitSet(buf[4], 1);//モーターの配線を間違えた
+	if (m2 < 0) bitSet(buf[4], 1);//モーターの配線を間違えた
 	else bitClear(buf[4], 1);
 	buf[1] = abs(m2);
 	if (m3 < 0) bitSet(buf[4], 2);
@@ -257,7 +258,7 @@ void IR_Get() {
 		IR_F = (Wire.read() << 8) | Wire.read(); // Force Read
 		IR_D = (Wire.read() << 8) | Wire.read(); // Degree Read
 	}
-	IR_D= IR_D+IR_offset;
+	IR_D = IR_D + IR_offset;
 	if (IR_D < 0) {
 		IR_D = IR_D + 360;
 	}
@@ -270,9 +271,9 @@ void IR_Get() {
 }
 
 void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F Degree=IR_D
-	int16_t M_Degree = 0, Dri1_Power,Dri2_Power;
+	int16_t M_Degree = 0, Dri1_Power, Dri2_Power;
 	uint8_t	M_Force = 255;
-	static uint8_t count = C_Reset,count2=C_Reset2;
+	static uint8_t count = C_Reset, count2 = C_Reset2;
 	bool Ball1 = analogRead(A6) > 950;
 	bool Ball2 = analogRead(A7) > 950;
 	/*Servo1_Dri=前 Servo2_Dri=後ろ*/
@@ -442,7 +443,8 @@ void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F Degree
 		if (Ball1) {
 			count--;
 			count2 = C_Reset2;
-		}else {
+		}
+		else {
 			count2--;
 			if (count2 == 0) {
 				count = C_Reset;
@@ -483,7 +485,7 @@ void Spin() {
 	if (m1 < 0) bitSet(buf[4], 0);
 	else bitClear(buf[4], 0);
 	buf[0] = abs(m1);
-	if (m2< 0) bitSet(buf[4], 1);//モーターの配線を間違えた
+	if (m2 < 0) bitSet(buf[4], 1);//モーターの配線を間違えた
 	else bitClear(buf[4], 1);
 	buf[1] = abs(m2);
 	if (m3 < 0) bitSet(buf[4], 2);
@@ -508,7 +510,7 @@ void Spin() {
 	if (m1 < 0) bitSet(buf[4], 0);
 	else bitClear(buf[4], 0);
 	buf[0] = abs(m1);
-	if (m2< 0) bitSet(buf[4], 1);//モーターの配線を間違えた
+	if (m2 < 0) bitSet(buf[4], 1);//モーターの配線を間違えた
 	else bitClear(buf[4], 1);
 	buf[1] = abs(m2);
 	if (m3 < 0) bitSet(buf[4], 2);
@@ -557,12 +559,11 @@ void LINE_Get() {
 	}
 
 	LINE_Status = buf;
-//	Serial.println(LINE_Status,BIN);
+	//	Serial.println(LINE_Status,BIN);
 
 	if (bitRead(LINE_Status, 4) == 1) {
 		LINE_count = 100;
 		digitalWrite(LED_L, HIGH);
-		LINE_count = true;
 		if (bitRead(LINE_Status, 0) == 1) {//右
 			if (bitRead(LINE_Status, 1) == 1) {//右かつ後ろ
 				moter(255, 135);
@@ -616,12 +617,12 @@ void UI() {
 	switch (UI_status)
 	{
 	case 0:
-			lcd.home();
-			lcd.print("Revolution    ");
-			lcd.setCursor(0, 1);
-			lcd.print("         Include");
+		lcd.home();
+		lcd.print("Revolution    ");
+		lcd.setCursor(0, 1);
+		lcd.print("         Include");
 		if (L || D || R) {
-			UI_status = 2;
+			UI_status = 10;
 			lcd.clear();
 			delay(UI_Delay);
 		}
@@ -733,7 +734,7 @@ void UI() {
 			delay(UI_Delay);
 		}
 		else if (R) {
-			UI_status = 0;
+			UI_status = 8;
 			lcd.clear();
 			delay(UI_Delay);
 		}
@@ -809,17 +810,18 @@ void UI() {
 		lcd.print("L:up D:down R:next");
 		if (L) {
 			LINE_Set(LINE_NOW + 10);
-		delay(UI_Delay);
+			delay(UI_Delay);
 		}
 		else if (R) {
 			UI_status = 2;
 			lcd.clear();
 			delay(UI_Delay);
-		}else if (D) {
+		}
+		else if (D) {
 			LINE_Set(LINE_NOW - 10);
 			delay(UI_Delay);
 		}
-
+		break;
 	default:
 		lcd.clear();
 		lcd.print("ERRER AUTO REPAIR");

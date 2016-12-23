@@ -2,8 +2,8 @@
 #include <Utility.h>
 #include <Wire.h>
 
-#define mcp1SS 10
-#define mcp2SS 9
+#define mcp1SS 9
+#define mcp2SS 10
 
 void setup() {
   Serial.begin(9600);
