@@ -5,6 +5,7 @@
 
 
 /*Include*/
+#include <EEPROM.h>
 #include <Servo.h>
 #include <Utility.h>
 #include <Wire.h>
@@ -57,8 +58,7 @@ LiquidCrystal_I2C lcd(0x3f, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);  // Set the LCD I
 int16_t  Gyro_Now = 0, Gyro = 0, Gyro_Offset = 0, old_Moter_D = 0,LINE_count = 0;
 uint8_t LINE_Status = 0, UI_status = 0;
 uint16_t IR_F = 0, IR_D = 0, old_Moter_F = 0, LINE_NOW;
-
-boolean change1 = true, change2 = false;
+boolean change1 = true, change2 = false, LINE_F = false, LINE_R = false, LINE_B = false, LINE_L = false;
 /*ここまで*/
 
 //プロトタイプ宣言(不必要のため途中からコメントアウト　エラー起こしたらしてみて
@@ -83,13 +83,13 @@ void setup() {
 
 	PID_Start();
 
-	lcd_Start("2.1.6 Test");//lcd初期化関数
+	lcd_Start("2.1.7 LINE");//lcd初期化関数
 
 	Gryo_Start();
 
 	Servo_Start();
-
-	LINE_Set(150);
+	uint16_t val = (EEPROM.read(1) << 8) | EEPROM.read(2); // LINE閾値読み込み
+	LINE_Set(val);
 
 	while (digitalRead(M_sw) == LOW) {
 		Melody(1);
@@ -461,6 +461,49 @@ void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F Degree
 		Dri2_Power = 0;
 	}
 
+	double rad = M_Degree*3.141592653589793 / 180.0;//角度のラジアン
+	if (LINE_B&&M_Degree >= 180) {//後ろのライン処理
+		M_Force =abs( M_Force*cos(rad));
+		if (M_Degree >= 180 && M_Degree <= 270) {
+			M_Degree = 180;
+		}
+		else {
+			M_Degree = 0;
+		}
+	}
+
+		if (LINE_F && (M_Degree >= 0 && M_Degree < 180)) {//前のライン処理
+			M_Force = abs(M_Force*cos(rad));
+			if (M_Degree >= 0 && M_Degree <= 90) {
+				M_Degree = 0;
+			}
+			else {
+				M_Degree = 180;
+			}
+		}
+
+		if (LINE_L && (M_Degree >= 90 && M_Degree < 270)) {//左のライン処理
+			M_Force = abs(M_Force*sin(rad));
+			if (M_Degree >= 90 && M_Degree >= 180) {
+				M_Degree = 90;
+			}
+			else {
+				M_Degree = 270;
+			}
+		}
+		
+		if (LINE_R && (M_Degree <90  && M_Degree >= 270)) {//左のライン処理
+			M_Force =abs( M_Force*sin(rad));
+			if (M_Degree >=270) {
+				M_Degree = 270;
+			}
+			else {
+				M_Degree = 90;
+			}
+		}
+
+
+
 
 	if (count <= 0) {
 		Spin(true);
@@ -568,15 +611,15 @@ void LINE_Get() {
 	while (Wire.available()) {
 		buf = Wire.read();
 	}
-
+	LINE_F = false, LINE_R = false, LINE_B = false, LINE_L = false;
 	LINE_Status = buf;
 	//	Serial.println(LINE_Status,BIN);
-
 	if (bitRead(LINE_Status, 4) == 1) {
 		LINE_count = 100;
 		digitalWrite(LED_L, HIGH);
 		if (bitRead(LINE_Status, 0) == 1) {//右
-			if (bitRead(LINE_Status, 1) == 1) {//右かつ後ろ
+			LINE_R = true;
+/*			if (bitRead(LINE_Status, 1) == 1) {//右かつ後ろ
 				moter(255, 135,false);
 			}
 			else if (bitRead(LINE_Status, 2) == 1) {//右かつ左
@@ -588,10 +631,11 @@ void LINE_Get() {
 			}
 			else {//右のみ
 				moter(255, 180,false);
-			}
+			}*/
 		}
-		else if (bitRead(LINE_Status, 1) == 1) { //後ろ
-			if (bitRead(LINE_Status, 3) == 1) { //後ろかつ前
+		if (bitRead(LINE_Status, 1) == 1) { //後ろ
+			LINE_B = true;
+		/*	if (bitRead(LINE_Status, 3) == 1) { //後ろかつ前
 				LINE_count = 0;
 				return;
 			}
@@ -600,18 +644,20 @@ void LINE_Get() {
 			}
 			else {//後ろのみ
 				moter(255, 90,false);
-			}
+			}*/
 		}
-		else if (bitRead(LINE_Status, 2) == 1) {//左
-			if (bitRead(LINE_Status, 3) == 1) { //左かつ前
+		if (bitRead(LINE_Status, 2) == 1) {//左
+			LINE_L = true;
+		/*	if (bitRead(LINE_Status, 3) == 1) { //左かつ前
 				moter(255, 315,false);
 			}
 			else { //左のみ
 				moter(255, 0,false);
-			}
+			}*/
 		}
-		else if (bitRead(LINE_Status, 3) == 1) {//前のみ
-			moter(255, 270,false);
+		if (bitRead(LINE_Status, 3) == 1) {//前のみ
+			LINE_F = true;
+	/*	moter(255, 270,false);*/
 		}
 	}
 	else {
@@ -922,4 +968,6 @@ void LINE_Set(uint16_t val) {
 	Wire.beginTransmission(11);
 	Wire.write(buf, 2);
 	Wire.endTransmission();
+	EEPROM.write(1, buf[0]);
+	EEPROM.write(2, buf[1]);
 }

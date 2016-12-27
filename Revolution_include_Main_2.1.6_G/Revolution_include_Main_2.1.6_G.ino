@@ -631,8 +631,6 @@ void UI() {
 			delay(UI_Delay);
 		}
 		break;
-
-
 		/*
 		case 1:
 		lcd.home();
@@ -667,7 +665,7 @@ void UI() {
 			delay(UI_Delay);
 		}
 		else if (R) {
-			UI_status = 5;
+			UI_status = 7;
 			lcd.clear();
 			delay(UI_Delay);
 		}
@@ -713,7 +711,7 @@ void UI() {
 			delay(UI_Delay);
 		}
 		break;
-	case 5:
+	/*case 5:
 		lcd.home();
 		lcd.print("LED test");
 		lcd.setCursor(0, 1);
@@ -742,7 +740,7 @@ void UI() {
 			lcd.clear();
 			delay(UI_Delay);
 		}
-		break;
+		break;*/
 	case 7:
 		GyroGet();
 		IR_Get();
@@ -754,13 +752,13 @@ void UI() {
 		lcd.print("Gyro ");
 		lcd.print(Gyro);
 		if (L || D || R) {
-			UI_status = 6;
+			UI_status = 9;
 			lcd.clear();
 			delay(UI_Delay);
 		}
 		delay(10);
 		break;
-	case 8:
+/*	case 8:
 		lcd.home();
 		lcd.print("Gyro Set");
 		lcd.setCursor(0, 1);
@@ -775,7 +773,7 @@ void UI() {
 			lcd.clear();
 			delay(UI_Delay);
 		}
-		break;
+		break;*/
 	case 9:
 		lcd.home();
 		lcd.print("Gyro            ");
@@ -783,7 +781,7 @@ void UI() {
 		lcd.setCursor(6, 0);
 		lcd.print(Gyro_Now);
 		lcd.setCursor(0, 1);
-		lcd.print("L:Re D:set R:exit");
+		lcd.print("L:Re D:set R:next");
 		delay(100);
 		if (D) {
 			Gyro_Offset = 180 - Gyro_Now;
@@ -800,7 +798,7 @@ void UI() {
 			Gryo_Start();
 		}
 		else if (R) {
-			UI_status = 8;
+			UI_status = 10;
 			lcd.clear();
 			delay(UI_Delay);
 		}
