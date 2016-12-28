@@ -62,17 +62,23 @@ boolean change1 = true, change2 = false, LINE_F = false, LINE_R = false, LINE_B 
 /*ここまで*/
 
 //プロトタイプ宣言(不必要のため途中からコメントアウト　エラー起こしたらしてみて
-/*void moter(uint8_t Force, uint16_t Degree);
-void sleep();
-void IR_Get();
-void GyroGet();
-void Motion_System(uint8_t Force, uint16_t Degree);
-void Melody(uint8_t mode);
-void LINE_Get();
-void lcd_Start(char* ver);
-void UI();
-void LED_Check();
-
+void setup();
+extern void loop();
+extern void moter(uint8_t Force, int16_t Degree, bool PID = true);
+extern void GyroGet();
+extern void sleep();
+extern void IR_Get();
+extern void Motion_System(uint8_t Force, int16_t Degree);
+extern void Spin(boolean D);
+extern void Melody(uint8_t mode);
+extern void LINE_Get();
+extern void UI();
+extern void lcd_Start(char* ver);
+extern void LED_Check();
+extern void Servo_Start();
+extern void Gryo_Start();
+extern void PID_Start();
+extern void LINE_Set(uint16_t val);
 /*ここまで*/
 
 /*--プログラム--*/

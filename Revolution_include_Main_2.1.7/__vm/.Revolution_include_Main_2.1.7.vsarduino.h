@@ -12,7 +12,7 @@
 #define _VSARDUINO_H_
 #define __AVR_ATmega168__
 #define F_CPU 16000000L
-#define ARDUINO 106013
+#define ARDUINO 10800
 #define ARDUINO_AVR_NANO
 #define ARDUINO_ARCH_AVR
 #define __cplusplus 201103L
