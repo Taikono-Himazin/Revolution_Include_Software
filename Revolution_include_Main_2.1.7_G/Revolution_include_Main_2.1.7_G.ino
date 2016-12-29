@@ -55,7 +55,7 @@ LiquidCrystal_I2C lcd(0x3f, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);  // Set the LCD I
 																/*Ç±Ç±Ç‹Ç≈*/
 
 																/*ïœêîêÈåæ*/
-int16_t  Gyro_Now = 0, Gyro = 0, Gyro_Offset = 0, old_Moter_D = 0, LINE_count = 0;
+int16_t  Gyro_Now = 0, Gyro = 0, Gyro_Offset = 0, old_Moter_D = 0;
 uint8_t LINE_Status = 0, UI_status = 0;
 uint16_t IR_F = 0, IR_D = 0, old_Moter_F = 0, LINE_NOW;
 
@@ -128,13 +128,8 @@ void loop() {
 			LEDoff(LED_L);
 		}
 		LINE_Get();
-		if (LINE_count == 0) {
-			IR_Get();
-			Motion_System(IR_F, IR_D);
-		}
-		else {
-			LINE_count--;
-		}
+		IR_Get();
+		Motion_System(IR_F, IR_D);
 	}
 	else {
 		if (change2) {
@@ -143,7 +138,6 @@ void loop() {
 			change2 = false;
 			myServo1.write(0);
 			myServo2.write(0);
-			LINE_count = 0;
 		}
 		sleep();
 		UI();
@@ -492,7 +486,7 @@ void Motion_System(uint8_t Force, int16_t Degree) { //ãììÆêßå‰ Force=IR_F Degree
 		}
 	}
 
-	if (LINE_R && (M_Degree <90 && M_Degree >= 270)) {//ç∂ÇÃÉâÉCÉìèàóù
+	if (LINE_R && (M_Degree < 90 && M_Degree >= 270)) {//ç∂ÇÃÉâÉCÉìèàóù
 		M_Force = abs(M_Force*sin(rad));
 		if (M_Degree >= 270) {
 			M_Degree = 270;
@@ -613,7 +607,6 @@ void LINE_Get() {
 	LINE_Status = buf;
 	//	Serial.println(LINE_Status,BIN);
 	if (bitRead(LINE_Status, 4) == 1) {
-		LINE_count = 100;
 		digitalWrite(LED_L, HIGH);
 		if (bitRead(LINE_Status, 0) == 1) {//âE
 			LINE_R = true;
@@ -673,15 +666,15 @@ void UI() {
 	bool R = digitalRead(R_sw) == HIGH;
 	switch (UI_status)
 	{
-	case 0:
+		/*	case 0:
 		lcd.home();
 		lcd.print("Revolution    ");
 		lcd.setCursor(0, 1);
 		lcd.print("         Include");
 		if (L || D || R) {
-			UI_status = 10;
-			lcd.clear();
-			delay(UI_Delay);
+		UI_status = 10;
+		lcd.clear();
+		delay(UI_Delay);
 		}
 		break;
 		/*
@@ -843,7 +836,7 @@ void UI() {
 			lcd.setCursor(0, 1);
 			lcd.print("Set completed!");
 			delay(1000);
-			UI_status = 0;
+			UI_status = 10;
 			lcd.clear();
 			delay(UI_Delay);
 		}
@@ -858,12 +851,15 @@ void UI() {
 		break;
 	case 10:
 		lcd.home();
-		lcd.print("LINE_Val:");
-		lcd.setCursor(6, 0);
+		lcd.print("LINE_Val:       ");
+		lcd.setCursor(9, 0);
 		lcd.print(LINE_NOW);
 		lcd.setCursor(0, 1);
 		lcd.print("L:up D:down R:next");
-		if (L) {
+		if (L&&D) {
+			LINE_Set(150);
+		}
+		else if (L) {
 			LINE_Set(LINE_NOW + 10);
 			delay(UI_Delay);
 		}
@@ -881,13 +877,13 @@ void UI() {
 		lcd.clear();
 		lcd.print("ERRER AUTO REPAIR");
 		delay(1000);
-		UI_status = 0;
+		UI_status = 2;
 		break;
 	}
 
-}
+}/*èâä˙âªä÷êî*/
 
-/*èâä˙âªä÷êî*/
+ /*èâä˙âªä÷êî*/
 void lcd_Start(char* ver) {
 
 	lcd.begin(16, 2);   // initialize the lcd for 16 chars 2 lines, turn on backlight

@@ -55,7 +55,7 @@ LiquidCrystal_I2C lcd(0x3f, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);  // Set the LCD I
 /*ここまで*/
 
 /*変数宣言*/
-int16_t  Gyro_Now = 0, Gyro = 0, Gyro_Offset = 0, old_Moter_D = 0,LINE_count = 0;
+int16_t  Gyro_Now = 0, Gyro = 0, Gyro_Offset = 0, old_Moter_D = 0;
 uint8_t LINE_Status = 0, UI_status = 0;
 uint16_t IR_F = 0, IR_D = 0, old_Moter_F = 0, LINE_NOW;
 boolean change1 = true, change2 = false, LINE_F = false, LINE_R = false, LINE_B = false, LINE_L = false;
@@ -126,13 +126,8 @@ void loop() {
 			LEDoff(LED_L);
 		}
 		LINE_Get();
-		if (LINE_count == 0) {
 			IR_Get();
 			Motion_System(IR_F, IR_D);
-	}
-		else {
-			LINE_count--;
-		}
 	}
 	else {
 		if (change2) {
@@ -141,7 +136,6 @@ void loop() {
 			change2 = false;
 			myServo1.write(0);
 			myServo2.write(0);
-			LINE_count = 0;
 		}
 		sleep();
 		UI();
@@ -149,7 +143,7 @@ void loop() {
 }
 
 /*--自作関数--*/
-void moter(uint8_t Force, int16_t Degree,bool PID=true) { //一応解読したがいじれるほどはわからん。とりあえず同じ形ならそのままいこう
+void moter(uint8_t Force, int16_t Degree, bool PID = true) { //一応解読したがいじれるほどはわからん。とりあえず同じ形ならそのままいこう
 
 	int16_t m1, m2;
 	old_Moter_D = old_Moter_D*Old_Persent + Degree*(1 - Old_Persent);
@@ -448,7 +442,7 @@ void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F Degree
 			M_Degree = 360 + M_Degree;
 		}
 
-	if (Ball1) {
+		if (Ball1) {
 			count--;
 			count2 = C_Reset2;
 		}
@@ -469,7 +463,7 @@ void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F Degree
 
 	double rad = M_Degree*3.141592653589793 / 180.0;//角度のラジアン
 	if (LINE_B&&M_Degree >= 180) {//後ろのライン処理
-		M_Force =abs( M_Force*cos(rad));
+		M_Force = abs(M_Force*cos(rad));
 		if (M_Degree >= 180 && M_Degree <= 270) {
 			M_Degree = 180;
 		}
@@ -478,35 +472,35 @@ void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F Degree
 		}
 	}
 
-		if (LINE_F && (M_Degree >= 0 && M_Degree < 180)) {//前のライン処理
-			M_Force = abs(M_Force*cos(rad));
-			if (M_Degree >= 0 && M_Degree <= 90) {
-				M_Degree = 0;
-			}
-			else {
-				M_Degree = 180;
-			}
+	if (LINE_F && (M_Degree >= 0 && M_Degree < 180)) {//前のライン処理
+		M_Force = abs(M_Force*cos(rad));
+		if (M_Degree >= 0 && M_Degree <= 90) {
+			M_Degree = 0;
 		}
+		else {
+			M_Degree = 180;
+		}
+	}
 
-		if (LINE_L && (M_Degree >= 90 && M_Degree < 270)) {//左のライン処理
-			M_Force = abs(M_Force*sin(rad));
-			if (M_Degree >= 90 && M_Degree >= 180) {
-				M_Degree = 90;
-			}
-			else {
-				M_Degree = 270;
-			}
+	if (LINE_L && (M_Degree >= 90 && M_Degree < 270)) {//左のライン処理
+		M_Force = abs(M_Force*sin(rad));
+		if (M_Degree >= 90 && M_Degree >= 180) {
+			M_Degree = 90;
 		}
-		
-		if (LINE_R && (M_Degree <90  && M_Degree >= 270)) {//左のライン処理
-			M_Force =abs( M_Force*sin(rad));
-			if (M_Degree >=270) {
-				M_Degree = 270;
-			}
-			else {
-				M_Degree = 90;
-			}
+		else {
+			M_Degree = 270;
 		}
+	}
+
+	if (LINE_R && (M_Degree < 90 && M_Degree >= 270)) {//左のライン処理
+		M_Force = abs(M_Force*sin(rad));
+		if (M_Degree >= 270) {
+			M_Degree = 270;
+		}
+		else {
+			M_Degree = 90;
+		}
+	}
 
 
 
@@ -528,7 +522,7 @@ void Spin(boolean D) {
 	uint8_t m1, m2, m3, m4;
 	int8_t i[2];
 	if (D) {
-		i[0] = 100	;
+		i[0] = 100;
 		i[1] = 255;
 	}
 	else {
@@ -621,49 +615,48 @@ void LINE_Get() {
 	LINE_Status = buf;
 	//	Serial.println(LINE_Status,BIN);
 	if (bitRead(LINE_Status, 4) == 1) {
-		LINE_count = 100;
 		digitalWrite(LED_L, HIGH);
 		if (bitRead(LINE_Status, 0) == 1) {//右
 			LINE_R = true;
-/*			if (bitRead(LINE_Status, 1) == 1) {//右かつ後ろ
-				moter(255, 135,false);
-			}
-			else if (bitRead(LINE_Status, 2) == 1) {//右かつ左
-				LINE_count = 0;
-				return;
-			}
-			else if (bitRead(LINE_Status, 3) == 1) { //右かつ前
-				moter(255, 215,false);
-			}
-			else {//右のみ
-				moter(255, 180,false);
-			}*/
+			/*			if (bitRead(LINE_Status, 1) == 1) {//右かつ後ろ
+							moter(255, 135,false);
+						}
+						else if (bitRead(LINE_Status, 2) == 1) {//右かつ左
+							LINE_count = 0;
+							return;
+						}
+						else if (bitRead(LINE_Status, 3) == 1) { //右かつ前
+							moter(255, 215,false);
+						}
+						else {//右のみ
+							moter(255, 180,false);
+						}*/
 		}
 		if (bitRead(LINE_Status, 1) == 1) { //後ろ
 			LINE_B = true;
-		/*	if (bitRead(LINE_Status, 3) == 1) { //後ろかつ前
-				LINE_count = 0;
-				return;
-			}
-			else if (bitRead(LINE_Status, 2) == 1) { //後ろかつ左
-				moter(255, 45,false);
-			}
-			else {//後ろのみ
-				moter(255, 90,false);
-			}*/
+			/*	if (bitRead(LINE_Status, 3) == 1) { //後ろかつ前
+					LINE_count = 0;
+					return;
+				}
+				else if (bitRead(LINE_Status, 2) == 1) { //後ろかつ左
+					moter(255, 45,false);
+				}
+				else {//後ろのみ
+					moter(255, 90,false);
+				}*/
 		}
 		if (bitRead(LINE_Status, 2) == 1) {//左
 			LINE_L = true;
-		/*	if (bitRead(LINE_Status, 3) == 1) { //左かつ前
-				moter(255, 315,false);
-			}
-			else { //左のみ
-				moter(255, 0,false);
-			}*/
+			/*	if (bitRead(LINE_Status, 3) == 1) { //左かつ前
+					moter(255, 315,false);
+				}
+				else { //左のみ
+					moter(255, 0,false);
+				}*/
 		}
 		if (bitRead(LINE_Status, 3) == 1) {//前のみ
 			LINE_F = true;
-	/*	moter(255, 270,false);*/
+			/*	moter(255, 270,false);*/
 		}
 	}
 	else {
@@ -681,35 +674,35 @@ void UI() {
 	bool R = digitalRead(R_sw) == HIGH;
 	switch (UI_status)
 	{
-	case 0:
-		lcd.home();
-		lcd.print("Revolution    ");
-		lcd.setCursor(0, 1);
-		lcd.print("         Include");
-		if (L || D || R) {
-			UI_status = 10;
-			lcd.clear();
-			delay(UI_Delay);
-		}
-		break;
-		/*
-		case 1:
-		lcd.home();
-		lcd.print("Main Menu");
-		lcd.setCursor(0, 1);
-		lcd.print("L:exit D: R:set");
-		if (R) {
-		UI_status = 8;
-		lcd.clear();
-		delay(UI_Delay);
-		}
-		else if (L) {
-		UI_status = 0;
-		lcd.clear();
-		delay(UI_Delay);
-		}
-		break;
-		*/
+		/*	case 0:
+				lcd.home();
+				lcd.print("Revolution    ");
+				lcd.setCursor(0, 1);
+				lcd.print("         Include");
+				if (L || D || R) {
+					UI_status = 10;
+					lcd.clear();
+					delay(UI_Delay);
+				}
+				break;
+				/*
+				case 1:
+				lcd.home();
+				lcd.print("Main Menu");
+				lcd.setCursor(0, 1);
+				lcd.print("L:exit D: R:set");
+				if (R) {
+				UI_status = 8;
+				lcd.clear();
+				delay(UI_Delay);
+				}
+				else if (L) {
+				UI_status = 0;
+				lcd.clear();
+				delay(UI_Delay);
+				}
+				break;
+				*/
 	case 2:
 		lcd.home();
 		lcd.print("Dribler test");
@@ -851,7 +844,7 @@ void UI() {
 			lcd.setCursor(0, 1);
 			lcd.print("Set completed!");
 			delay(1000);
-			UI_status = 0;
+			UI_status = 10;
 			lcd.clear();
 			delay(UI_Delay);
 		}
@@ -866,12 +859,15 @@ void UI() {
 		break;
 	case 10:
 		lcd.home();
-		lcd.print("LINE_Val:");
-		lcd.setCursor(6, 0);
+		lcd.print("LINE_Val:       ");
+		lcd.setCursor(9, 0);
 		lcd.print(LINE_NOW);
 		lcd.setCursor(0, 1);
 		lcd.print("L:up D:down R:next");
-		if (L) {
+		if (L&&D) {
+			LINE_Set(140);
+		}
+		else if (L) {
 			LINE_Set(LINE_NOW + 10);
 			delay(UI_Delay);
 		}
@@ -889,7 +885,7 @@ void UI() {
 		lcd.clear();
 		lcd.print("ERRER AUTO REPAIR");
 		delay(1000);
-		UI_status = 0;
+		UI_status = 2;
 		break;
 	}
 
