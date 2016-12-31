@@ -22,7 +22,7 @@ void setup() {
   SPI.begin();
 }
 uint8_t LINE_status = 0,Old_LINE = 0;
-int16_t LINE[16], LINE_val = 400 ;
+int16_t LINE[16], LINE_val = 300;
 bool i2c_flag = false;
 
 void loop() {
@@ -42,37 +42,37 @@ void loop() {
 	for (uint8_t i = 0; i < 16; i++) {
 		switch (i)
 		{
-		//case 0://‘O
-		case 1:
-		case 2:
-		case 3:
-			if (LINE[i] > LINE_val) {
+		case 12://‘O
+		case 13:
+		case 14:
+		case 15:
+			if (LINE[i] < LINE_val) {
 				bitSet(LINE_status, 3);
 			}
 			break;
 		case 4://¶
 		case 5:
-		//case 6:
-		//case 7:
-			if (LINE[i] > LINE_val) {
+		case 6:
+		case 7:
+			if (LINE[i] < LINE_val) {
 				bitSet(LINE_status, 2);
 			}
 			break;
 
-		case 15://Œã‚ë
-		case 14:
-		case 13:
-		case 12:
-			if (LINE[i] > LINE_val) {
+		case 0://Œã‚ë
+		case 1:
+		case 2:
+		case 3:
+			if (LINE[i] < LINE_val) {
 				bitSet(LINE_status, 1);
 			}
 			break;
 
 		case 8://‰E
 		case 9:
-		//case 10:
-		//case 11:
-			if (LINE[i] > LINE_val) {
+		case 10:
+		case 11:
+			if (LINE[i] < LINE_val) {
 				bitSet(LINE_status, 0);
 			}
 			break;
