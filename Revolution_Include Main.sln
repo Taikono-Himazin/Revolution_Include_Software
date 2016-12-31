@@ -17,6 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		libraries.zip = libraries.zip
 		Revolution_include_Main_1.1.1\Readme.txt = Revolution_include_Main_1.1.1\Readme.txt
+		Task.txt = Task.txt
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Revolution_include_Main_1.1.7", "Revolution_include_Main_1.1.7\Revolution_include_Main_1.1.7.vcxproj", "{61A16087-C789-4B02-98E6-411F381D546E}"
@@ -36,10 +37,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Revolution_Include_Main_2.1.4", "Revolution_Include_Main_2.1.4\Revolution_Include_Main_2.1.4.vcxproj", "{27C0F084-6C1B-43EB-8404-1F6FA95FB97E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Revolution_Include_Main_2.1.5", "Revolution_Include_Main_2.1.5\Revolution_Include_Main_2.1.5.vcxproj", "{96801677-1D16-4815-B6E6-A4D6AAF2A81A}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Revolution_include_Main_2.1.6", "Revolution_include_Main_2.1.6\Revolution_include_Main_2.1.6.vcxproj", "{2278AE33-5DF3-43B8-A0A1-5520C834F46B}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Revolution_include_Main_2.1.6_G", "Revolution_include_Main_2.1.6_G\Revolution_include_Main_2.1.6_G.vcxproj", "{FF47B0B2-BF08-435B-A9D6-97D968684B48}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -103,14 +100,6 @@ Global
 		{96801677-1D16-4815-B6E6-A4D6AAF2A81A}.Debug|x86.Build.0 = Debug|Win32
 		{96801677-1D16-4815-B6E6-A4D6AAF2A81A}.Release|x86.ActiveCfg = Release|Win32
 		{96801677-1D16-4815-B6E6-A4D6AAF2A81A}.Release|x86.Build.0 = Release|Win32
-		{2278AE33-5DF3-43B8-A0A1-5520C834F46B}.Debug|x86.ActiveCfg = Debug|Win32
-		{2278AE33-5DF3-43B8-A0A1-5520C834F46B}.Debug|x86.Build.0 = Debug|Win32
-		{2278AE33-5DF3-43B8-A0A1-5520C834F46B}.Release|x86.ActiveCfg = Release|Win32
-		{2278AE33-5DF3-43B8-A0A1-5520C834F46B}.Release|x86.Build.0 = Release|Win32
-		{FF47B0B2-BF08-435B-A9D6-97D968684B48}.Debug|x86.ActiveCfg = Debug|Win32
-		{FF47B0B2-BF08-435B-A9D6-97D968684B48}.Debug|x86.Build.0 = Debug|Win32
-		{FF47B0B2-BF08-435B-A9D6-97D968684B48}.Release|x86.ActiveCfg = Release|Win32
-		{FF47B0B2-BF08-435B-A9D6-97D968684B48}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

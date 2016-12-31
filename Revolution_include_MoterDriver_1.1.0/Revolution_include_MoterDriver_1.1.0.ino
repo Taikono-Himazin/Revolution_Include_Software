@@ -28,7 +28,6 @@ void setup() {
   //Serial.begin(9600);
   //Serial.print("Moter_Driver");
   Wire.begin(10);
-  i2c_faster();
  Wire.onReceive(readEvent);
 
   pinMode(M1A, OUTPUT);   // 出力に設定
@@ -70,6 +69,23 @@ void loop() {
   } else {
     moterFree();
   }
+ 
+  /*
+    moter(100, 90); //前
+    moterDrive();
+    delay(10000);
+
+    moter(100, 270); //後ろ
+    moterDrive();
+    delay(10000);
+
+    moter(100, 0); //右
+    moterDrive();
+    delay(10000);
+
+    moter(100, 180); //左
+    moterDrive();
+    delay(10000);*/
 }
 
 void moterDrive() {
