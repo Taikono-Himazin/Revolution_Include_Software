@@ -24,6 +24,12 @@
 #define M4B 12          // M4はデジタルA1番ピン
 #define M4P 11          // M4はデジタル11番ピン(PWM)
 
+extern void setup();
+extern void loop();
+extern void moterDrive();
+extern void moterFree();
+extern void readEvent(int x);
+
 void setup() {
   //Serial.begin(9600);
   //Serial.print("Moter_Driver");
@@ -50,7 +56,7 @@ void setup() {
   setPWMFrequency(M1P, PWM_DIV1);//PWM高速化（分周比を1に）
   setPWMFrequency(M2P, PWM_DIV1);
   setPWMFrequency(M3P, PWM_DIV1);
-  setPWMFrequency(M4P, PWM_DIV1);
+  setPWMFrequency(M4P, PWM_DIV8);
   
   }
 
@@ -184,6 +190,7 @@ void readEvent(int x) {
         Moter_Brake[i] = false;
         Moter_Force[i] = buf[i];
       }
+	  constrain(Moter_Force[i], -255, 255);
     }
 
     Power_Status = true;
