@@ -46,7 +46,7 @@ void loop() {
 		case 1:
 		case 2:
 		case 3:
-			if (LINE[i]  >LINE_val) {
+			if (LINE[i]  <LINE_val) {
 				bitSet(LINE_status, 3);
 			}
 			break;
@@ -55,7 +55,7 @@ void loop() {
 		case 5:
 		case 6:
 		case 7:
-			if (LINE[i] > LINE_val) {
+			if (LINE[i] < LINE_val) {
 				bitSet(LINE_status, 2);
 			}
 			break;
@@ -64,7 +64,7 @@ void loop() {
 		case 14:
 		case 13:
 		case 12:
-			if (LINE[i] > LINE_val) {
+			if (LINE[i] < LINE_val) {
 				bitSet(LINE_status, 1);
 			}
 			break;
@@ -73,7 +73,7 @@ void loop() {
 		case 9:
 		case 10:
 		case 11:
-			if (LINE[i] > LINE_val) {
+			if (LINE[i] < LINE_val) {
 				bitSet(LINE_status, 0);
 			}
 			break;

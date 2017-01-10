@@ -33,7 +33,7 @@ extern void readEvent(int x);
 void setup() {
   //Serial.begin(9600);
   //Serial.print("Moter_Driver");
-  Wire.begin(10);
+  Wire.begin(80);
   i2c_faster();
  Wire.onReceive(readEvent);
 
@@ -56,7 +56,7 @@ void setup() {
   setPWMFrequency(M1P, PWM_DIV1);//PWM高速化（分周比を1に）
   setPWMFrequency(M2P, PWM_DIV1);
   setPWMFrequency(M3P, PWM_DIV1);
-  setPWMFrequency(M4P, PWM_DIV8);
+  setPWMFrequency(M4P, PWM_DIV1);
   
   }
 

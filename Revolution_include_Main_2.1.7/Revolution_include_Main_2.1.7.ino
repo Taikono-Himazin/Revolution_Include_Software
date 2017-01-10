@@ -5,12 +5,12 @@
 
 
 /*Include*/
+#include <MPU6050_6Axis_MotionApps20.h>
 #include <EEPROM.h>
 #include <Servo.h>
 #include <Utility.h>
 #include <Wire.h>
 #include <PID_v1.h>
-#include "MPU6050_6Axis_MotionApps20.h"
 #include <LiquidCrystal_I2C.h>
 /*ここまで*/
 
@@ -18,7 +18,7 @@
 #define M_sw 0
 #define SPEAKER 13
 #define BEEP 100
-#define Old_Persent 0.4  //1以下！ Moterの過去の値の割合 
+#define Old_Persent 0.4  //　1以下！ Moterの過去の値の割合 
 #define L_sw 4 
 #define D_sw 7
 #define R_sw 10
@@ -41,7 +41,7 @@
 
 /*川野さんからコピペ関数宣言*/
 static double Setpoint, Input, Output;
-static const double Kp = 2, Ki = 0, Kd = 0.03;
+static const double Kp = 1.9, Ki = 0, Kd = 0.03;
 MPU6050 mpu;
 Servo myServo1;
 Servo myServo2;
@@ -84,7 +84,7 @@ extern void LINE_Set(uint16_t val);
 
 /*--プログラム--*/
 void setup() {
-	//Serial.begin(115200);
+//	Serial.begin(115200);
 	Wire.begin();
 	i2c_faster();
 
@@ -126,6 +126,7 @@ void loop() {
 			LEDoff(LED_M);
 			LEDoff(LED_L);
 		}
+//		int16_t i1 = millis();
 		LINE_Get();
 			if (LINE_count == 0) {
 				IR_Get();
@@ -134,6 +135,10 @@ void loop() {
 			else {
 				LINE_count--;
 			}
+			//int16_t i2 = millis();
+			//Serial.println(i2 - i1);
+			//sleep();
+			//delay(100);
 	}
 	else {
 		if (change2) {
@@ -294,7 +299,7 @@ void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F Degree
 		else if ((280 <= Degree) && (Degree < 290)) {//b
 			M_Degree = Degree + 5;
 			M_Force = 150;
-			Servo_idel;
+			Servo2_Dri;
 		}
 		else if ((290 <= Degree) && (Degree < 300)) {//c
 			M_Degree = Degree + 10;
@@ -511,7 +516,7 @@ void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F Degree
 
 
 
-	if (count <= 0) {
+	if (count <= 0&&(Degree>250&&Degree<280)) {
 		Spin(true);
 		count = C_Reset;
 		count2 = C_Reset2;
@@ -524,7 +529,7 @@ void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F Degree
 
 }
 
-void Spin(boolean D) {
+void Spin(boolean D) {//右周りか左回りか
 	uint8_t m1, m2, m3, m4;
 	int8_t i[2];
 	if (D) {
@@ -965,7 +970,7 @@ void Gryo_Start() {
 void PID_Start() {
 	myPID.SetOutputLimits(-255, 255);
 	myPID.SetMode(AUTOMATIC);
-	myPID.SetSampleTime(25);
+	myPID.SetSampleTime(12);
 	Setpoint = 180;
 }
 
