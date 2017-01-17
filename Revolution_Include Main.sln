@@ -45,11 +45,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Revolution_include_Main_2.1
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Revolution_include_Main_2.1.7_G", "Revolution_include_Main_2.1.7_G\Revolution_include_Main_2.1.7_G.vcxproj", "{251A7F34-5BCA-49D1-BBB7-2EF4D989CC94}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Revolution_include_Main_2.1.8", "Revolution_include_Main_2.1.8\Revolution_include_Main_2.1.8.vcxproj", "{7631A9B8-4293-4560-BC80-9D3A7B1C436F}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Revolution_Include_Main_2.1.7_C", "Revolution_Include_Main_2.1.7_C\Revolution_Include_Main_2.1.7_C.vcxproj", "{1430EB79-EC20-46A1-889E-288A71A39A58}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Revolution_Include_Main_2.1.7_G_C", "Revolution_Include_Main_2.1.7_G_C\Revolution_Include_Main_2.1.7_G_C.vcxproj", "{ADCA02D2-CBEF-4437-B0C7-0466DCDA03DD}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Revolution_include_Main_2.1.8_C", "Revolution_include_Main_2.1.8_C\Revolution_include_Main_2.1.8_C.vcxproj", "{45EEF107-F0E1-4A8D-99AB-DC4C84E137F0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -129,10 +129,6 @@ Global
 		{251A7F34-5BCA-49D1-BBB7-2EF4D989CC94}.Debug|x86.Build.0 = Debug|Win32
 		{251A7F34-5BCA-49D1-BBB7-2EF4D989CC94}.Release|x86.ActiveCfg = Release|Win32
 		{251A7F34-5BCA-49D1-BBB7-2EF4D989CC94}.Release|x86.Build.0 = Release|Win32
-		{7631A9B8-4293-4560-BC80-9D3A7B1C436F}.Debug|x86.ActiveCfg = Debug|Win32
-		{7631A9B8-4293-4560-BC80-9D3A7B1C436F}.Debug|x86.Build.0 = Debug|Win32
-		{7631A9B8-4293-4560-BC80-9D3A7B1C436F}.Release|x86.ActiveCfg = Release|Win32
-		{7631A9B8-4293-4560-BC80-9D3A7B1C436F}.Release|x86.Build.0 = Release|Win32
 		{1430EB79-EC20-46A1-889E-288A71A39A58}.Debug|x86.ActiveCfg = Debug|Win32
 		{1430EB79-EC20-46A1-889E-288A71A39A58}.Debug|x86.Build.0 = Debug|Win32
 		{1430EB79-EC20-46A1-889E-288A71A39A58}.Release|x86.ActiveCfg = Release|Win32
@@ -141,6 +137,10 @@ Global
 		{ADCA02D2-CBEF-4437-B0C7-0466DCDA03DD}.Debug|x86.Build.0 = Debug|Win32
 		{ADCA02D2-CBEF-4437-B0C7-0466DCDA03DD}.Release|x86.ActiveCfg = Release|Win32
 		{ADCA02D2-CBEF-4437-B0C7-0466DCDA03DD}.Release|x86.Build.0 = Release|Win32
+		{45EEF107-F0E1-4A8D-99AB-DC4C84E137F0}.Debug|x86.ActiveCfg = Debug|Win32
+		{45EEF107-F0E1-4A8D-99AB-DC4C84E137F0}.Debug|x86.Build.0 = Debug|Win32
+		{45EEF107-F0E1-4A8D-99AB-DC4C84E137F0}.Release|x86.ActiveCfg = Release|Win32
+		{45EEF107-F0E1-4A8D-99AB-DC4C84E137F0}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

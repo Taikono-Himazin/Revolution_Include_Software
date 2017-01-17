@@ -41,7 +41,7 @@
 
 /*ì–ì‚³‚ñ‚©‚çƒRƒsƒyŠÖ”éŒ¾*/
 static double Setpoint, Input, Output;
-static const double Kp =0.8, Ki = 0, Kd = 0.001;
+static const double Kp =2, Ki = 0, Kd = 0.001;
 HMC5883L HMC;
 Servo myServo1;
 Servo myServo2;
@@ -976,7 +976,7 @@ void HMC_Start() {
 void PID_Start() {
 	myPID.SetOutputLimits(-255, 255);
 	myPID.SetMode(AUTOMATIC);
-	myPID.SetSampleTime(5);
+	myPID.SetSampleTime(15);
 	Setpoint = 180;
 }
 

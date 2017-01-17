@@ -57,7 +57,7 @@ LiquidCrystal_I2C lcd(0x3f, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);  // Set the LCD I
 																/*変数宣言*/
 int16_t  Gyro_Now = 0, Gyro = 0, Gyro_Offset = 0, old_Moter_D = 0;
 uint8_t LINE_Status = 0, UI_status = 0;
-uint16_t IR_F = 0, IR_D = 0, old_Moter_F = 0, LINE_NOW;
+uint16_t IR_F = 0, IR_D = 0, old_Moter_F = 0, LINE_NOW,LINE_count=0;
 
 boolean change1 = true, change2 = false, LINE_F = false, LINE_R = false, LINE_B = false, LINE_L = false;
 /*ここまで*/
@@ -129,7 +129,12 @@ void loop() {
 		}
 		LINE_Get();
 		IR_Get();
-		Motion_System(IR_F, IR_D);
+		if (LINE_count == 0) {
+			Motion_System(IR_F, IR_D);
+		}
+		else {
+			LINE_count--;
+		}
 	}
 	else {
 		if (change2) {
@@ -212,7 +217,7 @@ void moter(uint8_t Force, int16_t Degree) { //一応解読したがいじれるほどはわから
 	else bitClear(buf[4], 3);
 	buf[3] = abs(m4);
 
-	Wire.beginTransmission(10);
+	Wire.beginTransmission(80);
 	Wire.write(buf, 5);
 	Wire.endTransmission();
 }
@@ -252,7 +257,7 @@ void sleep() {
 	buf[3] = 0;
 	bitClear(buf[4], 4); //モーター電源off
 
-	Wire.beginTransmission(10);
+	Wire.beginTransmission(80);
 	Wire.write(buf, 5);
 	Wire.endTransmission();
 }
@@ -541,7 +546,7 @@ void Spin(boolean D) {
 	else bitClear(buf[4], 3);
 	buf[3] = abs(m4);
 
-	Wire.beginTransmission(10);
+	Wire.beginTransmission(80);
 	Wire.write(buf, 5);
 	Wire.endTransmission();
 
@@ -566,7 +571,7 @@ void Spin(boolean D) {
 	else bitClear(buf[4], 3);
 	buf[3] = abs(m4);
 
-	Wire.beginTransmission(10);
+	Wire.beginTransmission(80);
 	Wire.write(buf, 5);
 	Wire.endTransmission();
 	delay(250);
@@ -608,47 +613,48 @@ void LINE_Get() {
 	//	Serial.println(LINE_Status,BIN);
 	if (bitRead(LINE_Status, 4) == 1) {
 		digitalWrite(LED_L, HIGH);
+		LINE_count = 100;
 		if (bitRead(LINE_Status, 0) == 1) {//右
 			LINE_R = true;
-			/*			if (bitRead(LINE_Status, 1) == 1) {//右かつ後ろ
-			moter(255, 135,false);
+			if (bitRead(LINE_Status, 1) == 1) {//右かつ後ろ
+			moter(255, 135);
 			}
 			else if (bitRead(LINE_Status, 2) == 1) {//右かつ左
 			LINE_count = 0;
 			return;
 			}
 			else if (bitRead(LINE_Status, 3) == 1) { //右かつ前
-			moter(255, 215,false);
+			moter(255, 215);
 			}
 			else {//右のみ
-			moter(255, 180,false);
-			}*/
+			moter(255, 180);
+			}
 		}
 		if (bitRead(LINE_Status, 1) == 1) { //後ろ
 			LINE_B = true;
-			/*	if (bitRead(LINE_Status, 3) == 1) { //後ろかつ前
+			if (bitRead(LINE_Status, 3) == 1) { //後ろかつ前
 			LINE_count = 0;
 			return;
 			}
 			else if (bitRead(LINE_Status, 2) == 1) { //後ろかつ左
-			moter(255, 45,false);
+			moter(255, 45);
 			}
 			else {//後ろのみ
-			moter(255, 90,false);
-			}*/
+			moter(255, 90);
+			}
 		}
 		if (bitRead(LINE_Status, 2) == 1) {//左
 			LINE_L = true;
-			/*	if (bitRead(LINE_Status, 3) == 1) { //左かつ前
-			moter(255, 315,false);
+			if (bitRead(LINE_Status, 3) == 1) { //左かつ前
+			moter(255, 315);
 			}
 			else { //左のみ
-			moter(255, 0,false);
-			}*/
+			moter(255, 0);
+			}
 		}
 		if (bitRead(LINE_Status, 3) == 1) {//前のみ
 			LINE_F = true;
-			/*	moter(255, 270,false);*/
+			moter(255, 270);
 		}
 	}
 	else {

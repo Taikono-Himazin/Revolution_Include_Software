@@ -18,7 +18,7 @@
 #define M_sw 0
 #define SPEAKER 13
 #define BEEP 100
-#define Old_Persent 0.4  //1以下！ Moterの過去の値の割合 
+#define Old_Persent 0.1  //1以下！ Moterの過去の値の割合 
 #define L_sw 4 
 #define D_sw 7
 #define R_sw 10
@@ -27,7 +27,7 @@
 #define LED_R A1
 #define UI_Delay 200
 #define Check_Delay 100
-#define IR_offset 5
+#define IR_offset 0
 #define  C_Reset 30
 #define  C_Reset2 10
 
@@ -40,7 +40,7 @@
 
 /*川野さんからコピペ関数宣言*/
 static double Setpoint, Input, Output;
-static const double Kp = 2, Ki = 0, Kd = 0.02;
+static const double Kp = 2, Ki = 0, Kd = 0.001;
 HMC5883L HMC;
 Servo myServo1;
 Servo myServo2;
@@ -57,7 +57,7 @@ LiquidCrystal_I2C lcd(0x3f, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);  // Set the LCD I
 																/*変数宣言*/
 int16_t  HMC_Now = 0, HMC_val= 0, HMC_Offset = 0, old_Moter_D = 0;
 uint8_t LINE_Status = 0, UI_status = 0;
-uint16_t IR_F = 0, IR_D = 0, old_Moter_F = 0, LINE_NOW;
+uint16_t IR_F = 0, IR_D = 0, old_Moter_F = 0, LINE_NOW, LINE_count = 0, LINE_M, LINE_D;
 
 boolean change1 = true, change2 = false, LINE_F = false, LINE_R = false, LINE_B = false, LINE_L = false;
 /*ここまで*/
@@ -129,7 +129,13 @@ void loop() {
 		}
 		LINE_Get();
 		IR_Get();
-		Motion_System(IR_F, IR_D);
+		if (LINE_count == 0) {
+			Motion_System(IR_F, IR_D);
+		}
+		else {
+			LINE_count--;
+			moter(LINE_M, LINE_D);
+		}
 	}
 	else {
 		if (change2) {
@@ -287,7 +293,7 @@ void IR_Get() {
 	if (IR_D < 0) {
 		IR_D = IR_D + 360;
 	}
-	else if (IR_D > 360) {
+	else if (IR_D >= 360) {
 		IR_D = IR_D - 360;
 	}
 	/*
@@ -297,7 +303,7 @@ void IR_Get() {
 
 void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F Degree=IR_D
 	int16_t M_Degree = 0, Dri1_Power, Dri2_Power;
-	uint8_t	M_Force = 160;
+	uint8_t	M_Force = 200;
 	static uint8_t count = C_Reset, count2 = C_Reset2;
 	//bool Ball1 = analogRead(A6) > 950;
 	//bool Ball2 = analogRead(A7) > 950;
@@ -364,7 +370,7 @@ void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F Degree
 			Servo_idel;
 		}
 		else if ((60 <= Degree) && (Degree < 70)) {//p
-			M_Degree = Degree - 20;
+			M_Degree = Degree - 15;
 			Servo_idel;
 		}
 		else if ((70 <= Degree) && (Degree < 80)) {//q
@@ -372,7 +378,7 @@ void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F Degree
 			Servo_idel;
 		}
 		else if ((80 <= Degree) && (Degree < 85)) {//r
-			M_Degree = Degree - 10;
+			M_Degree = Degree - 5;
 			Servo1_Dri;
 		}
 		else if ((85 <= Degree) && (Degree < 95)) {//真ん中
@@ -380,7 +386,7 @@ void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F Degree
 			Servo1_Dri;
 		}
 		else if ((95 <= Degree) && (Degree < 100)) {//r
-			M_Degree = Degree + 10;
+			M_Degree = Degree + 5;
 			Servo1_Dri;
 		}
 		else if ((100 <= Degree) && (Degree < 110)) {//q
@@ -388,7 +394,7 @@ void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F Degree
 			Servo_idel;
 		}
 		else if ((110 <= Degree) && (Degree < 120)) {//p
-			M_Degree = Degree + 20;
+			M_Degree = Degree + 15;
 			Servo_idel;
 		}
 		else if ((120 <= Degree) && (Degree < 130)) {//o
@@ -452,7 +458,10 @@ void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F Degree
 			Servo2_Dri;
 		}
 		if (M_Degree < 0) {
-			M_Degree = 360 + M_Degree;
+			M_Degree =  M_Degree + 360;
+		}
+		else if(M_Degree >= 360) {
+			M_Degree =  M_Degree - 360;
 		}
 
 		/*if (Ball1) {
@@ -475,50 +484,50 @@ void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F Degree
 	}
 
 
-	double rad = M_Degree*3.141592653589793 / 180.0;//角度のラジアン
-	if (LINE_B&&M_Degree >= 180) {//後ろのライン処理
-		M_Force = abs(M_Force*cos(rad));
-		if (M_Degree >= 180 && M_Degree <= 270) {
-			M_Degree = 180;
-		}
-		else {
-			M_Degree = 0;
-		}
-	}
+	//double rad = M_Degree*3.141592653589793 / 180.0;//角度のラジアン
+	//if (LINE_B&&M_Degree >= 180) {//後ろのライン処理
+	//	M_Force = abs(M_Force*cos(rad));
+	//	if (M_Degree >= 180 && M_Degree <= 270) {
+	//		M_Degree = 180;
+	//	}
+	//	else {
+	//		M_Degree = 0;
+	//	}
+	//}
 
-	if (LINE_F && (M_Degree >= 0 && M_Degree < 180)) {//前のライン処理
-		M_Force = abs(M_Force*cos(rad));
-		if (M_Degree >= 0 && M_Degree <= 90) {
-			M_Degree = 0;
-		}
-		else {
-			M_Degree = 180;
-		}
-	}
+	//if (LINE_F && (M_Degree >= 0 && M_Degree < 180)) {//前のライン処理
+	//	M_Force = abs(M_Force*cos(rad));
+	//	if (M_Degree >= 0 && M_Degree <= 90) {
+	//		M_Degree = 0;
+	//	}
+	//	else {
+	//		M_Degree = 180;
+	//	}
+	//}
 
-	if (LINE_L && (M_Degree >= 90 && M_Degree < 270)) {//左のライン処理
-		M_Force = abs(M_Force*sin(rad));
-		if (M_Degree >= 90 && M_Degree >= 180) {
-			M_Degree = 90;
-		}
-		else {
-			M_Degree = 270;
-		}
-	}
+	//if (LINE_L && (M_Degree >= 90 && M_Degree < 270)) {//左のライン処理
+	//	M_Force = abs(M_Force*sin(rad));
+	//	if (M_Degree >= 90 && M_Degree >= 180) {
+	//		M_Degree = 90;
+	//	}
+	//	else {
+	//		M_Degree = 270;
+	//	}
+	//}
 
-	if (LINE_R && (M_Degree < 90 && M_Degree >= 270)) {//左のライン処理
-		M_Force = abs(M_Force*sin(rad));
-		if (M_Degree >= 270) {
-			M_Degree = 270;
-		}
-		else {
-			M_Degree = 90;
-		}
-	}
+	//if (LINE_R && (M_Degree < 90 && M_Degree >= 270)) {//左のライン処理
+	//	M_Force = abs(M_Force*sin(rad));
+	//	if (M_Degree >= 270) {
+	//		M_Degree = 270;
+	//	}
+	//	else {
+	//		M_Degree = 90;
+	//	}
+	//}
 
 
 	if (count <= 0) {
-		//	Spin(true);
+		Spin(true);
 		count = C_Reset;
 		count2 = C_Reset2;
 	}
@@ -628,47 +637,56 @@ void LINE_Get() {
 	//	Serial.println(LINE_Status,BIN);
 	if (bitRead(LINE_Status, 4) == 1) {
 		digitalWrite(LED_L, HIGH);
+		LINE_count = 70;
 		if (bitRead(LINE_Status, 0) == 1) {//右
 			LINE_R = true;
-			/*			if (bitRead(LINE_Status, 1) == 1) {//右かつ後ろ
-			moter(255, 135,false);
-			}
-			else if (bitRead(LINE_Status, 2) == 1) {//右かつ左
-			LINE_count = 0;
-			return;
-			}
-			else if (bitRead(LINE_Status, 3) == 1) { //右かつ前
-			moter(255, 215,false);
-			}
-			else {//右のみ
-			moter(255, 180,false);
-			}*/
+			//if (bitRead(LINE_Status, 1) == 1) {//右かつ後ろ
+			//moter(255, 135);
+			//LINE_M = 255; LINE_D = 135;
+			//}
+			//else if (bitRead(LINE_Status, 2) == 1) {//右かつ左
+			//LINE_count = 0;
+			//return;
+			//}
+			//else if (bitRead(LINE_Status, 3) == 1) { //右かつ前
+			//moter(255, 215);
+			//LINE_M = 255; LINE_D = 215;
+			//}
+			//else {//右のみ
+			moter(255, 180);
+			LINE_M = 255; LINE_D = 180;
+			//}
 		}
 		if (bitRead(LINE_Status, 1) == 1) { //後ろ
 			LINE_B = true;
-			/*	if (bitRead(LINE_Status, 3) == 1) { //後ろかつ前
-			LINE_count = 0;
-			return;
-			}
-			else if (bitRead(LINE_Status, 2) == 1) { //後ろかつ左
-			moter(255, 45,false);
-			}
-			else {//後ろのみ
-			moter(255, 90,false);
-			}*/
+			//if (bitRead(LINE_Status, 3) == 1) { //後ろかつ前
+			//LINE_count = 0;
+			//return;
+			//}
+			//else if (bitRead(LINE_Status, 2) == 1) { //後ろかつ左
+			//moter(255, 45);
+			//LINE_M = 255; LINE_D = 45;
+			//}
+			//else {//後ろのみ
+			moter(255, 90);
+			LINE_M = 255; LINE_D = 90;
+			//}
 		}
 		if (bitRead(LINE_Status, 2) == 1) {//左
 			LINE_L = true;
-			/*	if (bitRead(LINE_Status, 3) == 1) { //左かつ前
-			moter(255, 315,false);
-			}
-			else { //左のみ
-			moter(255, 0,false);
-			}*/
+			//if (bitRead(LINE_Status, 3) == 1) { //左かつ前
+			//moter(255, 315);
+			//LINE_M = 255; LINE_D = 315;
+			//}
+			//else { //左のみ
+			moter(255, 0);
+			LINE_M = 255; LINE_D = 0;
+			//}
 		}
 		if (bitRead(LINE_Status, 3) == 1) {//前のみ
 			LINE_F = true;
-			/*	moter(255, 270,false);*/
+			moter(255, 270);
+			LINE_M = 255; LINE_D = 270;
 		}
 	}
 	else {
@@ -950,7 +968,7 @@ void HMC_Start() {
 	HMC.setMeasurementMode(HMC5883L_CONTINOUS);	// Set measurement mode
 	HMC.setDataRate(HMC5883L_DATARATE_75HZ);	// Set data rate
 	HMC.setSamples(HMC5883L_SAMPLES_8);	// Set number of samples averaged
-	HMC.setOffset(0, 0);	// Set calibration offset. See HMC5883L_calibration.ino
+	HMC.setOffset(55, 11);	// Set calibration offset. See HMC5883L_calibration.ino
 }
 
 /*void Gryo_Start() {
