@@ -31,6 +31,12 @@
 #define  C_Reset 30
 #define  C_Reset2 10
 #define Escape 150
+#define HC_F 13
+#define HC_B 11
+#define HC_L 12
+#define HC_R 2
+
+
 
 #define LED(a) digitalWrite(a, HIGH)
 #define LEDoff(a) digitalWrite(a, LOW)
@@ -58,7 +64,7 @@ LiquidCrystal_I2C lcd(0x3f, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);  // Set the LCD I
 /*変数宣言*/
 int16_t  HMC_Now = 0, HMC_val = 0, HMC_Offset = 0, old_Moter_D = 0;
 uint8_t LINE_Status = 0, UI_status = 0;
-uint16_t IR_F = 0, IR_D = 0, old_Moter_F = 0, LINE_NOW,LINE_count;
+uint16_t IR_F = 0, IR_D = 0, old_Moter_F = 0, LINE_NOW,LINE_count,LINE_M, LINE_D;
 boolean change1 = true, change2 = false, LINE_F = false, LINE_R = false, LINE_B = false, LINE_L = false;
 /*ここまで*/
 
@@ -72,7 +78,7 @@ extern void IR_Get();
 extern void Motion_System(uint8_t Force, int16_t Degree);
 extern void Spin(boolean D);
 extern void Melody(uint8_t mode);
-extern void LINE_Get();
+extern bool LINE_Get();
 extern void UI();
 extern void lcd_Start(char* ver);
 extern void LED_Check();
@@ -126,15 +132,15 @@ void loop() {
 			LEDoff(LED_M);
 			LEDoff(LED_L);
 		}
-//	int16_t i1 = millis();
-		LINE_Get();
-			if (LINE_count == 0) {
-				IR_Get();
-				Motion_System(IR_F, IR_D);
-			}
-			else {
-				LINE_count--;
-			}
+
+		if (LINE_count == 0) {
+			IR_Get();
+			Motion_System(IR_F, IR_D);
+		}
+		else {
+			LINE_count--;
+			moter(LINE_M, LINE_D);
+		}
 			//int16_t i2 = millis();
 			//Serial.println(i2 - i1);
 			//sleep();
@@ -305,7 +311,7 @@ void IR_Get() {
 
 void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F Degree=IR_D
 	int16_t M_Degree = 0, Dri1_Power, Dri2_Power;
-	uint8_t	M_Force = 180;
+	uint8_t	M_Force = 100;
 	static uint8_t count = C_Reset, count2 = C_Reset2;
 	bool Ball1 = analogRead(A6) > 950;
 	bool Ball2 = analogRead(A7) > 950;
@@ -534,17 +540,18 @@ void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F Degree
 	}
 	*/
 
+	if (LINE_Get()) {
 
-
-	if (count <= 0) {
-		Spin(true);
-		count = C_Reset;
-		count2 = C_Reset2;
-	}
-	else {
-		moter(M_Force, M_Degree);
-		myServo1.write(Dri1_Power);
-		myServo2.write(Dri2_Power);
+		if (count <= 0) {
+			Spin(true);
+			count = C_Reset;
+			count2 = C_Reset2;
+		}
+		else {
+			moter(M_Force, M_Degree);
+			myServo1.write(Dri1_Power);
+			myServo2.write(Dri2_Power);
+		}
 	}
 
 }
@@ -636,9 +643,10 @@ void Melody(uint8_t mode) {
 	}
 }
 
-void LINE_Get() {
+bool LINE_Get() {
 	Wire.requestFrom(11, 1);
 	uint8_t buf;
+	bool i;
 	while (Wire.available()) {
 		buf = Wire.read();
 	}
@@ -646,54 +654,69 @@ void LINE_Get() {
 	LINE_Status = buf;
 	//	Serial.println(LINE_Status,BIN);
 	if (bitRead(LINE_Status, 4) == 1) {
-		LINE_count = 100;
 		digitalWrite(LED_L, HIGH);
+		i = false;
+		LINE_count = 0;
 		if (bitRead(LINE_Status, 0) == 1) {//右
 			LINE_R = true;
-					if (bitRead(LINE_Status, 1) == 1) {//右かつ後ろ
-							moter(Escape, 135,false);
-						}
-						else if (bitRead(LINE_Status, 2) == 1) {//右かつ左
-							LINE_count = 0;
-							return;
-						}
-						else if (bitRead(LINE_Status, 3) == 1) { //右かつ前
-							moter(Escape, 215,false);
-						}
-						else {//右のみ
-							moter(Escape, 180,false);
-						}
+			//if (bitRead(LINE_Status, 1) == 1) {//右かつ後ろ
+			//moter(255, 135);
+			//LINE_M = 255; LINE_D = 135;
+			//}
+			//else if (bitRead(LINE_Status, 2) == 1) {//右かつ左
+			//LINE_count = 0;
+			//return;
+			//}
+			//else if (bitRead(LINE_Status, 3) == 1) { //右かつ前
+			//moter(255, 215);
+			//LINE_M = 255; LINE_D = 215;
+			//}
+			//else {//右のみ
+			moter(255, 180);
+			delay(250);
+			//LINE_M = 255; LINE_D = 180;
+			//}
 		}
 		if (bitRead(LINE_Status, 1) == 1) { //後ろ
 			LINE_B = true;
-				if (bitRead(LINE_Status, 3) == 1) { //後ろかつ前
-					LINE_count = 0;
-					return;
-				}
-				else if (bitRead(LINE_Status, 2) == 1) { //後ろかつ左
-					moter(Escape, 45,false);
-				}
-				else {//後ろのみ
-					moter(Escape, 90,false);
-				}
+			//if (bitRead(LINE_Status, 3) == 1) { //後ろかつ前
+			//LINE_count = 0;
+			//return;
+			//}
+			//else if (bitRead(LINE_Status, 2) == 1) { //後ろかつ左
+			//moter(255, 45);
+			//LINE_M = 255; LINE_D = 45;
+			//}
+			//else {//後ろのみ
+			moter(255, 90);
+			delay(250);
+			//LINE_M = 255; LINE_D = 90;
+			//}
 		}
 		if (bitRead(LINE_Status, 2) == 1) {//左
 			LINE_L = true;
-				if (bitRead(LINE_Status, 3) == 1) { //左かつ前
-					moter(Escape, 315,false);
-				}
-				else { //左のみ
-					moter(Escape, 0,false);
-				}
+			//if (bitRead(LINE_Status, 3) == 1) { //左かつ前
+			//moter(255, 315);
+			//LINE_M = 255; LINE_D = 315;
+			//}
+			//else { //左のみ
+			moter(255, 0);
+			delay(250);
+			//LINE_M = 255; LINE_D = 0;
+			//}
 		}
 		if (bitRead(LINE_Status, 3) == 1) {//前のみ
 			LINE_F = true;
-				moter(Escape, 270,false);
+			moter(255, 270);
+			delay(250);
+			//LINE_M = 255; LINE_D = 270;
 		}
 	}
 	else {
 		digitalWrite(LED_L, LOW);
+		i = true;
 	}
+	return i;
 	/*
 	Serial.print("LINE");
 	Serial.println(LINE_Status, BIN);

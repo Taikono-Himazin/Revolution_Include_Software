@@ -30,7 +30,7 @@
 #define IR_offset 0
 #define  C_Reset 30
 #define  C_Reset2 10
-#define Escape 50
+#define Escape 255
 #define HC_F 11
 #define HC_B 12
 #define HC_L 13
@@ -76,7 +76,7 @@ extern void IR_Get();
 extern void Motion_System(uint8_t Force, int16_t Degree);
 extern void Spin(boolean D);
 extern void Melody(uint8_t mode);
-//extern bool LINE_Get();
+extern bool LINE_Get();
 extern uint8_t HC_Get(uint8_t pin);
 extern void UI();
 extern void lcd_Start(char* ver);
@@ -99,8 +99,8 @@ void setup() {
 	HMC_Start();
 	Servo_Start();
 
-	//uint16_t val = (EEPROM.read(1) << 8) | EEPROM.read(2); // LINE閾値読み込み
-	//LINE_Set(val);
+	uint16_t val = (EEPROM.read(1) << 8) | EEPROM.read(2); // LINE閾値読み込み
+	LINE_Set(val);
 
 	while (digitalRead(M_sw) == LOW) {
 		Melody(1);
@@ -137,6 +137,14 @@ void loop() {
 		else {
 			LINE_count--;
 			moter(LINE_M, LINE_D);
+			if (LINE_count == 0) {
+				sleep();
+				while (true) {
+					if (digitalRead(M_sw) == LOW) {
+						break;
+					}
+				}
+			}
 		}
 	}
 	else {
@@ -514,46 +522,27 @@ void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F Degree
 	//	}
 	//}
 
+	/*uint16_t F = HC_Get(HC_F), B = HC_Get(HC_B), L = HC_Get(HC_L), R = HC_Get(HC_R);
 
-	uint16_t F = HC_Get(HC_F), B = HC_Get(HC_B), L = HC_Get(HC_L), R = HC_Get(HC_R);
+	if (F < HC_FB && F != 0) {
+		M_Force = Escape;
+		M_Degree = 270;
+	}
+	if (B < HC_FB && B != 0) {
+		M_Force = Escape;
+		M_Degree = 90;
+	}
+	if (L > HC_RL) {
+		M_Force = Escape;
+		M_Degree = 180;
+	}
+	if (R > HC_RL) {
+		M_Force = Escape;
+		M_Degree = 0;
+	}*/
 
 	if (LINE_Get()) {
-		if (Force != 0) {
-			if (F < HC_FB + 20 && F != 0) {
-				M_Force = Escape;
-				//M_Degree = 270;
-			}
-			if (B < HC_FB + 20 && B != 0) {
-				M_Force = Escape;
-				//M_Degree = 90;
-			}
-			if (L > HC_RL - 20) {
-				M_Force = Escape;
-				//M_Degree = 180;
-			}
-			if (R > HC_RL - 20) {
-				M_Force = Escape;
-				//M_Degree = 0;
-			}
-		}
-	}else {
-		if (F < HC_FB && F != 0) {
-			M_Force = 255;
-			M_Degree = 270;
-		}
-		if (B < HC_FB && B != 0) {
-			M_Force = 255;
-			M_Degree = 90;
-		}
-		if (L > HC_RL) {
-			M_Force = 255;
-			M_Degree = 180;
-		}
-		if (R > HC_RL) {
-			M_Force = 255;
-			M_Degree = 0;
-		}
-	}
+
 	if (count <= 0) {
 		Spin(true);
 		count = C_Reset;
@@ -564,6 +553,8 @@ void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F Degree
 		myServo1.write(Dri1_Power);
 		myServo2.write(Dri2_Power);
 	}
+	}
+
 }
 
 void Spin(boolean D) {
@@ -657,14 +648,16 @@ bool LINE_Get() {
 	Wire.requestFrom(11, 1);
 	uint8_t buf;
 	bool i;
-	buf = Wire.read();
-//	LINE_F = false, LINE_R = false, LINE_B = false, LINE_L = false;
+	while (Wire.available()) {
+		buf = Wire.read();
+	}
+	LINE_F = false, LINE_R = false, LINE_B = false, LINE_L = false;
 	LINE_Status = buf;
 	//	Serial.println(LINE_Status,BIN);
 	if (bitRead(LINE_Status, 4) == 1) {
 		digitalWrite(LED_L, HIGH);
+		LINE_count = 50;
 		i = false;
-		//LINE_count = 50;
 		//if (bitRead(LINE_Status, 0) == 1) {//右
 		//	LINE_R = true;
 		//	//if (bitRead(LINE_Status, 1) == 1) {//右かつ後ろ
@@ -680,8 +673,8 @@ bool LINE_Get() {
 		//	//LINE_M = 255; LINE_D = 215;
 		//	//}
 		//	//else {//右のみ
-		//	//moter(255, 180);
-		//	//LINE_M = 255; LINE_D = 180;
+		//	moter(255, 180);
+		//	LINE_M = 255; LINE_D = 180;
 		//	//}
 		//}
 		//if (bitRead(LINE_Status, 1) == 1) { //後ろ
@@ -695,8 +688,8 @@ bool LINE_Get() {
 		//	//LINE_M = 255; LINE_D = 45;
 		//	//}
 		//	//else {//後ろのみ
-		//	//moter(255, 90);
-		//	//LINE_M = 255; LINE_D = 90;
+		//	moter(255, 90);
+		//	LINE_M = 255; LINE_D = 90;
 		//	//}
 		//}
 		//if (bitRead(LINE_Status, 2) == 1) {//左
@@ -706,14 +699,14 @@ bool LINE_Get() {
 		//	//LINE_M = 255; LINE_D = 315;
 		//	//}
 		//	//else { //左のみ
-		//	//moter(255, 0);
-		//	//LINE_M = 255; LINE_D = 0;
+		//	moter(255, 0);
+		//	LINE_M = 255; LINE_D = 0;
 		//	//}
 		//}
 		//if (bitRead(LINE_Status, 3) == 1) {//前のみ
 		//	LINE_F = true;
-		//	//moter(255, 270);
-		//	//LINE_M = 255; LINE_D = 270;
+		//	moter(255, 270);
+		//	LINE_M = 255; LINE_D = 270;
 		//}
 	}
 	else {
@@ -927,29 +920,11 @@ void UI() {
 		break;
 	case 10:
 		lcd.home();
-		lcd.print("LINE_Val_set:");
+		lcd.print("LINE_Val:       ");
+		lcd.setCursor(9, 0);
+		lcd.print(LINE_NOW);
 		lcd.setCursor(0, 1);
-		lcd.print("L:re D:set R:next");
-		if (D) {
-			Wire.beginTransmission(11);
-			Wire.write(0);
-			Wire.endTransmission();
-			delay(UI_Delay);
-			Melody(1);
-			}
-			else if(R){
-				UI_status = 11;
-				lcd.clear();
-				delay(UI_Delay);
-			}
-			else if (L) {
-				Wire.beginTransmission(11);
-				Wire.write(1);
-				Wire.endTransmission();
-				delay(UI_Delay);
-				Melody(0);
-			}
-		/*lcd.print("L:up D:down R:next");
+		lcd.print("L:up D:down R:next");
 		if (L&&D) {
 			LINE_Set(150);
 		}
@@ -965,7 +940,7 @@ void UI() {
 		else if (D) {
 			LINE_Set(LINE_NOW - 10);
 			delay(UI_Delay);
-		}*/
+		}
 		break;
 	case 11:
 		lcd.home();

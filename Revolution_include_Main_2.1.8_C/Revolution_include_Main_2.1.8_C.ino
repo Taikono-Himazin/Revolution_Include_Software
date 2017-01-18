@@ -63,8 +63,8 @@ LiquidCrystal_I2C lcd(0x3f, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);  // Set the LCD I
 
 																/*ïœêîêÈåæ*/
 int16_t  HMC_Now = 0, HMC_val = 0, HMC_Offset = 0, old_Moter_D = 0;
-uint8_t LINE_Status = 0, UI_status = 0;
-uint16_t IR_F = 0, IR_D = 0, old_Moter_F = 0, LINE_NOW, LINE_count, LINE_M, LINE_D,HC_FB, HC_RL;
+uint8_t LINE_Status = 0, UI_status = 0, HC_FB=30, HC_RL=100;
+uint16_t IR_F = 0, IR_D = 0, old_Moter_F = 0, LINE_NOW, LINE_count, LINE_M, LINE_D;
 boolean change1 = true, change2 = false, LINE_F = false, LINE_R = false, LINE_B = false, LINE_L = false;
 /*Ç±Ç±Ç‹Ç≈*/
 
@@ -80,7 +80,7 @@ extern void Spin(boolean D);
 extern void Melody(uint8_t mode);
 extern bool LINE_Get();
 extern void UI();
-extern uint16_t HC_Get(uint8_t pin);
+extern uint8_t HC_Get(uint8_t pin);
 extern void lcd_Start(char* ver);
 extern void LED_Check();
 extern void Servo_Start();
@@ -515,19 +515,19 @@ void Motion_System(uint8_t Force, int16_t Degree) { //ãììÆêßå‰ Force=IR_F Degree
 	*/
 	uint16_t F = HC_Get(HC_F), B = HC_Get(HC_B), L = HC_Get(HC_L), R = HC_Get(HC_R);
 
-	if (F < 30 && F != 0) {
+	if (F < HC_FB && F != 0) {
 		M_Force = Escape;
 		M_Degree = 270;
 	}
-	if (B < 30 && B != 0) {
+	if (B < HC_FB && B != 0) {
 		M_Force = Escape;
 		M_Degree = 90;
 	}
-	if (L > 150) {
+	if (L > HC_RL) {
 		M_Force = Escape;
 		M_Degree = 180;
 	}
-	if (R > 150) {
+	if (R > HC_RL) {
 		M_Force = Escape;
 		M_Degree = 0;
 	}
@@ -716,7 +716,7 @@ bool LINE_Get() {
 	*/
 }
 
-uint16_t HC_Get(uint8_t pin) {
+uint8_t HC_Get(uint8_t pin) {
 	pinMode(pin, OUTPUT);
 	digitalWrite(pin, HIGH);
 	delayMicroseconds(10);
@@ -944,13 +944,13 @@ void UI() {
 		lcd.setCursor(0, 1);
 		lcd.print("                ");
 		lcd.setCursor(0, 1);
-		lcd.println(HC_Get(HC_F));
-		lcd.println(",");
-		lcd.println(HC_Get(HC_B));
-		lcd.println(",");
-		lcd.println(HC_Get(HC_L));
-		lcd.println(",");
-		lcd.println(HC_Get(HC_R));
+		lcd.print(HC_Get(HC_F));
+		lcd.print(",");
+		lcd.print(HC_Get(HC_B));
+		lcd.print(",");
+		lcd.print(HC_Get(HC_L));
+		lcd.print(",");
+		lcd.print(HC_Get(HC_R));
 		delay(100);
 		if (R || D || L) {
 			UI_status = 12;
@@ -990,7 +990,7 @@ void UI() {
 		lcd.setCursor(0, 1);
 		lcd.print("L:up D:down R:next");
 		if (L&&D) {
-			HC_RL = 150;
+			HC_RL = 100;
 		}
 		else if (L) {
 			HC_RL += 10;

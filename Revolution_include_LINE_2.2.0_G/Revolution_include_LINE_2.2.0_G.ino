@@ -5,6 +5,10 @@
 #define mcp1SS 9
 #define mcp2SS 10
 
+uint8_t LINE_status = 0, Old_LINE = 0;
+int16_t LINE[16], LINE_val[16];// LINE_val = 300;
+bool i2c_flag = false;
+
 void setup() {
   Serial.begin(9600);
   Wire.begin(11);
@@ -20,10 +24,12 @@ void setup() {
   SPI.setClockDivider(SPI_CLOCK_DIV2);
   SPI.setDataMode(SPI_MODE0);
   SPI.begin();
+
+  for (uint8_t i = 0; i < 16; i++) {
+	  LINE_val[i] = 0;
+  }
 }
-uint8_t LINE_status = 0,Old_LINE = 0;
-int16_t LINE[16], LINE_val = 300;
-bool i2c_flag = false;
+
 
 void loop() {
 	LINE_status = 0;
@@ -31,60 +37,74 @@ void loop() {
 		LINE[i] = mcp1Get(i);
 		Serial.print(LINE[i]);
 		Serial.print(",");
+	/*	if (i == 0|| i == 1|| i == 2|| i == 3 && LINE[i]<200) {
+			LINE[i] -= 50;
+		}
+
+		if (i == 7&&LINE[i]>200) {
+			LINE[i] += 100;
+		}*/
 	}
-	for (uint8_t i = 8; i<16; i++) {
-		LINE[i] = mcp2Get(i-8);
+	for (uint8_t i = 8; i < 16; i++) {
+		LINE[i] = mcp2Get(i - 8);
 		Serial.print(LINE[i]);
 		Serial.print(",");
-		}
+		/*if (i == 8 && LINE[i] > 200) {
+			LINE[i] += 100;
+		}*/
+	}
 	Serial.println("");
 
 	for (uint8_t i = 0; i < 16; i++) {
-		switch (i)
-		{
-		case 12://前
-		case 13:
-		case 14:
-		case 15:
-			if (LINE[i] >LINE_val) {// >黒反応(寮モード) <白反応(大会モード)
-				bitSet(LINE_status, 3);
-			}
-			break;
-		case 4://左
-		case 5:
-		case 6:
-		case 7:
-			if (LINE[i] > LINE_val) {
-				bitSet(LINE_status, 2);
-			}
-			break;
-
-		case 0://後ろ
-		case 1:
-		case 2:
-		case 3:
-			if (LINE[i] > LINE_val) {
-				bitSet(LINE_status, 1);
-			}
-			break;
-
-		case 8://右
-		case 9:
-		case 10:
-		case 11:
-			if (LINE[i] > LINE_val) {
-				bitSet(LINE_status, 0);
-			}
-			break;
-		default:
-			break;
-		}
-		if (bitRead(LINE_status, 0) == 1 || bitRead(LINE_status, 1) == 1 || bitRead(LINE_status, 2) == 1 || bitRead(LINE_status, 3) == 1) {
+		if (LINE[i] <LINE_val[i]) {// >黒反応(寮モード) <白反応(大会モード)
 			bitSet(LINE_status, 4);
 		}
+
+		//switch (i)
+		//{
+		//case 12://前
+		//case 13:
+		//case 14:
+		//case 15:
+		//	if (LINE[i] <LINE_val) {// >黒反応(寮モード) <白反応(大会モード)
+		//		bitSet(LINE_status, 3);
+		//	}
+		//	break;
+
+		//case 4://左
+		//case 5:
+		//case 6:
+		//case 7:
+		//	if (LINE[i] < LINE_val) {
+		//		bitSet(LINE_status, 2);
+		//	}
+		//	break;
+
+		//case 0://後ろ
+		//case 1:
+		//case 2:
+		//case 3:
+		//	if (LINE[i] < LINE_val) {
+		//		bitSet(LINE_status, 1);
+		//	}
+		//	break;
+
+		//case 8://右
+		//case 9:
+		//case 10:
+		//case 11:
+		//	if (LINE[i] < LINE_val) {
+		//		bitSet(LINE_status, 0);
+		//	}
+		//	break;
+		//default:
+		//	break;
+		//}
+		//if (bitRead(LINE_status, 0) == 1 || bitRead(LINE_status, 1) == 1 || bitRead(LINE_status, 2) == 1 || bitRead(LINE_status, 3) == 1) {
+		//	bitSet(LINE_status, 4);
+		//}
 	}
 	Old_LINE = LINE_status;
-// Serial.println(LINE_interrupt,BIN);.
 }
 
 int16_t mcp1Get(uint8_t ch)
@@ -118,7 +138,23 @@ void requestEvent() {
 }
 
 void receiveEvent(int x) {
-LINE_val= (Wire.read() << 8) | Wire.read();
+
+	uint8_t buf=Wire.read();
+	if (buf == 0) {
+		for (uint8_t i = 0; i < 8; i++) {
+			LINE_val[i] = (LINE_val[i] + mcp1Get(i)) / 2;
+		}
+		for (uint8_t i = 8; i < 16; i++) {
+			LINE_val[i] = (LINE_val[i] + mcp2Get(i - 8)) / 2;
+		}
+	}
+	else if (buf == 1) {
+		for (uint8_t i = 0; i < 16; i++) {
+			LINE_val[i] = 0;
+		}
+	}
+
+//LINE_val= (Wire.read() << 8) | Wire.read();
 
 /*送り方
 buf[2] = (IR_Degree >> 8) & 0x00ff;
