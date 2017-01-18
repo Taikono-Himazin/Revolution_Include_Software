@@ -51,6 +51,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Revolution_Include_Main_2.1
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Revolution_include_Main_2.1.8_C", "Revolution_include_Main_2.1.8_C\Revolution_include_Main_2.1.8_C.vcxproj", "{45EEF107-F0E1-4A8D-99AB-DC4C84E137F0}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Revolution_include_Main_2.1.8_G_C", "Revolution_include_Main_2.1.8_G_C\Revolution_include_Main_2.1.8_G_C.vcxproj", "{E005DBDA-E7E4-4054-95DD-3950E68D5358}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -141,6 +143,10 @@ Global
 		{45EEF107-F0E1-4A8D-99AB-DC4C84E137F0}.Debug|x86.Build.0 = Debug|Win32
 		{45EEF107-F0E1-4A8D-99AB-DC4C84E137F0}.Release|x86.ActiveCfg = Release|Win32
 		{45EEF107-F0E1-4A8D-99AB-DC4C84E137F0}.Release|x86.Build.0 = Release|Win32
+		{E005DBDA-E7E4-4054-95DD-3950E68D5358}.Debug|x86.ActiveCfg = Debug|Win32
+		{E005DBDA-E7E4-4054-95DD-3950E68D5358}.Debug|x86.Build.0 = Debug|Win32
+		{E005DBDA-E7E4-4054-95DD-3950E68D5358}.Release|x86.ActiveCfg = Release|Win32
+		{E005DBDA-E7E4-4054-95DD-3950E68D5358}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

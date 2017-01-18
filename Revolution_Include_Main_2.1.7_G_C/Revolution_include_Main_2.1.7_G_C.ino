@@ -16,7 +16,7 @@
 
 /*define*/
 #define M_sw 0
-#define SPEAKER 13
+#define SPEAKER A0
 #define BEEP 100
 #define Old_Persent 0.1  //1以下！ Moterの過去の値の割合 
 #define L_sw 4 
@@ -52,9 +52,9 @@ PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 
 /*リキッドクリスタル関数宣言*/
 LiquidCrystal_I2C lcd(0x3f, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);  // Set the LCD I2C address													
-																/*ここまで*/
+/*ここまで*/
 
-																/*変数宣言*/
+/*変数宣言*/
 int16_t  HMC_Now = 0, HMC_val= 0, HMC_Offset = 0, old_Moter_D = 0;
 uint8_t LINE_Status = 0, UI_status = 0;
 uint16_t IR_F = 0, IR_D = 0, old_Moter_F = 0, LINE_NOW, LINE_count = 0, LINE_M, LINE_D;
@@ -84,7 +84,7 @@ extern void LINE_Set(uint16_t val);
 
 /*--プログラム--*/
 void setup() {
-	//Serial.begin(115200);
+	Serial.begin(115200);
 	Wire.begin();
 	i2c_faster();
 
@@ -637,7 +637,7 @@ void LINE_Get() {
 	//	Serial.println(LINE_Status,BIN);
 	if (bitRead(LINE_Status, 4) == 1) {
 		digitalWrite(LED_L, HIGH);
-		LINE_count = 70;
+		LINE_count = 50;
 		if (bitRead(LINE_Status, 0) == 1) {//右
 			LINE_R = true;
 			//if (bitRead(LINE_Status, 1) == 1) {//右かつ後ろ
@@ -911,6 +911,24 @@ void UI() {
 			delay(UI_Delay);
 		}
 		break;
+	/*case 11:
+		lcd.home();
+		lcd.print("LINE_status:       ");
+		lcd.setCursor(0, 1);
+		LINE_Get();
+		lcd.print(LINE_F);
+		lcd.print(",");
+		lcd.print(LINE_B);
+		lcd.print(",");
+		lcd.print(LINE_R);
+		lcd.print(",");
+		lcd.print(LINE_L);
+		if (L||D||R) {
+			UI_status = 2;
+			lcd.clear();
+			delay(UI_Delay);
+		}
+		break;*/
 	default:
 		lcd.clear();
 		lcd.print("ERRER AUTO REPAIR");
@@ -919,7 +937,7 @@ void UI() {
 		break;
 	}
 
-}/*初期化関数*/
+}
 
  /*初期化関数*/
 void lcd_Start(char* ver) {
@@ -996,7 +1014,7 @@ void HMC_Start() {
 void PID_Start() {
 	myPID.SetOutputLimits(-255, 255);
 	myPID.SetMode(AUTOMATIC);
-	myPID.SetSampleTime(15);
+	myPID.SetSampleTime(6);
 	Setpoint = 180;
 }
 
