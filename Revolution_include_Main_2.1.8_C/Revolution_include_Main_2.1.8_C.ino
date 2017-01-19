@@ -541,7 +541,7 @@ void Motion_System(uint8_t Force, int16_t Degree) { //ãììÆêßå‰ Force=IR_F Degree
 			HC_TRIG = false;
 		}
 		if (F < HC_FB && F != 0) {//ëO
-			if (Degree >= 0 && Degree <= 90) {
+			if (Degree >= 0 && Degree <= 180) {
 				M_Force = 0;
 			}
 			else {
@@ -550,7 +550,7 @@ void Motion_System(uint8_t Force, int16_t Degree) { //ãììÆêßå‰ Force=IR_F Degree
 			}
 		}
 		if (B < HC_FB && B != 0) {//å„ÇÎ
-			if (Degree >= 180 && Degree <= 270) {
+			if (Degree >= 180 || Degree==0){
 				M_Force = 0;
 			}
 			else {
@@ -996,7 +996,7 @@ void UI() {
 			M_P = 255;
 		}
 		else if (L) {
-			HC_RL += 5;
+			M_P+= 5;
 			delay(UI_Delay);
 		}
 		else if (R) {
@@ -1005,7 +1005,7 @@ void UI() {
 			delay(UI_Delay);
 		}
 		else if (D) {
-			HC_RL -= 5;
+			M_P -= 5;
 			delay(UI_Delay);
 		}
 		EEPROM.write(1, M_P);

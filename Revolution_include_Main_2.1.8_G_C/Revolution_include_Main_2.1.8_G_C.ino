@@ -60,16 +60,16 @@ LiquidCrystal_I2C lcd(0x3f, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);  // Set the LCD I
 																/*ここまで*/
 
 																/*変数宣言*/
-int16_t  HMC_Now = 0, HMC_val = 0, HMC_Offset = 0, old_Moter_D = 0;
-uint8_t LINE_Status = 0, UI_status = 0, HC_FB = 30, HC_RL = 100;
-uint16_t IR_F = 0, IR_D = 0, old_Moter_F = 0, LINE_NOW, LINE_count, LINE_M, LINE_D, F, B, L, R, M_P;
+int16_t  HMC_Now = 0, HMC_val = 0, HMC_Offset = 0, old_Moter_D = 0, LINE_count;
+uint8_t LINE_Status = 0, UI_status = 0, HC_FB = 30, HC_RL = 100, M_Force,M_Degree;
+uint16_t IR_F = 0, IR_D = 0, old_Moter_F = 0, LINE_NOW, LINE_M, LINE_D, F, B, L, R, M_P;
 boolean change1 = true, change2 = false, LINE_F = false, LINE_R = false, LINE_B = false, LINE_L = false;
 /*ここまで*/
 
 //プロトタイプ宣言(不必要のため途中からコメントアウト　エラー起こしたらしてみて
 extern void setup();
 extern void loop();
-extern void moter(uint8_t Force, int16_t Degree);
+extern void moter(uint8_t Force, int16_t Degree,bool mode=false);
 extern void HMC_Get();
 extern void sleep();
 extern void IR_Get();
@@ -130,13 +130,7 @@ void loop() {
 			LEDoff(LED_L);
 		}
 		IR_Get();
-		if (LINE_count == 0) {
 			Motion_System(IR_F, IR_D);
-		}
-		else {
-			LINE_count--;
-			moter(LINE_M, LINE_D);
-		}
 	}
 	else {
 		if (change2) {
@@ -152,76 +146,82 @@ void loop() {
 }
 
 /*--自作関数--*/
-void moter(uint8_t Force, int16_t Degree) { //一応解読したがいじれるほどはわからん。とりあえず同じ形ならそのままいこう
+void moter(uint8_t Force, int16_t Degree,bool mode=false) { //一応解読したがいじれるほどはわからん。とりあえず同じ形ならそのままいこう
+		int16_t m1, m2;
+		old_Moter_D = old_Moter_D*Old_Persent + Degree*(1 - Old_Persent);
+		old_Moter_F = old_Moter_F*Old_Persent + Force*(1 - Old_Persent);
+	
+		int16_t m1_D = old_Moter_D - 45;
+		if (m1_D < 0) m1_D = m1_D + 360;
+		else if (m1_D > 359) m1_D = m1_D - 360;
 
-	int16_t m1, m2;
-	old_Moter_D = old_Moter_D*Old_Persent + Degree*(1 - Old_Persent);
-	old_Moter_F = old_Moter_F*Old_Persent + Force*(1 - Old_Persent);
+		m1 = sin((float)m1_D * 0.01745329) * old_Moter_F; // sin でもcosじゃないと理解不能
 
-	int16_t m1_D = old_Moter_D - 45;
-	if (m1_D < 0) m1_D = m1_D + 360;
-	else if (m1_D > 359) m1_D = m1_D - 360;
+		int16_t m2_D = old_Moter_D - 315;
+		if (m2_D < 0) m2_D = m2_D + 360;
+		else if (m2_D > 359) m2_D = m2_D - 360;
 
-	m1 = sin((float)m1_D * 0.01745329) * old_Moter_F; // sin でもcosじゃないと理解不能
+		m2 = sin((float)m2_D * 0.01745329) * old_Moter_F;
 
-	int16_t m2_D = old_Moter_D - 315;
-	if (m2_D < 0) m2_D = m2_D + 360;
-	else if (m2_D > 359) m2_D = m2_D - 360;
+		int16_t F_max = abs(m1);
+		if (F_max < abs(m2)) F_max = abs(m2);
 
-	m2 = sin((float)m2_D * 0.01745329) * old_Moter_F;
+		float k = (float)old_Moter_F / F_max;//各モーターの比を保ちながら最大値を225に
+		m1 = m1 * k;
+		m2 = m2 * k;
 
-	int16_t F_max = abs(m1);
-	if (F_max < abs(m2)) F_max = abs(m2);
+		int16_t m3 = -m1;//反対に位置しているから反転
+		int16_t m4 = -m2;
 
-	float k = (float)old_Moter_F / F_max;//各モーターの比を保ちながら最大値を225に
-	m1 = m1 * k;
-	m2 = m2 * k;
+		if (mode) {
+			m1 = -m1;
+			m2 = -m2;
+			m3 = -m3;
+			m4 = -m4;
+		}
 
-	int16_t m3 = -m1;//反対に位置しているから反転
-	int16_t m4 = -m2;
+		HMC_Get();//ジャイロのデータを取得
+		Input = HMC_val; //ジャイロのデータをInput関数に突っ込む
+		myPID.Compute(); //pid計算
 
-	HMC_Get();//ジャイロのデータを取得
-	Input = HMC_val; //ジャイロのデータをInput関数に突っ込む
-	myPID.Compute(); //pid計算
+		m1 = m1 - Output;//pidのデータをモーターに突っ込む
+		m2 = m2 - Output;
+		m3 = m3 - Output;
+		m4 = m4 - Output;
+		m1 = constrain(m1, -255, 255);
+		m2 = constrain(m2, -255, 255);
+		m3 = constrain(m3, -255, 255);
+		m4 = constrain(m4, -255, 255);
 
-	m1 = m1 - Output;//pidのデータをモーターに突っ込む
-	m2 = m2 - Output;
-	m3 = m3 - Output;
-	m4 = m4 - Output;
-	m1 = constrain(m1, -255, 255);
-	m2 = constrain(m2, -255, 255);
-	m3 = constrain(m3, -255, 255);
-	m4 = constrain(m4, -255, 255);
+		/*
+		lcd.print(m1);
+		lcd.print(",");
+		lcd.print(m2);
+		lcd.setCursor(0, 1);
+		lcd.print(m3);
+		lcd.print(",");
+		lcd.print(m4);
+		lcd.print(",");
+		*/
 
-	/*
-	lcd.print(m1);
-	lcd.print(",");
-	lcd.print(m2);
-	lcd.setCursor(0, 1);
-	lcd.print(m3);
-	lcd.print(",");
-	lcd.print(m4);
-	lcd.print(",");
-	*/
+		uint8_t buf[5];//送信
+		bitSet(buf[4], 4); //モータの電源on
+		if (m1 < 0) bitSet(buf[4], 0);
+		else bitClear(buf[4], 0);
+		buf[0] = abs(m1);
+		if (m2 < 0) bitSet(buf[4], 1);//モーターの配線を間違えた
+		else bitClear(buf[4], 1);
+		buf[1] = abs(m2);
+		if (m3 < 0) bitSet(buf[4], 2);
+		else bitClear(buf[4], 2);
+		buf[2] = abs(m3);
+		if (m4 < 0) bitSet(buf[4], 3);
+		else bitClear(buf[4], 3);
+		buf[3] = abs(m4);
 
-	uint8_t buf[5];//送信
-	bitSet(buf[4], 4); //モータの電源on
-	if (m1 < 0) bitSet(buf[4], 0);
-	else bitClear(buf[4], 0);
-	buf[0] = abs(m1);
-	if (m2 < 0) bitSet(buf[4], 1);//モーターの配線を間違えた
-	else bitClear(buf[4], 1);
-	buf[1] = abs(m2);
-	if (m3 < 0) bitSet(buf[4], 2);
-	else bitClear(buf[4], 2);
-	buf[2] = abs(m3);
-	if (m4 < 0) bitSet(buf[4], 3);
-	else bitClear(buf[4], 3);
-	buf[3] = abs(m4);
-
-	Wire.beginTransmission(80);
-	Wire.write(buf, 5);
-	Wire.endTransmission();
+		Wire.beginTransmission(80);
+		Wire.write(buf, 5);
+		Wire.endTransmission();
 }
 
 void HMC_Get() {
@@ -276,8 +276,9 @@ void IR_Get() {
 }
 
 void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F Degree=IR_D
-	int16_t M_Degree = 0, Dri1_Power, Dri2_Power;
-	uint8_t	M_Force = 255;
+	int16_t Dri1_Power, Dri2_Power;
+	M_Force = M_P;
+	M_Degree = 0;
 	static uint8_t count = C_Reset, count2 = C_Reset2;
 	//bool Ball1 = analogRead(A6) > 950;
 	//bool Ball2 = analogRead(A7) > 950;
@@ -516,59 +517,49 @@ void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F Degree
 	static bool HC_TRIG;
 	if (LINE_Get()) {
 		HC_TRIG = true;
-		/*if (Force != 0) {
-			if (F < HC_FB + 20 && F != 0) {
-				M_Force = Escape;
-			}
-			if (B < HC_FB + 20 && B != 0) {
-				M_Force = Escape;
-			}
-			if (L > HC_RL - 20) {
-				M_Force = Escape;
-			}
-			if (R > HC_RL - 20) {
-				M_Force = Escape;
-			}
-		}*/
-
 	}else {
 		if (HC_TRIG) { 
 			  F = HC_Get(HC_F), B = HC_Get(HC_B), L = HC_Get(HC_L), R = HC_Get(HC_R); 
 			  HC_TRIG = false;
 		}
 		if (F < HC_FB && F != 0) {//前
-			if (Degree >= 0 && Degree <= 90) {
+			if (Degree >= 0 && Degree <= 180) {
 				M_Force = 0;
 			}
 			else {
 				M_Force = 255;
 				M_Degree = 270;
+				LINE_count = 0;
 			}
 		}
 		if (B < HC_FB && B != 0) {//後ろ
-			if (Degree >= 180 && Degree <= 270) {
+			if (Degree >= 180 || Degree ==0) {
 				M_Force = 0;
 			}
 			else {
 				M_Force = 255;
 				M_Degree = 90;
+				LINE_count = 0;
 			}
 		}
-		if (L > HC_RL) {//右
-			if (Degree < 90 && Degree >= 270) {
+		if (R < HC_RL&& R != 0) {//右
+			if (Degree < 90 || Degree >= 270) {
 				M_Force = 0;
-			}else {
+			}
+			else {
 			M_Force = 255;
 			M_Degree = 180;
+			LINE_count = 0;
 		}
 		}
-		if (R > HC_RL) {//左
+		if (L < HC_RL&& L != 0) {//左
 			if (Degree >= 90 && Degree < 270) {
 				M_Force = 0;
 			}
 			else {
 				M_Force = 255;
 				M_Degree = 0;
+				LINE_count = 0;
 			}
 		}
 	}
@@ -680,14 +671,18 @@ void Melody(uint8_t mode) {
 bool LINE_Get() {
 	Wire.requestFrom(11, 1);
 	uint8_t buf;
-	bool i;
+	bool i,j;
 	buf = Wire.read();
-//	LINE_F = false, LINE_R = false, LINE_B = false, LINE_L = false;
 	LINE_Status = buf;
 	//	Serial.println(LINE_Status,BIN);
 	if (bitRead(LINE_Status, 4) == 1) {
+		if (j) {
+			moter(M_Force, M_Degree, true);
+			j = false;
+		}
 		digitalWrite(LED_L, HIGH);
 		i = false;
+		LINE_count = 50;
 		//LINE_count = 50;
 		//if (bitRead(LINE_Status, 0) == 1) {//右
 		//	LINE_R = true;
@@ -739,10 +734,20 @@ bool LINE_Get() {
 		//	//moter(255, 270);
 		//	//LINE_M = 255; LINE_D = 270;
 		//}
+
+		
 	}
 	else {
-		i = true;
 		digitalWrite(LED_L, LOW);
+		if (LINE_count == 0) {
+			i = true;
+			j = true;
+		}
+		else {
+			i = false;
+			LINE_count--;
+		}
+
 	}
 	return i;
 	/*
@@ -878,6 +883,7 @@ void UI() {
 		static uint8_t count;
 		lcd.home();
 		lcd.print("LINE_Val_set:");
+		lcd.print(count);
 		lcd.setCursor(0, 1);
 		lcd.print("L:re D:set R:next");
 		if (D) {
@@ -885,8 +891,6 @@ void UI() {
 			Wire.write(0);
 			Wire.endTransmission();
 			Melody(2);
-			lcd.setCursor(13, 0);
-			lcd.print(count + 1);
 			count++;
 			delay(UI_Delay);
 		}
@@ -900,6 +904,7 @@ void UI() {
 			Wire.beginTransmission(11);
 			Wire.write(1);
 			Wire.endTransmission();
+			count = 0;
 			delay(UI_Delay);
 			Melody(1);
 		}
@@ -986,7 +991,7 @@ void UI() {
 			M_P = 255;
 		}
 		else if (L) {
-			HC_RL += 5;
+			M_P += 5;
 			delay(UI_Delay);
 		}
 		else if (R) {
@@ -995,7 +1000,7 @@ void UI() {
 			delay(UI_Delay);
 		}
 		else if (D) {
-			HC_RL -= 5;
+			M_P -= 5;
 			delay(UI_Delay);
 		}
 		EEPROM.write(1, M_P);
