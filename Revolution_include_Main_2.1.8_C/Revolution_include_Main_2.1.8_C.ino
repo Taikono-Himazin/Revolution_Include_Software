@@ -64,14 +64,14 @@ LiquidCrystal_I2C lcd(0x3f, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);  // Set the LCD I
 																/*•Ï”éŒ¾*/
 int16_t  HMC_Now = 0, HMC_val = 0, HMC_Offset = 0, old_Moter_D = 0;
 uint8_t LINE_Status = 0, UI_status = 0, HC_FB=30, HC_RL=100;
-uint16_t IR_F = 0, IR_D = 0, old_Moter_F = 0, LINE_NOW, LINE_count, LINE_M, LINE_D;
+uint16_t IR_F = 0, IR_D = 0, old_Moter_F = 0, LINE_NOW, LINE_count, LINE_M, LINE_D, F, B, L, R,M_P;
 boolean change1 = true, change2 = false, LINE_F = false, LINE_R = false, LINE_B = false, LINE_L = false;
 /*‚±‚±‚Ü‚Å*/
 
 //ƒvƒƒgƒ^ƒCƒvéŒ¾(•s•K—v‚Ì‚½‚ß“r’†‚©‚çƒRƒƒ“ƒgƒAƒEƒg@ƒGƒ‰[‹N‚±‚µ‚½‚ç‚µ‚Ä‚İ‚Ä
-void setup();
+extern void setup();
 extern void loop();
-extern void moter(uint8_t Force, int16_t Degree, bool PID = true);
+extern void moter(uint8_t Force, int16_t Degree);
 extern void HMC_Get();
 extern void sleep();
 extern void IR_Get();
@@ -80,13 +80,13 @@ extern void Spin(boolean D);
 extern void Melody(uint8_t mode);
 extern bool LINE_Get();
 extern void UI();
-extern uint8_t HC_Get(uint8_t pin);
 extern void lcd_Start(char* ver);
 extern void LED_Check();
 extern void Servo_Start();
 extern void HMC_Start();
 extern void PID_Start();
 extern void LINE_Set(uint16_t val);
+
 /*‚±‚±‚Ü‚Å*/
 
 /*--ƒvƒƒOƒ‰ƒ€--*/
@@ -102,9 +102,10 @@ void setup() {
 	HMC_Start();
 
 	Servo_Start();
-	uint16_t val = (EEPROM.read(1) << 8) | EEPROM.read(2); // LINEè‡’l“Ç‚İ‚İ
-	LINE_Set(val);
-
+	M_P = EEPROM.read(1); // M_Pè‡’l“Ç‚İ‚İ
+	HC_FB = EEPROM.read(2);
+	HC_RL = EEPROM.read(3);
+	
 	while (digitalRead(M_sw) == LOW) {
 		Melody(1);
 		delay(1000);
@@ -119,7 +120,7 @@ void setup() {
 	lcd.setCursor(0, 1);
 	lcd.print("ALL OK");
 
-	UI_status = 9;
+	UI_status = 3;
 	Melody(0);
 }
 
@@ -161,7 +162,7 @@ void loop() {
 }
 
 /*--©ìŠÖ”--*/
-void moter(uint8_t Force, int16_t Degree, bool PID = true) { //ˆê‰‰ğ“Ç‚µ‚½‚ª‚¢‚¶‚ê‚é‚Ù‚Ç‚Í‚í‚©‚ç‚ñB‚Æ‚è‚ ‚¦‚¸“¯‚¶Œ`‚È‚ç‚»‚Ì‚Ü‚Ü‚¢‚±‚¤
+void moter(uint8_t Force, int16_t Degree) { //ˆê‰‰ğ“Ç‚µ‚½‚ª‚¢‚¶‚ê‚é‚Ù‚Ç‚Í‚í‚©‚ç‚ñB‚Æ‚è‚ ‚¦‚¸“¯‚¶Œ`‚È‚ç‚»‚Ì‚Ü‚Ü‚¢‚±‚¤
 
 	int16_t m1, m2;
 	old_Moter_D = old_Moter_D*Old_Persent + Degree*(1 - Old_Persent);
@@ -188,7 +189,7 @@ void moter(uint8_t Force, int16_t Degree, bool PID = true) { //ˆê‰‰ğ“Ç‚µ‚½‚ª‚¢‚
 
 	int16_t m3 = -m1;//”½‘Î‚ÉˆÊ’u‚µ‚Ä‚¢‚é‚©‚ç”½“]
 	int16_t m4 = -m2;
-	if (PID) {
+	
 		HMC_Get();//ƒWƒƒƒCƒ‚Ìƒf[ƒ^‚ğæ“¾
 		Input = HMC_val; //ƒWƒƒƒCƒ‚Ìƒf[ƒ^‚ğInputŠÖ”‚É“Ë‚Á‚Ş
 		myPID.Compute(); //pidŒvZ
@@ -201,8 +202,7 @@ void moter(uint8_t Force, int16_t Degree, bool PID = true) { //ˆê‰‰ğ“Ç‚µ‚½‚ª‚¢‚
 		m2 = constrain(m2, -255, 255);
 		m3 = constrain(m3, -255, 255);
 		m4 = constrain(m4, -255, 255);
-	}
-
+	
 	/*lcd.print(m1);
 	lcd.print(",");
 	lcd.print(m2);
@@ -285,7 +285,7 @@ void IR_Get() {
 
 void Motion_System(uint8_t Force, int16_t Degree) { //‹““®§Œä Force=IR_F Degree=IR_D
 	int16_t M_Degree = 0, Dri1_Power, Dri2_Power;
-	uint8_t	M_Force = 100;
+	uint8_t	M_Force = M_P;
 	static uint8_t count = C_Reset, count2 = C_Reset2;
 	bool Ball1 = analogRead(A6) > 950;
 	bool Ball2 = analogRead(A7) > 950;
@@ -471,6 +471,7 @@ void Motion_System(uint8_t Force, int16_t Degree) { //‹““®§Œä Force=IR_F Degree
 		Dri1_Power = 0;
 		Dri2_Power = 0;
 	}
+
 	/*
 	double rad = M_Degree*3.141592653589793 / 180.0;//Šp“x‚Ìƒ‰ƒWƒAƒ“
 	if (LINE_B&&M_Degree >= 180) {//Œã‚ë‚Ìƒ‰ƒCƒ“ˆ—
@@ -513,28 +514,69 @@ void Motion_System(uint8_t Force, int16_t Degree) { //‹““®§Œä Force=IR_F Degree
 	}
 	}
 	*/
-	uint16_t F = HC_Get(HC_F), B = HC_Get(HC_B), L = HC_Get(HC_L), R = HC_Get(HC_R);
+	
 
-	if (F < HC_FB && F != 0) {
+	static bool HC_TRIG;
+	if (LINE_Get()) {
+		HC_TRIG = true;
+		/*if (Force != 0) {
+		if (F < HC_FB + 20 && F != 0) {
 		M_Force = Escape;
-		M_Degree = 270;
-	}
-	if (B < HC_FB && B != 0) {
+		}
+		if (B < HC_FB + 20 && B != 0) {
 		M_Force = Escape;
-		M_Degree = 90;
-	}
-	if (L > HC_RL) {
+		}
+		if (L > HC_RL - 20) {
 		M_Force = Escape;
-		M_Degree = 180;
-	}
-	if (R > HC_RL) {
+		}
+		if (R > HC_RL - 20) {
 		M_Force = Escape;
-		M_Degree = 0;
-	}
+		}
+		}*/
 
-
-	//if (LINE_Get()) {
-
+	}
+	else {
+		if (HC_TRIG) {
+			F = HC_Get(HC_F), B = HC_Get(HC_B), L = HC_Get(HC_L), R = HC_Get(HC_R);
+			HC_TRIG = false;
+		}
+		if (F < HC_FB && F != 0) {//‘O
+			if (Degree >= 0 && Degree <= 90) {
+				M_Force = 0;
+			}
+			else {
+				M_Force = 255;
+				M_Degree = 270;
+			}
+		}
+		if (B < HC_FB && B != 0) {//Œã‚ë
+			if (Degree >= 180 && Degree <= 270) {
+				M_Force = 0;
+			}
+			else {
+				M_Force = 255;
+				M_Degree = 90;
+			}
+		}
+		if (L > HC_RL) {//‰E
+			if (Degree < 90 && Degree >= 270) {
+				M_Force = 0;
+			}
+			else {
+				M_Force = 255;
+				M_Degree = 180;
+			}
+		}
+		if (R > HC_RL) {//¶
+			if (Degree >= 90 && Degree < 270) {
+				M_Force = 0;
+			}
+			else {
+				M_Force = 255;
+				M_Degree = 0;
+			}
+		}
+	}
 	if (count <= 0) {
 		Spin(true);
 		count = C_Reset;
@@ -545,8 +587,6 @@ void Motion_System(uint8_t Force, int16_t Degree) { //‹““®§Œä Force=IR_F Degree
 		myServo1.write(Dri1_Power);
 		myServo2.write(Dri2_Power);
 	}
-	//	}
-
 }
 
 void Spin(boolean D) {
@@ -631,6 +671,11 @@ void Melody(uint8_t mode) {
 		tone(SPEAKER, 262, BEEP);
 		delay(BEEP);
 		tone(SPEAKER, 262, BEEP);
+		delay(BEEP);
+		noTone(SPEAKER);
+	}
+	else if (mode == 2) {
+		tone(SPEAKER, 1319, BEEP);
 		delay(BEEP);
 		noTone(SPEAKER);
 	}
@@ -731,57 +776,28 @@ void UI() {
 	bool R = digitalRead(R_sw) == HIGH;
 	switch (UI_status)
 	{
-		/*	case 0:
-		lcd.home();
-		lcd.print("Revolution    ");
-		lcd.setCursor(0, 1);
-		lcd.print("         Include");
-		if (L || D || R) {
-		UI_status = 10;
-		lcd.clear();
-		delay(UI_Delay);
-		}
-		break;
-		/*
-		case 1:
-		lcd.home();
-		lcd.print("Main Menu");
-		lcd.setCursor(0, 1);
-		lcd.print("L:exit D: R:set");
-		if (R) {
-		UI_status = 8;
-		lcd.clear();
-		delay(UI_Delay);
-		}
-		else if (L) {
-		UI_status = 0;
-		lcd.clear();
-		delay(UI_Delay);
-		}
-		break;
-		*/
-	case 2:
+	case 0:
 		lcd.home();
 		lcd.print("Dribler test");
 		lcd.setCursor(0, 1);
 		lcd.print("L:1 D:2 R:next");
 		if (L) {
-			UI_status = 3;
+			UI_status = 1;
 			lcd.clear();
 			delay(UI_Delay);
 		}
 		else if (D) {
-			UI_status = 4;
+			UI_status = 2;
 			lcd.clear();
 			delay(UI_Delay);
 		}
 		else if (R) {
-			UI_status = 9;
+			UI_status = 3;
 			lcd.clear();
 			delay(UI_Delay);
 		}
 		break;
-	case 3:
+	case 1:
 		lcd.home();
 		lcd.print("Dribler 1 test");
 		lcd.setCursor(0, 1);
@@ -797,12 +813,12 @@ void UI() {
 		}
 		if (R) {
 			myServo1.write(0);
-			UI_status = 2;
+			UI_status = 0;
 			lcd.clear();
 			delay(UI_Delay);
 		}
 		break;
-	case 4:
+	case 2:
 		lcd.home();
 		lcd.print("Dribler 2 test");
 		lcd.setCursor(0, 1);
@@ -817,75 +833,12 @@ void UI() {
 		}
 		if (R) {
 			myServo2.write(0);
-			UI_status = 9;
+			UI_status = 0;
 			lcd.clear();
 			delay(UI_Delay);
 		}
 		break;
-		/*case 5:
-		lcd.home();
-		lcd.print("LED test");
-		lcd.setCursor(0, 1);
-		lcd.print("L: D:Yes R:next");
-		if (D) {
-		LED_Check();
-		}
-		else if (R) {
-		UI_status = 6;
-		lcd.clear();
-		delay(UI_Delay);
-		}
-		break;
-		case 6:
-		lcd.home();
-		lcd.print("Gyro&IR Monitor");
-		lcd.setCursor(0, 1);
-		lcd.print("L: D:Yes R:next");
-		if (D) {
-		UI_status = 7;
-		lcd.clear();
-		delay(UI_Delay);
-		}
-		else if (R) {
-		UI_status = 8;
-		lcd.clear();
-		delay(UI_Delay);
-		}
-		break;*/
-	case 7:
-		HMC_Get();
-		IR_Get();
-		lcd.clear();
-		lcd.home();
-		lcd.print("IR   ");
-		lcd.print(IR_D);
-		lcd.setCursor(0, 1);
-		lcd.print("HMC ");
-		lcd.print(HMC_val);
-		if (L || D || R) {
-			UI_status = 10;
-			lcd.clear();
-			delay(UI_Delay);
-		}
-		delay(30);
-		break;
-		/*	case 8:
-		lcd.home();
-		lcd.print("Gyro Set");
-		lcd.setCursor(0, 1);
-		lcd.print("L: D:Yes R:next");
-		if (D) {
-		UI_status = 9;
-		lcd.clear();
-		delay(UI_Delay);
-		}
-		else if (R) {
-		UI_status = 10;
-		lcd.clear();
-		delay(UI_Delay);
-		}
-		break;*/
-	case 9:
+	case 3:
 		lcd.home();
 		lcd.print("HMC             ");
 		HMC_Get();
@@ -901,7 +854,7 @@ void UI() {
 			lcd.setCursor(0, 1);
 			lcd.print("Set completed!");
 			delay(1000);
-			UI_status = 7;
+			UI_status = 4;
 			lcd.clear();
 			delay(UI_Delay);
 		}
@@ -909,56 +862,79 @@ void UI() {
 			HMC_Start();
 		}
 		else if (R) {
-			UI_status = 7;
+			UI_status = 4;
 			lcd.clear();
 			delay(UI_Delay);
 		}
 		break;
-	case 10:
+	case 4:
+		HMC_Get();
+		IR_Get();
+		lcd.clear();
 		lcd.home();
-		lcd.print("LINE_Val:       ");
-		lcd.setCursor(9, 0);
-		lcd.print(LINE_NOW);
+		lcd.print("IR   ");
+		lcd.print(IR_D);
 		lcd.setCursor(0, 1);
-		lcd.print("L:up D:down R:next");
-		if (L&&D) {
-			LINE_Set(140);
+		lcd.print("HMC ");
+		lcd.print(HMC_val);
+		if (L || D || R) {
+			UI_status = 5;
+			lcd.clear();
+			delay(UI_Delay);
 		}
-		else if (L) {
-			LINE_Set(LINE_NOW + 10);
+		delay(30);
+		break;
+	case 5:
+		static uint8_t count;
+		lcd.home();
+		lcd.print("LINE_Val_set:");
+		lcd.setCursor(0, 1);
+		lcd.print("L:re D:set R:next");
+		if (D) {
+			Wire.beginTransmission(11);
+			Wire.write(0);
+			Wire.endTransmission();
+			Melody(2);
+			lcd.setCursor(13, 0);
+			lcd.print(count + 1);
+			count++;
 			delay(UI_Delay);
 		}
 		else if (R) {
-			UI_status = 11;
+			UI_status = 6;
+			count = 0;
 			lcd.clear();
 			delay(UI_Delay);
 		}
-		else if (D) {
-			LINE_Set(LINE_NOW - 10);
+		else if (L) {
+			Wire.beginTransmission(11);
+			Wire.write(1);
+			Wire.endTransmission();
 			delay(UI_Delay);
+			Melody(1);
 		}
 		break;
-	case 11:
+	case 6:
 		lcd.home();
 		lcd.print("HC_Val:       ");
 		lcd.setCursor(0, 1);
 		lcd.print("                ");
 		lcd.setCursor(0, 1);
 		lcd.print(HC_Get(HC_F));
-		lcd.print(",");
+		lcd.setCursor(4, 1);
 		lcd.print(HC_Get(HC_B));
-		lcd.print(",");
+		lcd.setCursor(8, 1);
 		lcd.print(HC_Get(HC_L));
-		lcd.print(",");
+		lcd.setCursor(12, 1);
 		lcd.print(HC_Get(HC_R));
 		delay(100);
 		if (R || D || L) {
-			UI_status = 12;
+			UI_status = 7;
 			lcd.clear();
 			delay(UI_Delay);
 		}
 		break;
-	case 12:
+	case 7:
 		lcd.home();
 		lcd.print("HC_FB:       ");
 		lcd.setCursor(7, 0);
@@ -973,7 +949,7 @@ void UI() {
 			delay(UI_Delay);
 		}
 		else if (R) {
-			UI_status = 13;
+			UI_status = 8;
 			lcd.clear();
 			delay(UI_Delay);
 		}
@@ -981,8 +957,10 @@ void UI() {
 			HC_FB -= 10;
 			delay(UI_Delay);
 		}
+		EEPROM.write(2, HC_FB);
 		break;
-	case 13:
+
+	case 8:
 		lcd.home();
 		lcd.print("HC_RL:       ");
 		lcd.setCursor(7, 0);
@@ -997,7 +975,7 @@ void UI() {
 			delay(UI_Delay);
 		}
 		else if (R) {
-			UI_status = 2;
+			UI_status = 9;
 			lcd.clear();
 			delay(UI_Delay);
 		}
@@ -1005,12 +983,38 @@ void UI() {
 			HC_RL -= 10;
 			delay(UI_Delay);
 		}
+		EEPROM.write(3, HC_RL);
+		break;
+	case 9:
+		lcd.home();
+		lcd.print("Moter_P:       ");
+		lcd.setCursor(9, 0);
+		lcd.print(M_P);
+		lcd.setCursor(0, 1);
+		lcd.print("L:up D:down R:next");
+		if (L&&D) {
+			M_P = 255;
+		}
+		else if (L) {
+			HC_RL += 5;
+			delay(UI_Delay);
+		}
+		else if (R) {
+			UI_status = 0;
+			lcd.clear();
+			delay(UI_Delay);
+		}
+		else if (D) {
+			HC_RL -= 5;
+			delay(UI_Delay);
+		}
+		EEPROM.write(1, M_P);
 		break;
 	default:
 		lcd.clear();
 		lcd.print("ERRER AUTO REPAIR");
 		delay(1000);
-		UI_status = 2;
+		UI_status = 0;
 		break;
 	}
 
