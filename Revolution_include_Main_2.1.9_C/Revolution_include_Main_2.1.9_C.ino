@@ -1060,6 +1060,6 @@ void HMC_Start() {
 void PID_Start() {
 	myPID.SetOutputLimits(-255, 255);
 	myPID.SetMode(AUTOMATIC);
-	myPID.SetSampleTime(15);
+	myPID.SetSampleTime(25);
 	Setpoint = 180;
 }

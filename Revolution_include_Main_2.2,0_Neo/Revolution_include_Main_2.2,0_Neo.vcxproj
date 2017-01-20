@@ -11,23 +11,21 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{FF47B0B2-BF08-435B-A9D6-97D968684B48}</ProjectGuid>
-    <RootNamespace>Revolution_include_Main_2_1_6_G</RootNamespace>
-    <ProjectName>Revolution_include_Main_2.1.6_G</ProjectName>
+    <ProjectGuid>{C5F80730-F44F-4478-BDAE-6634EFC2CA88}</ProjectGuid>
+    <RootNamespace>Revolution_include_Main_2_2_0_Neo</RootNamespace>
+    <ProjectName>Sketch</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>
-    </PlatformToolset>
+    <PlatformToolset></PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>
-    </PlatformToolset>
+    <PlatformToolset></PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -42,15 +40,16 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup />
+
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\Program Files (x86)\Arduino\libraries\Servo\src;C:\Users\Taikono-Himazin\Documents\Arduino\libraries\Utility;C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\Wire\src;C:\Program Files (x86)\Arduino\libraries\br3ttb-Arduino-PID-Library-fb095d8;C:\Program Files (x86)\Arduino\libraries\MPU6050;C:\Program Files (x86)\Arduino\libraries\I2Cdev;C:\Program Files (x86)\Arduino\libraries\NewliquidCrystal;C:\Program Files (x86)\Arduino\libraries\NewliquidCrystal\utility;C:\Users\Taikono-Himazin\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.17\libraries\Wire\src;C:\Users\Taikono-Himazin\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.17\libraries\Wire\src\utility;C:\Program Files (x86)\Arduino\libraries;C:\Users\Taikono-Himazin\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.17\libraries;C:\Users\Taikono-Himazin\Documents\Arduino\libraries;C:\Users\Taikono-Himazin\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.17\cores\arduino;C:\Users\Taikono-Himazin\AppData\Local\arduino15\packages\arduino\hardware\avr\1.6.17\variants\eightanaloginputs;$(ProjectDir)..\Revolution_include_Main_2.1.6_G;C:\Users\Taikono-Himazin\AppData\Local\arduino15\packages\arduino\tools\avr-gcc\4.9.2-atmel3.5.3-arduino2\avr\include\;C:\Users\Taikono-Himazin\AppData\Local\arduino15\packages\arduino\tools\avr-gcc\4.9.2-atmel3.5.3-arduino2\avr\include\avr\;C:\Users\Taikono-Himazin\AppData\Local\arduino15\packages\arduino\tools\avr-gcc\4.9.2-atmel3.5.3-arduino2\lib\gcc\avr\4.9.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <ForcedIncludeFiles>$(ProjectDir)__vm\.Revolution_include_Main_2.1.6_G.vsarduino.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
-      <IgnoreStandardIncludePath>false</IgnoreStandardIncludePath>
-      <PreprocessorDefinitions>__AVR_ATmega328p__;__AVR_ATmega328P__;F_CPU=16000000L;ARDUINO=106013;ARDUINO_AVR_NANO;ARDUINO_ARCH_AVR;__cplusplus=201103L;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ForcedIncludeFiles>%(ForcedIncludeFiles)</ForcedIncludeFiles>
+      <IgnoreStandardIncludePath>true</IgnoreStandardIncludePath>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -70,26 +69,18 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
+    <ItemGroup>
     <ProjectCapability Include="VisualMicro" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Revolution_include_Main_2.1.6_G.ino">
-      <FileType>CppCode</FileType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="__vm\.Revolution_include_Main_2.1.6_G.vsarduino.h" />
   </ItemGroup>
   <PropertyGroup>
     <DebuggerFlavor>VisualMicroDebugger</DebuggerFlavor>
   </PropertyGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ItemGroup>
+    <None Include="Revolution_include_Main_2_2_0_Neo.ino">
+      <FileType>CppCode</FileType>
+    </None>
+  </ItemGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
-  <ProjectExtensions>
-    <VisualStudio>
-      <UserProperties arduino.upload.port="COM10" />
-    </VisualStudio>
-  </ProjectExtensions>
 </Project>

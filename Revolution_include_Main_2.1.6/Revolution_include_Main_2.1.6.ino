@@ -5,6 +5,7 @@
 
 
 /*Include*/
+#include <MyTimer.h>
 #include <Servo.h>
 #include <Utility.h>
 #include <Wire.h>
@@ -170,6 +171,7 @@ void moter(uint8_t Force, int16_t Degree,bool PID=true) { //一応解読したがいじれ
 
 	int16_t m3 = -m1;//反対に位置しているから反転
 	int16_t m4 = -m2;
+
 	if (PID) {
 		GyroGet();//ジャイロのデータを取得
 		Input = Gyro; //ジャイロのデータをInput関数に突っ込む

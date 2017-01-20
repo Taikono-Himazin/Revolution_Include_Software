@@ -46,9 +46,9 @@ LiquidCrystal_I2C lcd(0x3f, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);  // Set the LCD I
 /*ここまで*/
 
 /*変数宣言*/
-int16_t  Gyro_Now = 0, Gyro = 0, Gyro_Offset = 0, old_M_D = 0;
+int16_t  Gyro_Now = 0, Gyro = 0, Gyro_Offset = 0, old_Moter_D = 0;
 uint8_t LINE_Status = 0, UI_status = 0;
-uint16_t IR_F = 0, IR_D = 0, old_M_F = 0;
+uint16_t IR_F = 0, IR_D = 0, old_Moter_F = 0;
 
 boolean change1 = true, change2 = false;
 /*ここまで*/
@@ -71,17 +71,23 @@ void setup() {
 	// Serial.begin(115200);
 	Wire.begin();
 	i2c_faster();
+
 	mpu.initialize();
+
 	myPID.SetOutputLimits(-255, 255);
 	myPID.SetMode(AUTOMATIC);
 	myPID.SetSampleTime(15);
 	Setpoint = 180;
+
 	lcd_Start("2.0.1 UI");//lcd初期化関数
+
 	Gryo_Start();
+
 	myServo1.attach(6, 1, 2);
 	myServo1.write(0);//esc初期化 出力ピンはPWM対応ピンのみ
 	myServo2.attach(3, 1, 2);
 	myServo2.write(0);
+
 	while (digitalRead(M_sw) == LOW) {
 		Melody(1);
 		delay(1000);
@@ -127,25 +133,25 @@ void loop() {
 void moter(uint8_t Force, int16_t Degree) { //一応解読したがいじれるほどはわからん。とりあえず同じ形ならそのままいこう
 
 	int16_t m1, m2;
-	old_M_D = old_M_D*Old_Persent + Degree*(1- Old_Persent);
-	old_M_F = old_M_F*Old_Persent + Force*(1 - Old_Persent);
+	old_Moter_D = old_Moter_D*Old_Persent + Degree*(1- Old_Persent);
+	old_Moter_F = old_Moter_F*Old_Persent + Force*(1 - Old_Persent);
 
-  int16_t m1_Degree = old_M_D - 45;
+  int16_t m1_Degree = old_Moter_D - 45;
   if (m1_Degree < 0) m1_Degree = m1_Degree + 360;
   else if (m1_Degree > 359) m1_Degree = m1_Degree - 360;
 
-  int16_t m2_Degree = old_M_D - 315;
+  int16_t m2_Degree = old_Moter_D - 315;
   if (m2_Degree < 0) m2_Degree = m2_Degree + 360;
   else if (m2_Degree > 359) m2_Degree = m2_Degree - 360;
 
-   m1 = sin((float)m1_Degree * 0.01745329) * old_M_F; // sin でもcosじゃないと理解不能
+   m1 = sin((float)m1_Degree * 0.01745329) * old_Moter_F; // sin でもcosじゃないと理解不能
    delay(1);
-   m2 = sin((float)m2_Degree * 0.01745329) * old_M_F;
+   m2 = sin((float)m2_Degree * 0.01745329) * old_Moter_F;
 
  int16_t Force_max = abs(m1);
   if (Force_max < abs(m2)) Force_max = abs(m2);
 
-  float k = (float)old_M_F / Force_max;//各モーターの比を保ちながら最大値を225に
+  float k = (float)old_Moter_F / Force_max;//各モーターの比を保ちながら最大値を225に
   m1 = m1 * k;
   m2 = m2 * k;
 

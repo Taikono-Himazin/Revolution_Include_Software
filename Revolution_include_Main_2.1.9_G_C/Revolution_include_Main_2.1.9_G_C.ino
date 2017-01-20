@@ -78,6 +78,7 @@ extern void Motion_System(uint8_t Force, int16_t Degree);
 extern void Spin(boolean D);
 extern void Melody(uint8_t mode);
 //extern bool LINE_Get();
+extern uint8_t HC_Get(uint8_t pin);
 extern void UI();
 extern void lcd_Start(char* ver);
 extern void LED_Check();
