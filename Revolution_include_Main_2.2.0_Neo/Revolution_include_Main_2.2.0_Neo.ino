@@ -58,11 +58,11 @@ LiquidCrystal_I2C lcd(0x3f, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);  // Set the LCD I
 /*ここまで*/
 
 /*変数宣言*/
-int16_t  Gyro_Now = 0, Gyro = 0, Gyro_Offset = 0, old_Moter_D = 0;
+int16_t  Gyro_Now = 0, Gyro = 0, Gyro_Offset = 0, old_Moter_D = 0, Output_Old=0, Output_Old_ms = 0;;
 uint8_t LINE_Status = 0, UI_status = 0, HC_FB = 30, HC_RL = 100;
 uint16_t IR_F = 0, IR_D = 0, old_Moter_F = 0, F, B, L, R, M_P;
 
-boolean change1 = true, change2 = false, LINE_F = false, LINE_R = false, LINE_B = false, LINE_L = false;
+boolean change1 = true, change2 = false, LINE_F = false, LINE_R = false, LINE_B = false, LINE_L = false,Errer_Flag=false;
 /*ここまで*/
 
 //プロトタイプ宣言(不必要のため途中からコメントアウト　エラー起こしたらしてみて
@@ -87,6 +87,7 @@ extern void PID_Start();
 
 /*--プログラム--*/
 void setup() {
+	Serial.begin(115200);
 	Wire.begin();
 	i2c_faster();
 
@@ -124,7 +125,7 @@ void setup() {
 }
 
 void loop() {
-	if (digitalRead(M_sw) == LOW) {
+	if (digitalRead(M_sw) == LOW&&!Errer_Flag) {
 		if (change1) {
 			lcd.noBacklight();
 			change1 = false;
@@ -137,18 +138,27 @@ void loop() {
 		Motion_System(IR_F, IR_D);
 	}
 	else {
-		if (change2) {
-			lcd.backlight();
-			change1 = true;
-			change2 = false;
+		if (Errer_Flag) {
+			delay(100);
+			Errer_Flag = false;
+			LEDoff(LED_R);
 		}
-		sleep();
-		UI();
+		else {
+			if (change2) {
+				lcd.backlight();
+				change1 = true;
+				change2 = false;
+			}
+			sleep();
+			UI();
+		}
 	}
 }
 
 /*--自作関数--*/
 void moter(uint8_t Force, int16_t Degree) { //一応解読したがいじれるほどはわからん。とりあえず同じ形ならそのままいこう
+
+	static int16_t Gyro_Old;
 
 	int16_t m1, m2;
 	old_Moter_D = old_Moter_D*Old_Persent + Degree*(1 - Old_Persent);
@@ -176,10 +186,20 @@ void moter(uint8_t Force, int16_t Degree) { //一応解読したがいじれるほどはわから
 	int16_t m3 = -m1;//反対に位置しているから反転
 	int16_t m4 = -m2;
 
+
 	GyroGet();//ジャイロのデータを取得
-	Input = Gyro; //ジャイロのデータをInput変数に突っ込む
+	Input = Gyro;
 	myPID.Compute(); //pid計算
 
+	if (Output >= 150 || Output <= -150) {
+		uint16_t i = millis();
+		if (i - Output_Old_ms < 500 &&( (Output_Old>0)!= (Output>0))) {
+			Errer_Flag = true;
+			LED(LED_R);
+		}
+		Output_Old_ms = i;
+		Output_Old = Output;
+	}
 
 	m1 = m1 - Output;//pidのデータをモーターに突っ込む
 	m2 = m2 - Output;
@@ -218,7 +238,7 @@ void moter(uint8_t Force, int16_t Degree) { //一応解読したがいじれるほどはわから
 	else bitClear(buf[4], 3);
 	buf[3] = abs(m4);
 
-		Wire.beginTransmission(80);
+		Wire.beginTransmission(10);
 		Wire.write(buf, 5);
 		Wire.endTransmission();
 }
@@ -257,7 +277,7 @@ void sleep() {
 	buf[3] = 0;
 	bitClear(buf[4], 4); //モーター電源off
 
-	Wire.beginTransmission(80);
+	Wire.beginTransmission(10);
 	Wire.write(buf, 5);
 	Wire.endTransmission();
 }

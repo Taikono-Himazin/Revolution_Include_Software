@@ -1,4 +1,5 @@
 #include <Wire.h>
+#include <Utility.h>
 
 
 ///////////////////////////////////
@@ -26,6 +27,7 @@ void setup() {
   // put your setup code here, to run once:
   // Serial.begin(9600);
   Wire.begin(10);
+  i2c_faster();
  Wire.onReceive(readEvent);
 
   pinMode(M1A, OUTPUT);   // 出力に設定
