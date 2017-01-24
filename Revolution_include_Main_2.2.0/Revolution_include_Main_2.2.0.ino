@@ -48,7 +48,7 @@
 
 /*ì–ì‚³‚ñ‚©‚çƒRƒsƒyŠÖ”éŒ¾*/
 static double Setpoint, Input, Output;
-static const double Kp = 2.15, Ki = 0, Kd = 0.1;//static const double Kp = 2, Ki = 0, Kd = 0.001; 
+static const double Kp = 2.15, Ki = 0, Kd = 0.15;//static const double Kp = 2, Ki = 0, Kd = 0.001; 
 MPU6050 mpu;
 HMC5883L HMC;
 Servo myServo1;

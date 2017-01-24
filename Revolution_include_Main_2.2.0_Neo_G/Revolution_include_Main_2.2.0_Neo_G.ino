@@ -17,7 +17,7 @@
 /*ここまで*/
 
 /*define*/
-#define Gyro_Mode true //ジャイロモードtrueならジャイロ、falseならコンパス
+#define Gyro_Mode false //ジャイロモードtrueならジャイロ、falseならコンパス
 #define M_sw 0
 #define SPEAKER A0
 #define BEEP 100
@@ -34,8 +34,7 @@
 #define HC_F 11//前
 #define HC_B 12//後ろ
 #define HC_L 13//左
-#define HC_R 5//右
-#define TIMEOUT 5000
+#define HC_R 2//右
 
 #define LED(a) digitalWrite(a, HIGH)
 #define LEDoff(a) digitalWrite(a, LOW)
@@ -74,11 +73,10 @@ int16_t HMC_Now = 0, HMC_val = 0, HMC_Offset = 0;
 
 int16_t old_Moter_D = 0, Gyro_Old=0, Gyro_Old_ms = 0;
 uint8_t LINE_Status = 0, UI_status = 0, HC_FB = 30, HC_RL = 100, Errer_Flag_Status = 0;
-uint16_t IR_F = 0, IR_D = 0, old_Moter_F = 0, M_P,LINE_NOW;
+uint16_t IR_F = 0, IR_D = 0, old_Moter_F = 0, M_P;
 uint32_t F, B, L, R;
 
-bool change1 = true, change2 = false, LINE_F = false, LINE_R = false, LINE_B = false, LINE_L = false,
-Errer_Flag = false, Ball_Flag = true, LINE_Flag = true;
+boolean change1 = true, change2 = false, LINE_F = false, LINE_R = false, LINE_B = false, LINE_L = false,Errer_Flag=false, Ball_Flag=true;
 /*ここまで*/
 
 //プロトタイプ宣言(不必要のため途中からコメントアウト　エラー起こしたらしてみて
@@ -101,14 +99,8 @@ extern void Servo_Start();
 extern void Gryo_Start();
 extern void HMC_Start();
 extern void PID_Start();
+
 /*ここまで*/
-
-/*割り込み関数*/
-volatile bool mpuInterrupt = false;
-
-void dmpDataReady() {
-	mpuInterrupt = true;
-}
 
 /*--プログラム--*/
 void setup() {
@@ -131,9 +123,6 @@ void setup() {
 	M_P = EEPROM.read(1); // M_P閾値読み込み
 	HC_FB = EEPROM.read(2);
 	HC_RL = EEPROM.read(3);
-
-	uint16_t val = EEPROM.read(4) << 8 | EEPROM.read(5);
-	LINE_Set(val);
 
 	while (digitalRead(M_sw) == LOW) {
 		Melody(1);
@@ -185,7 +174,6 @@ void loop() {
 				Ball_Flag = true;
 				change1 = true;
 				change2 = false;
-				LINE_Flag = true;
 			}
 			sleep();
 			UI();
@@ -241,15 +229,6 @@ void moter(uint8_t Force, int16_t Degree) { //一応解読したがいじれるほどはわから
 	m2 = constrain(m2, -255, 255);
 	m3 = constrain(m3, -255, 255);
 	m4 = constrain(m4, -255, 255);
-
-	/*lcd.print(m1);
-	lcd.print(",");
-	lcd.print(m2);
-	lcd.setCursor(0, 1);
-	lcd.print(m3);
-	lcd.print(",");
-	lcd.print(m4);
-	lcd.print(",");*/
 
 	uint8_t buf[5];//送信
 	bitSet(buf[4], 4); //モータの電源on
@@ -317,6 +296,7 @@ void GyroGet() {
 	}
 }
 
+
 #else
 void HMC_Get() {
 	Vector norm = HMC.readNormalize();
@@ -364,9 +344,6 @@ inline void IR_Get() {
 	else if (IR_D > 360) {
 		IR_D = IR_D - 360;
 	}
-	/*
-	Serial.print(IR_F);
-	Serial.println(IR_D);*/
 }
 
 inline void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F Degree=IR_D
@@ -376,7 +353,8 @@ inline void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F
 	bool Ball1 = analogRead(A6) > 950;
 	//bool Ball2 = analogRead(A7) > 950;
 	if (Force != 0) {  // Ball Found                                           //ここから挙動制御                       //a
-	//	F = HC_Get(HC_F), B = HC_Get(HC_B), L = HC_Get(HC_L), R = HC_Get(HC_R);
+		F = HC_Get(HC_F), B = HC_Get(HC_B), L = HC_Get(HC_L), R = HC_Get(HC_R);
+		//ここから挙動制御
 		if ((270 <= Degree) && (Degree < 275)) {					//5
 			M_Degree = 270;
 			Servo2_Dri;
@@ -437,6 +415,7 @@ inline void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F
 		if (M_Degree < 0) {
 			M_Degree = 360 + M_Degree;
 		}
+
 		//左右減速＋逃げる
 		/*if( L < 50){
 		if((Degree > 30 && Degree <= 150) && F < 40){
@@ -529,20 +508,9 @@ inline void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F
 	//	Errer_Flag_Status = 1000;
 	//}
 //	else {
-	LINE_Get();
-	if (bitRead(LINE_Status, 4) == 1) {
-		if (bitRead(LINE_Status, 1) == 1) {
-			M_Force = 0;
-			LINE_Flag = false;
-		}
-	}
-	if (LINE_Flag == false){
-		M_Force = 0;
-	}
-		moter(M_Force, M_Degree);
-		myServo1.write(Dri1_Power);
-		myServo2.write(Dri2_Power);
-
+	moter(M_Force, M_Degree);
+	myServo1.write(Dri1_Power);
+	myServo2.write(Dri2_Power);
 	//}
 }
 
@@ -638,107 +606,22 @@ void Melody(uint8_t mode) {
 	}
 }
 
-inline void LINE_Get() {
+void LINE_Get() {//LINEが反応したらfalse
 	Wire.requestFrom(11, 1);
 	uint8_t buf;
 	while (Wire.available()) {
 		buf = Wire.read();
 	}
+	//LINE_F = false, LINE_R = false, LINE_B = false, LINE_L = false;
 	LINE_Status = buf;
 	if (bitRead(LINE_Status, 4) == 1) {
-		LED(LED_L);
+		//digitalWrite(LED_L, HIGH);
 	}
 	else {
-		LEDoff(LED_L);
-	}
-	//Serial.println(LINE_Status, BIN);
-}
-#if Gyro_Mode
-uint32_t HC_Get(uint8_t pin) {
-	static uint8_t count_F, count_B, count_R, count_L;
-	static uint32_t old_F, old_B, old_R, old_L;
-	switch (pin)
-	{
-	case HC_F:
-			if (count_F == 10) {
-				count_F = 0;
-				pinMode(pin, OUTPUT);
-				digitalWrite(pin, LOW);
-				delayMicroseconds(2);
-				digitalWrite(pin, HIGH);
-				delayMicroseconds(10);
-				digitalWrite(pin, LOW);
-				pinMode(pin, INPUT);	
-				old_F = pulseIn(pin, HIGH, TIMEOUT) / 58;//32センチ
-				return old_F;//75センチ		
-			}
-			else {
-				count_F++;
-				return old_F;
-			}
-			break;
-
-	case HC_B:
-		if (count_B== 10) {
-			count_B = 0;
-			pinMode(pin, OUTPUT);
-			digitalWrite(pin, LOW);
-			delayMicroseconds(2);
-			digitalWrite(pin, HIGH);
-			delayMicroseconds(10);
-			digitalWrite(pin, LOW);
-			pinMode(pin, INPUT);
-			old_B = pulseIn(pin, HIGH, TIMEOUT) / 58;//32センチ
-			return old_B;//75センチ		
-		}
-		else {
-			count_B++;
-			return old_B;//75センチ
-		}
-		break;
-
-	case HC_R:
-		if (count_R == 10) {
-			pinMode(pin, OUTPUT);
-			digitalWrite(pin, LOW);
-			delayMicroseconds(2);
-			digitalWrite(pin, HIGH);
-			delayMicroseconds(10);
-			digitalWrite(pin, LOW);
-			pinMode(pin, INPUT);
-			old_R = pulseIn(pin, HIGH, TIMEOUT) / 58;
-			count_R = 0;
-			return old_R;//75センチ	
-		}
-		else {
-			count_R++;
-			return old_R;//75センチ	
-		}
-		break;
-
-	case HC_L:
-		if (count_L == 10) {
-			pinMode(pin, OUTPUT);
-			digitalWrite(pin, LOW);
-			delayMicroseconds(2);
-			digitalWrite(pin, HIGH);
-			delayMicroseconds(10);
-			digitalWrite(pin, LOW);
-			pinMode(pin, INPUT);
-			old_L = pulseIn(pin, HIGH, TIMEOUT) / 58;
-			count_L = 0;
-			return old_L;//75センチ
-		}
-		else {
-			count_L++;
-			return old_L;//75センチ
-		}
-		break;
-	default:
-		break;
+		//digitalWrite(LED_L, LOW);
 	}
 }
-#else
+
 uint32_t HC_Get(uint8_t pin) {
 	pinMode(pin, OUTPUT);
 	digitalWrite(pin, LOW);
@@ -754,7 +637,6 @@ uint32_t HC_Get(uint8_t pin) {
 		return (pulseIn(pin, HIGH, 5000) / 58);
 	}
 }
-#endif
 
 void UI() {
 	bool L = digitalRead(L_sw) == HIGH;
@@ -844,6 +726,9 @@ void UI() {
 			lcd.setCursor(0, 1);
 			lcd.print("Set completed!");
 			delay(1000);
+			UI_status = 3;
+			lcd.clear();
+			delay(UI_Delay);
 		}
 		else if (L) {
 #if Gyro_Mode
@@ -859,29 +744,7 @@ void UI() {
 		}
 		break;
 	case 3:
-		lcd.home();
-		lcd.print("LINE_Val:");
-		lcd.print(LINE_NOW);
-		lcd.setCursor(0, 1);
-		lcd.print("L:up D:down R:next");
-		if (L&&D) {
-			LINE_Set(140);
-		}
-		else if (L) {
-			LINE_Set(LINE_NOW + 5);
-			delay(UI_Delay);
-		}
-		else if (R) {
-			UI_status = 4;
-			lcd.clear();
-			delay(UI_Delay);
-		}
-		else if (D) {
-			LINE_Set(LINE_NOW - 5);
-			delay(UI_Delay);
-		}
-		break;
-		/*static uint8_t count_UI;
+		static uint8_t count_UI;
 		lcd.home();
 		lcd.print("LINE_Val_set:");
 		lcd.setCursor(0, 1);
@@ -910,7 +773,7 @@ void UI() {
 			delay(UI_Delay);
 			Melody(1);
 		}
-		break;*/
+		break;
 	case 4:
 		lcd.home();
 		lcd.print("HC_Val:       ");
@@ -1072,16 +935,11 @@ void Gryo_Start() {
 		lcd.print("MPU break");
 		while (true) {}
 	}
-	/*mpu.setXGyroOffset(-1571);
-	mpu.setYGyroOffset(-436);
-	mpu.setZGyroOffset(-130);
-	mpu.setZAccelOffset(1458);*/
 	mpu.setXGyroOffset(-27);
 	mpu.setYGyroOffset(6);
 	mpu.setZGyroOffset(5);
 	mpu.setZAccelOffset(2805);
 	mpu.setDMPEnabled(true);
-	attachInterrupt(0, dmpDataReady, RISING);
 	mpuIntStatus = mpu.getIntStatus();
 	dmpReady = true;
 	packetSize = mpu.dmpGetFIFOPacketSize();
@@ -1101,16 +959,4 @@ void PID_Start() {
 	myPID.SetMode(AUTOMATIC);
 	myPID.SetSampleTime(15);
 	Setpoint = 180;
-}
-
-void LINE_Set(uint16_t val) {
-	LINE_NOW = val;
-	uint8_t buf[2];
-	buf[0] = (val >> 8) & 0x00ff;
-	buf[1] = val & 0x00ff;
-	Wire.beginTransmission(11);
-	Wire.write(buf, 2);
-	Wire.endTransmission();
-	EEPROM.write(4, buf[0]);
-	EEPROM.write(5, buf[1]);
 }

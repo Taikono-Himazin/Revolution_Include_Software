@@ -45,12 +45,11 @@ void setup() {
   pinMode(M4A, OUTPUT);   // 出力に設定
   pinMode(M4B, OUTPUT);   // 出力に設定
   pinMode(M4P, OUTPUT);   // 出力に設定
-  TCCR0B &= B11111000;
-  TCCR0B |= B00000001;
-  TCCR1B &= B11111000;
-  TCCR1B |= B00000001;
-  TCCR2B &= B11111000;
-  TCCR2B |= B00000001;
+
+  setPWMFrequency(M1P, PWM_DIV8);//PWM高速化（分周比を1に）
+  setPWMFrequency(M2P, PWM_DIV8);
+  setPWMFrequency(M3P, PWM_DIV8);
+  setPWMFrequency(M4P, PWM_DIV8);
 }
 
 boolean Power_Status;

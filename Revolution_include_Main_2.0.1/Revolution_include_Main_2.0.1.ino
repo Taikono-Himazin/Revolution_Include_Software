@@ -611,10 +611,10 @@ void Gryo_Start() {
 		lcd.print("MPU break");
 		while (true) {}
 	}
-	mpu.setXGyroOffset(106);
-	mpu.setYGyroOffset(-7);
-	mpu.setZGyroOffset(-3);
-	mpu.setZAccelOffset(1108);
+	mpu.setXGyroOffset(-1586);
+	mpu.setYGyroOffset(-692);
+	mpu.setZGyroOffset(-131);
+	mpu.setZAccelOffset(1434);
 	mpu.setDMPEnabled(true);
 	mpuIntStatus = mpu.getIntStatus();
 	dmpReady = true;
