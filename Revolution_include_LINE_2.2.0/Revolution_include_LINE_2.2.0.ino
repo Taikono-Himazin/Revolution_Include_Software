@@ -44,37 +44,37 @@ void loop() {
 	for (uint8_t i = 0; i < 16; i++) {
 		switch (i)
 		{
-		case 12://前
-		case 13:
-		case 14:
-		case 15:
+		case 4://前
+		case 5:
+		case 6:
+		case 7:
 			if (LINE[i] <LINE_val) {// >黒反応(寮モード) <白反応(大会モード)
 				bitSet(LINE_status, 3);
 			}
 			break;
 
-		case 4://左
-		case 5:
-		case 6:
-		case 7:
+		case 0://左
+		case 1:
+		case 2:
+		case 3:
 			if (LINE[i] < LINE_val) {
 				bitSet(LINE_status, 2);
 			}
 			break;
 
-		case 0://後ろ
-		case 1:
-		case 2:
-		case 3:
+		case 8://後ろ
+		case 9:
+		case 10:
+		case 11:
 			if (LINE[i] < LINE_val) {
 				bitSet(LINE_status, 1);
 			}
 			break;
 
-		case 8://右
-		case 9:
-		case 10:
-		case 11:
+		case 12://右
+		case 13:
+		case 14:
+		case 15:
 			if (LINE[i] < LINE_val) {
 				bitSet(LINE_status, 0);
 			}

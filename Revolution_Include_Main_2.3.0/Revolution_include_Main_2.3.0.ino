@@ -35,10 +35,12 @@
 #define HC_B 12//後ろ
 #define HC_L 13//左
 #define HC_R 5//右
-#define TIMEOUT 5000
 
 #define LED(a) digitalWrite(a, HIGH)
 #define LEDoff(a) digitalWrite(a, LOW)
+#define Servo_idel Dri1_Power=85;Dri2_Power=Dri1_Power
+#define Servo1_Dri Dri1_Power=180;Dri2_Power=85
+#define Servo2_Dri Dri2_Power=180;Dri1_Power=85
 /*ここまで*/
 
 /*川野さんからコピペ関数宣言*/
@@ -60,6 +62,12 @@ PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 
 /*リキッドクリスタル関数宣言*/
 LiquidCrystal_I2C lcd(0x3f, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);  // Set the LCD I2C address
+
+uint16_t fifoCount;
+uint8_t fifoBuffer[64]; // FIFO storage buffer							   // orientation/motion vars
+Quaternion q;           // [w, x, y, z]         quaternion container
+VectorFloat gravity;    // [x, y, z]            gravity vector
+float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
 /*ここまで*/
 
 /*変数宣言*/
@@ -70,10 +78,9 @@ int16_t HMC_Now = 0, HMC_val = 0, HMC_Offset = 0;
 #endif
 
 int16_t old_Moter_D = 0, Gyro_Old=0, Gyro_Old_ms = 0;
-uint8_t LINE_Status = 0, UI_status = 0, HC_FB = 30, HC_RL = 100, Errer_Flag_Status = 0,
+uint8_t LINE_Status = 0, UI_status = 0, Errer_Flag_Status = 0,
 LINE_F = 0, LINE_R = 0, LINE_B = 0, LINE_L = 0;
-uint16_t IR_F = 0, IR_D = 0, old_Moter_F = 0, M_P,LINE_NOW;
-uint32_t F, B, L, R;
+uint16_t IR_F = 0, IR_D = 0, old_Moter_F = 0, M_P,LINE_NOW, F=30, B=30, L=30, R=30;
 
 bool change1 = true, change2 = false,Errer_Flag = false, Ball_Flag = true;
 /*ここまで*/
@@ -100,37 +107,28 @@ extern void HMC_Start();
 extern void PID_Start();
 /*ここまで*/
 
-/*割り込み関数*/
-volatile bool mpuInterrupt = false;
-
-void dmpDataReady() {
-	mpuInterrupt = true;
-}
-
 /*--プログラム--*/
 void setup() {
-	Serial.begin(115200);
+	//Serial.begin(115200);
 	Wire.begin();
 	i2c_faster();
 
 	PID_Start();
 
-	lcd_Start("2.2.0_NEO");//lcd初期化関数
+	Servo_Start();
+
+	M_P = EEPROM.read(1); // M_P閾値読み込み
+
+	uint16_t val = EEPROM.read(4) << 8 | EEPROM.read(5);
+	LINE_Set(val);
+
+	lcd_Start("2.3.0_NEO");//lcd初期化関数
 
 #if Gyro_Mode
 	Gryo_Start();
 #else
 	HMC_Start();
 #endif
-
-	Servo_Start();
-
-	M_P = EEPROM.read(1); // M_P閾値読み込み
-	HC_FB = EEPROM.read(2);
-	HC_RL = EEPROM.read(3);
-
-	uint16_t val = EEPROM.read(4) << 8 | EEPROM.read(5);
-	LINE_Set(val);
 
 	while (digitalRead(M_sw) == LOW) {
 		Melody(1);
@@ -287,12 +285,6 @@ void moter(uint8_t Force, int16_t Degree) { //一応解読したがいじれるほどはわから
 
 #if Gyro_Mode
 void GyroGet() {
-	static uint16_t fifoCount;
-	static uint8_t fifoBuffer[64]; // FIFO storage buffer
-								   // orientation/motion vars
-	static Quaternion q;           // [w, x, y, z]         quaternion container
-	static VectorFloat gravity;    // [x, y, z]            gravity vector
-	static float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
 	mpuIntStatus = false;
 	mpuIntStatus = mpu.getIntStatus();
 	fifoCount = mpu.getFIFOCount();
@@ -366,21 +358,19 @@ inline void IR_Get() {
 }
 
 inline void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F Degree=IR_D
-#define Servo_idel Dri1_Power=85;Dri2_Power=Dri1_Power
-#define Servo1_Dri Dri1_Power=180;Dri2_Power=85
-#define Servo2_Dri Dri2_Power=180;Dri1_Power=85
 	int16_t M_Degree = 0, Dri1_Power = 0, Dri2_Power = 0;
 	uint8_t	M_Force = M_P;
-	static int16_t LINE_FixedTime;
 	bool Ball1 = analogRead(A6) > 950;
 	//bool Ball2 = analogRead(A7) > 950;
 	if (Force != 0) {  // Ball Found                                           //ここから挙動制御                       //a
 		if ((270 <= Degree) && (Degree < 275)) {					//5
 			M_Degree = 270;
+			M_Force = 100;
 			Servo2_Dri;
 		}
 		else if ((275 <= Degree) && (Degree < 290)) {				//6
 			M_Degree = Degree + 10;
+			M_Force = 150;
 			Servo2_Dri;
 		}
 		else if ((290 <= Degree) && (Degree < 330)) {               //7
@@ -426,87 +416,144 @@ inline void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F
 		}
 		else if ((250 <= Degree) && (Degree < 265)) {              //a
 			M_Degree = Degree - 10;
+			M_Force = 150;
 			Servo2_Dri;
 		}
 		else if ((265 <= Degree) && (Degree < 270)) {
 			M_Degree = 270;
+			M_Force = 100;
 			Servo2_Dri;
-		}
+		}//挙動制御
 		if (M_Degree < 0) {
 			M_Degree = 360 + M_Degree;
 		}
-		//左右減速＋逃げる
-		/*if( L < 50){
-		if((Degree > 30 && Degree <= 150) && F < 40){
-		M_Degree = 90;
-		M_Force = 0;
+
+	/*	static uint8_t Ball_Count;
+		if (Ball1) {
+			if (Ball_Flag) {
+				Ball_Timer.start();
+				Ball_Flag = false;
+			}
+			M_Degree = 90;
+			M_Force = 100;
+			Ball_Count = 100;
 		}
-		if((Degree > 210 && Degree <= 330) && B < 40){
-		M_Degree = 90;
-		M_Force = 0;
-		}
-		if ((R < 20 || R >(HC_RL - 20)) && (Degree >= 120 && Degree < 240)){
-		if( L < 20){
-		M_Degree = 0;
-		M_Force = 100;
-		} else if(L < 40){
-		M_Degree = 90;
-		M_Force = 0;
-		} else {
-		M_Force = 100;
-		}
-		}
-		}
-		if( R < 50){
-		if((Degree > 30 && Degree <= 150) && F < 40){
-		M_Degree = 90;
-		M_Force = 0;
-		}
-		if((Degree > 210 && Degree <= 330) && B < 40){
-		M_Degree = 90;
-		M_Force = 0;
-		}
-		if ((L < 20 || L > (HC_RL - 20)) && (Degree < 60 || Degree >= 300)){
-		if( R < 20){
-		M_Degree = 180;
-		M_Force = 100;
-		} else if(R < 40){
-		M_Degree = 90;
-		M_Force = 0;
-		} else {
-		M_Force = 100;
-		}
-		}
+		else {
+			Ball_Count--;
+			if (Ball_Count == 0) {
+				Ball_Timer.stop();
+				Ball_Timer.reset();
+				Ball_Flag = true;
+			}
 		}*/
 
-
-		//前後のLINE
-		/*if (B < HC_FB && B != 0 && F>190 - HC_FB && (Degree >= 180 || Degree == 0)) {//後ろ
-		digitalWrite(LED_L, HIGH);
-		M_Force = 0;
+		double rad = M_Degree*3.141592653589793 / 180.0;//角度のラジアン
+		LINE_Get();
+		uint16_t HC_val;
+		if (LINE_R != 0) {//右
+			 HC_val= HC_Get(HC_R);
+			 if (HC_val < R&&HC_val != 0) {
+				M_Force = 255;
+				M_Degree = 180;
+			}
+			else {
+				if (M_Degree<330&&M_Degree >= 270) {
+					M_Degree = 270;
+					M_Force=50;
+				}
+				else if(M_Degree>30&&M_Degree<90){
+					M_Degree = 90;
+					M_Force = 50;
+				}
+				else {
+					M_Force	= 0;
+				}
+			}
+			LINE_R--;
 		}
-		if (F < HC_FB && F != 0 && B>190-HC_FB && Degree >= 0 && Degree <= 180) {//前
-		digitalWrite(LED_L, HIGH);
-		M_Force = 0;
-		}*/
-		//	static uint8_t Ball_Count;
-		//	if (Ball1) {
-		//		if (Ball_Flag) {
-		//			Ball_Timer.start();
-		//			Ball_Flag = false;
-		//		}
-		//		M_Degree = 270;
-		//		Ball_Count = 100;
-		//	}
-		//	else {
-		//		Ball_Count--;
-		//		if (Ball_Count == 0) {
-		//			Ball_Timer.stop();
-		//			Ball_Timer.reset();
-		//			Ball_Flag = true;
-		//		}
-		//	}
-		//}
+		if (LINE_B != 0) {//後ろ
+			HC_val = HC_Get(HC_B);
+			if (HC_val < B&&HC_val != 0) {
+				M_Force = 255;
+				M_Degree = 90;
+			}
+			else {
+				if (M_Degree >= 180 && M_Degree <= 240) {
+					M_Degree = 180;
+					M_Force = 50;
+				}
+				else if(M_Degree>300){
+					M_Degree = 0;
+					M_Force = 50;
+				}
+				else {
+					M_Force = 0;
+				}
+			}
+			LINE_B--;
+		}
+		if (LINE_L != 0) {//左
+			HC_val = HC_Get(HC_L); 
+			if (HC_val < L&&HC_val!=0) {
+				M_Force = 255;
+				M_Degree = 0;
+			}
+			else {
+				if (M_Degree >= 90 && M_Degree >= 150) {
+					M_Degree = 90;
+					M_Force = 0;
+				}
+				else if(M_Degree>=210&&M_Degree<=270) {
+					M_Degree = 270;
+					M_Force = 50;
+				}
+				else {
+					M_Force = 0; 
+				}
+			}
+			LINE_L--;
+		}
+		if (LINE_F != 0) {//前
+			HC_val = HC_Get(HC_F);
+			if (HC_val< F&&HC_val!=0) {
+				M_Force = 255;
+				M_Degree = 270;
+			}
+			else
+			{
+				if (M_Degree >= 0 && M_Degree <= 60) {
+					M_Degree = 0;
+					M_Force = 50;
+				}
+				else if(M_Degree>=120&&M_Degree<=180){
+					M_Degree = 180;
+					M_Force = 50;
+				}
+				else {
+					M_Force = 0;
+				}
+			}
+			LINE_F--;
+		}
+		if (bitRead(LINE_Status, 4) == 1 && LINE_B == 0 && LINE_F == 0 && LINE_L == 0 && LINE_R == 0) {
+#define LINE_EscapeCount 50 //LINEの逃げるカウント
+			if (bitRead(LINE_Status, 0) == 1) {//右
+				LINE_R = LINE_EscapeCount;
+				R = HC_Get(HC_R);
+			}
+			if (bitRead(LINE_Status, 1) == 1) {//後ろ
+				LINE_B = LINE_EscapeCount;
+				B = HC_Get(HC_B);
+			}
+			if (bitRead(LINE_Status, 2) == 1) {//左
+				LINE_L = LINE_EscapeCount;
+				L = HC_Get(HC_L);
+			}
+			if (bitRead(LINE_Status, 3) == 1) {//前
+				LINE_F = LINE_EscapeCount;
+				F = HC_Get(HC_F);
+			}
+		}
 	}
 	else {
 		M_Degree = 90;
@@ -516,6 +563,17 @@ inline void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F
 		Ball_Timer.stop();
 		Ball_Timer.reset();
 		Ball_Flag = true;
+		uint32_t i = HC_Get(HC_L);
+		if ( i< 70&&i!=0) {
+			M_Degree = 0;
+			M_Force = 200;
+		}
+		i = HC_Get(HC_R);
+		if (i < 70&&i!=0) {
+			M_Degree = 180;
+			M_Force = 200;
+		}
+
 	}
 
 	//if (Ball_Timer.read_ms()>=2000) {
@@ -526,63 +584,16 @@ inline void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F
 	//	Errer_Flag_Status = 1000;
 	//}
 //	else {
-	LINE_Get();
-#define LINE_EscapeCount 50 //LINEの逃げるカウント
-
-	if (bitRead(LINE_Status, 4) == 1&&LINE_B==0&&LINE_F==0&&LINE_L==0&&LINE_R==0) {
-		if (bitRead(LINE_Status, 0) == 1) {//右
-			M_Force = 255;
-			M_Degree = 180;
-			LINE_R = LINE_EscapeCount;
-		}
-		if (bitRead(LINE_Status, 1) == 1) {//後ろ
-			M_Force = 255;
-			M_Degree = 90;
-			LINE_B = LINE_EscapeCount;
-		}
-		if (bitRead(LINE_Status, 2) == 1) {//左
-			M_Force = 255;
-			M_Degree = 0;
-			LINE_L = LINE_EscapeCount;
-		}
-		if (bitRead(LINE_Status, 3) == 1) {//前
-			M_Force = 255;
-			M_Degree = 270;
-			LINE_F = LINE_EscapeCount;
-		}
-	}
 	
-	if (LINE_B != 0) {//後ろ
-		M_Force = 255;
-		M_Degree = 90;
-		LINE_B--;
-	}
-	if (LINE_R!=0) {//右
-		M_Force = 255;
-		M_Degree = 180;
-		LINE_R--;
-	}
-	if (LINE_L != 0) {//左
-		M_Force = 255;
-		M_Degree = 0;
-		LINE_L--;
-	}
-	if (LINE_F != 0) {//前
-		M_Force = 255;
-		M_Degree = 270;
-		LINE_F--;
-	}
 
-		moter(M_Force, M_Degree);
-		myServo1.write(Dri1_Power);
-		myServo2.write(Dri2_Power);
-
-	//}
+	moter(M_Force, M_Degree);
+	myServo1.write(Dri1_Power);
+	myServo2.write(Dri2_Power);
 }
 
 void Spin(bool D=true) {
-	uint8_t m1, m2, m3, m4;
-	int8_t i[2];
+	int16_t m1, m2, m3, m4;
+	int16_t i[2];
 	if (D) {
 		i[0] = 100;
 		i[1] = 255;
@@ -688,92 +699,6 @@ inline void LINE_Get() {
 	//Serial.println(LINE_Status, BIN);
 }
 
-#if Gyro_Mode
-uint32_t HC_Get(uint8_t pin) {
-	static uint8_t count_F, count_B, count_R, count_L;
-	static uint32_t old_F, old_B, old_R, old_L;
-	switch (pin)
-	{
-	case HC_F:
-			if (count_F == 10) {
-				count_F = 0;
-				pinMode(pin, OUTPUT);
-				digitalWrite(pin, LOW);
-				delayMicroseconds(2);
-				digitalWrite(pin, HIGH);
-				delayMicroseconds(10);
-				digitalWrite(pin, LOW);
-				pinMode(pin, INPUT);	
-				old_F = pulseIn(pin, HIGH, TIMEOUT) / 58;//32センチ
-				return old_F;//75センチ		
-			}
-			else {
-				count_F++;
-				return old_F;
-			}
-			break;
-
-	case HC_B:
-		if (count_B== 10) {
-			count_B = 0;
-			pinMode(pin, OUTPUT);
-			digitalWrite(pin, LOW);
-			delayMicroseconds(2);
-			digitalWrite(pin, HIGH);
-			delayMicroseconds(10);
-			digitalWrite(pin, LOW);
-			pinMode(pin, INPUT);
-			old_B = pulseIn(pin, HIGH, TIMEOUT) / 58;//32センチ
-			return old_B;//75センチ		
-		}
-		else {
-			count_B++;
-			return old_B;//75センチ
-		}
-		break;
-
-	case HC_R:
-		if (count_R == 10) {
-			pinMode(pin, OUTPUT);
-			digitalWrite(pin, LOW);
-			delayMicroseconds(2);
-			digitalWrite(pin, HIGH);
-			delayMicroseconds(10);
-			digitalWrite(pin, LOW);
-			pinMode(pin, INPUT);
-			old_R = pulseIn(pin, HIGH, TIMEOUT) / 58;
-			count_R = 0;
-			return old_R;//75センチ	
-		}
-		else {
-			count_R++;
-			return old_R;//75センチ	
-		}
-		break;
-
-	case HC_L:
-		if (count_L == 10) {
-			pinMode(pin, OUTPUT);
-			digitalWrite(pin, LOW);
-			delayMicroseconds(2);
-			digitalWrite(pin, HIGH);
-			delayMicroseconds(10);
-			digitalWrite(pin, LOW);
-			pinMode(pin, INPUT);
-			old_L = pulseIn(pin, HIGH, TIMEOUT) / 58;
-			count_L = 0;
-			return old_L;//75センチ
-		}
-		else {
-			count_L++;
-			return old_L;//75センチ
-		}
-		break;
-	default:
-		break;
-	}
-}
-#else
 uint32_t HC_Get(uint8_t pin) {
 	pinMode(pin, OUTPUT);
 	digitalWrite(pin, LOW);
@@ -782,14 +707,8 @@ uint32_t HC_Get(uint8_t pin) {
 	delayMicroseconds(10);
 	digitalWrite(pin, LOW);
 	pinMode(pin, INPUT);
-	if (pin == HC_L || pin == HC_R) {
-		return (pulseIn(pin, HIGH, 2500) / 58);//75センチ
-	}
-	else {
-		return (pulseIn(pin, HIGH, 5000) / 58);
-	}
+	return (pulseIn(pin, HIGH, 15000) / 58);//75センチ
 }
-#endif
 
 void UI() {
 	bool L = digitalRead(L_sw) == HIGH;
@@ -968,56 +887,6 @@ void UI() {
 		break;
 	case 5:
 		lcd.home();
-		lcd.print("HC_FB:       ");
-		lcd.setCursor(7, 0);
-		lcd.print(HC_FB);
-		lcd.setCursor(0, 1);
-		lcd.print("L:up D:down R:next");
-		if (L&&D) {
-			HC_FB = 30;
-		}
-		else if (L) {
-			HC_FB += 10;
-			delay(UI_Delay);
-		}
-		else if (R) {
-			UI_status = 6;
-			lcd.clear();
-			delay(UI_Delay);
-		}
-		else if (D) {
-			HC_FB -= 10;
-			delay(UI_Delay);
-		}
-		EEPROM.write(2, HC_FB);
-		break;
-	case 6:
-		lcd.home();
-		lcd.print("HC_RL:       ");
-		lcd.setCursor(7, 0);
-		lcd.print(HC_RL);
-		lcd.setCursor(0, 1);
-		lcd.print("L:up D:down R:next");
-		if (L&&D) {
-			HC_RL = 100;
-		}
-		else if (L) {
-			HC_RL += 10;
-			delay(UI_Delay);
-		}
-		else if (R) {
-			UI_status = 7;
-			lcd.clear();
-			delay(UI_Delay);
-		}
-		else if (D) {
-			HC_RL -= 10;
-			delay(UI_Delay);
-		}
-		EEPROM.write(3, HC_RL);
-		break;
-	case 7:
-		lcd.home();
 		lcd.print("Moter_P:       ");
 		lcd.setCursor(9, 0);
 		lcd.print(M_P);
@@ -1043,9 +912,11 @@ void UI() {
 		break;
 	default:
 		lcd.clear();
-		lcd.print("ERRER AUTO REPAIR");
+		lcd.print("ERRER");
+		lcd.setCursor(0, 1);
+		lcd.print("AUTO REPAIR");
 		delay(1000);
-		UI_status = 2;
+		UI_status = 0;
 		break;
 	}
 
@@ -1116,7 +987,6 @@ void Gryo_Start() {
 	mpu.setZGyroOffset(5);
 	mpu.setZAccelOffset(2805);*/
 	mpu.setDMPEnabled(true);
-	attachInterrupt(0, dmpDataReady, RISING);
 	mpuIntStatus = mpu.getIntStatus();
 	dmpReady = true;
 	packetSize = mpu.dmpGetFIFOPacketSize();

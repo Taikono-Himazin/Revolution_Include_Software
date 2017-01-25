@@ -10,20 +10,20 @@ int16_t LINE[16], LINE_val;// LINE_val = 300;
 bool i2c_flag = false;
 
 void setup() {
-  Serial.begin(115200);
-  Wire.begin(11);
-  i2c_faster();
-  Wire.onRequest(requestEvent);
-  Wire.onReceive(receiveEvent);
+	//Serial.begin(115200);
+	Wire.begin(11);
+	i2c_faster();
+	Wire.onRequest(requestEvent);
+	Wire.onReceive(receiveEvent);
 
-  pinMode(mcp1SS, OUTPUT);		//CS(10)
-  pinMode(mcp2SS, OUTPUT);		//CS(9)
-  digitalWrite(mcp1SS, HIGH);
-  digitalWrite(mcp2SS, HIGH);
-  SPI.setBitOrder(MSBFIRST);
-  SPI.setClockDivider(SPI_CLOCK_DIV2);
-  SPI.setDataMode(SPI_MODE0);
-  SPI.begin();
+	pinMode(mcp1SS, OUTPUT);		//CS(10)
+	pinMode(mcp2SS, OUTPUT);		//CS(9)
+	digitalWrite(mcp1SS, HIGH);
+	digitalWrite(mcp2SS, HIGH);
+	SPI.setBitOrder(MSBFIRST);
+	SPI.setClockDivider(SPI_CLOCK_DIV2);
+	SPI.setDataMode(SPI_MODE0);
+	SPI.begin();
 }
 
 
@@ -44,37 +44,37 @@ void loop() {
 	for (uint8_t i = 0; i < 16; i++) {
 		switch (i)
 		{
-		case 0://前
-		case 1:
-		case 2:
-		case 3:
+		case 12://前
+		case 13:
+		case 14:
+		case 15:
 			if (LINE[i] <LINE_val) {// >黒反応(寮モード) <白反応(大会モード)
 				bitSet(LINE_status, 3);
 			}
 			break;
 
-		case 9://左
-		case 10:
-		case 8:
-		case 11:
+		case 4://左
+		case 5:
+		case 6:
+		case 7:
 			if (LINE[i] < LINE_val) {
 				bitSet(LINE_status, 2);
 			}
 			break;
 
-		case 12://後ろ
-		case 13:
-		case 14:
-		case 15:
+		case 0://後ろ
+		case 1:
+		case 2:
+		case 3:
 			if (LINE[i] < LINE_val) {
 				bitSet(LINE_status, 1);
 			}
 			break;
 
-		case 4://右
-		case 5:
-		case 6:
-		case 7:
+		case 8://右
+		case 9:
+		case 10:
+		case 11:
 			if (LINE[i] < LINE_val) {
 				bitSet(LINE_status, 0);
 			}
@@ -121,25 +121,25 @@ void requestEvent() {
 
 void receiveEvent(int x) {
 
-	//uint8_t buf=Wire.read();
-	//if (buf == 0) {
-	//	for (uint8_t i = 0; i < 8; i++) {
-	//		LINE_val[i] = (LINE_val[i] + mcp1Get(i)) / 2;
-	//	}
-	//	for (uint8_t i = 8; i < 16; i++) {
-	//		LINE_val[i] = (LINE_val[i] + mcp2Get(i - 8)) / 2;
-	//	}
-	//}
-	//else if (buf == 1) {
-	//	for (uint8_t i = 0; i < 16; i++) {
-	//		LINE_val[i] = 0;
-	//	}
-	//}
+	/*uint8_t buf = Wire.read();
+	if (buf == 0) {
+	for (uint8_t i = 0; i < 8; i++) {
+	LINE_val[i] = (LINE_val[i] + mcp1Get(i)) / 2;
+	}
+	for (uint8_t i = 8; i < 16; i++) {
+	LINE_val[i] = (LINE_val[i] + mcp2Get(i - 8)) / 2;
+	}
+	}
+	else if (buf == 1) {
+	for (uint8_t i = 0; i < 16; i++) {
+	LINE_val[i] = 0;
+	}
+	}*/
 
-	LINE_val= (Wire.read() << 8) | Wire.read();
+	LINE_val = (Wire.read() << 8) | Wire.read();
 
-/*送り方
-buf[2] = (IR_Degree >> 8) & 0x00ff;
-buf[3] = IR_Degree & 0x00ff;
-*/
+	/*送り方
+	buf[2] = (IR_Degree >> 8) & 0x00ff;
+	buf[3] = IR_Degree & 0x00ff;
+	*/
 }
