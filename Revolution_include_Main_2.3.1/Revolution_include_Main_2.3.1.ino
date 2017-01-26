@@ -5,7 +5,6 @@
 
 
 /*Include*/
-#include <MyTimer.h>
 #include <HMC5883L.h>
 #include <MPU6050_6Axis_MotionApps20.h>
 #include <EEPROM.h>
@@ -50,7 +49,6 @@ HMC5883L HMC;
 #endif
 Servo myServo1;
 Servo myServo2;
-MyTimer Ball_Timer;
 static uint8_t mpuIntStatus;
 static bool dmpReady = false;  // set true if DMP init was successful
 static uint16_t packetSize;    // expected DMP packet size (default is 42 bytes)
@@ -78,7 +76,7 @@ uint8_t LINE_Status = 0, UI_status = 0, Errer_Flag_Status = 0,
 LINE_F = 0, LINE_R = 0, LINE_B = 0, LINE_L = 0;
 uint16_t IR_F = 0, IR_D = 0, old_Moter_F = 0, M_P,LINE_NOW, F=30, B=30, L=30, R=30;
 
-bool change1 = true, change2 = false,Errer_Flag = false, Ball_Flag = true;
+bool change1 = true, change2 = false,Errer_Flag = false;
 /*ここまで*/
 
 //プロトタイプ宣言(不必要のため途中からコメントアウト　エラー起こしたらしてみて
@@ -105,20 +103,20 @@ extern void PID_Start();
 
 /*--プログラム--*/
 void setup() {
-	//Serial.begin(115200);
+//	Serial.begin(115200);
 	Wire.begin();
 	i2c_faster();
 
 	PID_Start();
-
-	Servo_Start();
 
 	M_P = EEPROM.read(1); // M_P閾値読み込み
 
 	uint16_t val = EEPROM.read(4) << 8 | EEPROM.read(5);
 	LINE_Set(val);
 
-	lcd_Start("2.3.0_NEO");//lcd初期化関数
+	Servo_Start();
+	
+	lcd_Start("2.3.1_Neo");//lcd初期化関数
 
 #if Gyro_Mode
 	Gryo_Start();
@@ -171,9 +169,6 @@ void loop() {
 				lcd.backlight();
 				myServo1.write(0);
 				myServo2.write(0);
-				Ball_Timer.stop();
-				Ball_Timer.reset();
-				Ball_Flag = true;
 				change1 = true;
 				change2 = false;
 			}
@@ -357,71 +352,73 @@ inline void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F
 	int16_t M_Degree = 0, Dri1_Power = 0, Dri2_Power = 0;
 	uint8_t	M_Force = M_P;
 	static uint8_t Ball_Count = 0,Count_Reset;
-	bool Ball1 = analogRead(A6) > 950;
-	//bool Ball2 = analogRead(A7) > 950;
+	bool Ball1 = analogRead(A6) > 980;
+	//bool Ball2 = analogRead(A7) > 980;
 
 #define Servo_idel Dri1_Power=85;Dri2_Power=Dri1_Power
 #define Servo1_Dri Dri1_Power=180;Dri2_Power=85
 #define Servo2_Dri Dri2_Power=180;Dri1_Power=85
 
-	if (Force != 0) {  // Ball Found                                           //ここから挙動制御                       //a
-		if ((270 <= Degree) && (Degree < 275)) {					//5
-			M_Degree = 270;
+	if (Force != 0) {  // Ball Found      //ここから挙動制御                       //a
+		//if(Force<)
+		if ((270 <= Degree) && (Degree < 280)) {					//5
+			M_Degree = Degree;
 			M_Force = 100;
 			Servo2_Dri;
 		}
-		else if ((275 <= Degree) && (Degree < 290)) {				//6
-			M_Degree = Degree + 20;
+		else if ((280 <= Degree&&Degree > 290)) {
+			M_Degree = Degree+10;
 			M_Force = 150;
 			Servo2_Dri;
 		}
-		else if ((290 <= Degree) && (Degree < 330)) {               //7
-			M_Degree = Degree + 40;
+		else if ((290 <= Degree) && (Degree < 330)) {				//6
+			M_Degree = 0;
+			M_Force = 150;
+			Servo2_Dri;
+		}
+		else if ((330 <= Degree) && (Degree < 360)) {               //7
+			M_Degree = Degree -60;
 			Servo_idel;
 		}
-		else if ((330 <= Degree) && (Degree < 360)) {				//8
+		else if ((0 <= Degree) && (Degree < 20)) {               //d
+			M_Degree = Degree - 65;
+		}
+		else if ((20 <= Degree) && (Degree < 40)) {               //d
+			M_Degree = Degree - 55;
+		}
+		else if ((40 <= Degree) && (Degree < 60)) {              //e
 			M_Degree = Degree - 40;
 		}
-		else if ((0 <= Degree) && (Degree < 50)) {               //d
-			M_Degree = Degree - 45;
-		}
-		else if ((50 <= Degree) && (Degree < 60)) {              //e
-			M_Degree = Degree - 20;
-		}
-		else if ((60 <= Degree) && (Degree < 70)) {              //f
-			M_Degree = Degree - 14;
-		}
-		else if ((70 <= Degree) && (Degree < 80)) {              //g
-			M_Degree = Degree - 8;
+		else if ((60  <= Degree) && (Degree < 80)) {              //g
+			M_Degree = Degree - 10;
 		}
 		else if ((80 <= Degree) && (Degree < 100)) {               //真ん中
-			M_Degree = 84;
+			M_Degree = 90;
 		}
-		else if ((100 <= Degree) && (Degree < 110)) {              //g
-			M_Degree = Degree + 8;
+		else if ((100 <= Degree) && (Degree < 120)) {              //g
+			M_Degree = Degree + 10;
 		}
-		else if ((110 <= Degree) && (Degree < 120)) {              //f
-			M_Degree = Degree + 14;
-		}
-		else if ((120 <= Degree) && (Degree < 130)) {              //e
-			M_Degree = Degree + 20;
-		}
-		else if ((130 <= Degree) && (Degree < 180)) {               //d
-			M_Degree = Degree + 45;
-		}
-		else if ((180 <= Degree) && (Degree < 210)) {               //c
+		else if ((120 <= Degree) && (Degree < 140)) {              //f
 			M_Degree = Degree + 40;
 		}
+		else if ((140 <= Degree) && (Degree < 160)) {              //e
+			M_Degree = Degree + 55;
+		}
+		else if ((160 <= Degree) && (Degree < 180)) {               //d
+			M_Degree = Degree + 65;
+		}
+		else if ((180 <= Degree) && (Degree < 210)) {               //c
+			M_Degree = Degree + 60;
+		}
 		else if ((210 <= Degree) && (Degree < 250)) {             //b
-			M_Degree = Degree - 40;
+			M_Degree = 180;
 			Servo_idel;
 		}
-		else if ((250 <= Degree) && (Degree < 265)) {              //a
-			M_Degree = Degree - 20;
-			M_Force = 150;
+		else if ((250 <= Degree) && (Degree < 260)) {
+			M_Degree = Degree - 10;
 			Servo2_Dri;
 		}
-		else if ((265 <= Degree) && (Degree < 270)) {
+		else if ((260 <= Degree) && (Degree < 270)) {
 			M_Degree = 270;
 			M_Force = 100;
 			Servo2_Dri;
@@ -432,16 +429,31 @@ inline void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F
 
 		if ((Degree > 260 && Degree < 280) && Ball1 == true) {
 			Ball_Count++;
-			Count_Reset = 10;
-			if (Ball_Count >= 50) {
-				M_Force = 60;
+			Count_Reset = 30;
+				M_Force = 0;
+				uint32_t i = HC_Get(HC_B);
+				if (i < 100&&i!=0) {
+					M_Degree = 90;
+					M_Force = 70;
+				}
+				LED(LED_M);
+		}
+		else if(Ball_Count!=0){
+			Count_Reset--;
+			if (Count_Reset <= 0) {
+				Ball_Count = 0; 
+			}
+			else {
+				uint32_t i = HC_Get(HC_B);
+				if (i < 100&& i != 0&&(Degree > 260 && Degree < 280)&&Ball_Count>20) {
+					M_Degree = 90;
+					M_Force = 50;
+				}
 			}
 		}
-		else {
-			if (Count_Reset == 0) {
-				Ball_Count = 0;
-			}
-			Count_Reset--;
+		else
+		{
+			LEDoff(LED_M);
 		}
 
 		/*	static uint8_t Ball_Count;
@@ -511,7 +523,7 @@ inline void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F
 				M_Degree = 315;
 			}
 			else {
-				M_Degree = 270;
+				M_Degree = 200;
 			}
 			M_Force = 255;
 			LINE_F--;
@@ -531,7 +543,7 @@ inline void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F
 				LINE_L = LINE_EscapeCount;
 			}
 			if (bitRead(LINE_Status, 3) == 1) {//前
-				LINE_F = LINE_EscapeCount;
+				LINE_F = LINE_EscapeCount+30;
 			}
 		}
 	}
@@ -654,16 +666,17 @@ inline void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F
 		M_Force = 0;
 		Dri1_Power = 0;
 		Dri2_Power = 0;
-		Ball_Timer.stop();
-		Ball_Timer.reset();
-		Ball_Flag = true;
 		LINE_F = 0;
 		LINE_B = 0;
 		LINE_L = 0;
 		LINE_R = 0;
 #if !Gyro_Mode
 		uint32_t i = HC_Get(HC_B);
-		if(i>100||i==0){
+		if(i<90&&i!=0){
+			M_Degree = 90;
+			M_Force = 150;
+		}
+		if (i > 130 || i == 0) {
 			M_Degree = 270;
 			M_Force = 150;
 		}
@@ -681,8 +694,14 @@ inline void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F
 
 	}
 
-	if (Ball_Count>=100) {
-		Spin();
+	if (Ball_Count>=70&&Ball1==true) {
+		uint8_t i = HC_Get(HC_L);
+		if (i != 0 && i < 70) {
+			Spin(false);
+		}
+		else {
+			Spin();
+		}
 		Ball_Count = 0;
 		Errer_Flag_Status = 1000;
 	}
@@ -694,27 +713,62 @@ inline void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F
 }
 
 void Spin(bool D=true) {
+	myServo2.write(180);
 	int16_t m1, m2, m3, m4;
 	int16_t i[2];
 	if (D) {
-		i[0] = 100;
+		i[0] = 50;
 		i[1] = 255;
 	}
 	else {
-		i[0] = -100;
+		i[0] = -50;
 		i[1] = -255;
 	}
-	m1 = i[0];
-	m2 = m1;
-	m3 = 0;
-	m4 = m2;
+	uint8_t Spin_Move, Spin_Force;
+	if (D) {
+		Spin_Move = 330, Spin_Force = 50;//Moveが角度　Forceが速さ
+	}
+	else {
+		Spin_Move = 210, Spin_Force = 50;
+	}
+	int16_t m1_D = Spin_Move - 45;
+	if (m1_D < 0) m1_D = m1_D + 360;
+	else if (m1_D > 359) m1_D = m1_D - 360;
+
+	m1 = sin((float)m1_D * 0.01745329) * Spin_Force; // sin でもcosじゃないと理解不能
+
+	int16_t m2_D = Spin_Move - 315;
+	if (m2_D < 0) m2_D = m2_D + 360;
+	else if (m2_D > 359) m2_D = m2_D - 360;
+
+	m2 = sin((float)m2_D * 0.01745329) * Spin_Force;
+
+	int16_t F_max = abs(m1);
+	if (F_max < abs(m2)) F_max = abs(m2);
+
+	float k = (float)Spin_Force / F_max;//各モーターの比を保ちながら最大値を225に
+	m1 = m1 * k;
+	m2 = m2 * k;
+
+	m3 = -m1;//反対に位置しているから反転
+	m4 = -m2;
+
+	m1 += -20;
+	m2 += i[0];
+	m3 += i[0];
+	m4 += i[0];
+	m1 = constrain(m1, -255, 255);
+	m2 = constrain(m2, -255, 255);
+	m3 = constrain(m3, -255, 255);
+	m4 = constrain(m4, -255, 255);
+
 
 	uint8_t buf[5];//送信
 	bitSet(buf[4], 4); //モータの電源on
 	if (m1 < 0) bitSet(buf[4], 0);
 	else bitClear(buf[4], 0);
 	buf[0] = abs(m1);
-	if (m2 < 0) bitSet(buf[4], 1);//モーターの配線を間違えた
+	if (m2 < 0) bitSet(buf[4], 1);
 	else bitClear(buf[4], 1);
 	buf[1] = abs(m2);
 	if (m3 < 0) bitSet(buf[4], 2);
@@ -728,18 +782,20 @@ void Spin(bool D=true) {
 	Wire.write(buf, 5);
 	Wire.endTransmission();
 
-	delay(200);
+	delay(500);
+
+	myServo2.write(0);
 
 	m1 = i[1];
-	m2 = m1;
-	m3 = m2;
-	m4 = m3;
+	m2 = i[1];
+	m3 = i[1];
+	m4 = i[1];
 
 	bitSet(buf[4], 4); //モータの電源on
 	if (m1 < 0) bitSet(buf[4], 0);
 	else bitClear(buf[4], 0);
 	buf[0] = abs(m1);
-	if (m2 < 0) bitSet(buf[4], 1);//モーターの配線を間違えた
+	if (m2 < 0) bitSet(buf[4], 1);
 	else bitClear(buf[4], 1);
 	buf[1] = abs(m2);
 	if (m3 < 0) bitSet(buf[4], 2);
@@ -869,6 +925,8 @@ void UI() {
 		lcd.home();
 		lcd.print("IR   ");
 		lcd.print(IR_D);
+		lcd.print(" , ");
+		lcd.print(IR_F);
 		lcd.setCursor(0, 1);
 #if Gyro_Mode
 		lcd.print("Gyro ");
@@ -1027,7 +1085,7 @@ void UI() {
 		lcd.home();
 		lcd.print("Spin");
 		lcd.setCursor(0, 1);
-		lcd.print("L: D:Spim R:next");
+		lcd.print("L:Spin D:Spin2 R:next");
 		if (R) {
 			UI_status = 0;
 			lcd.clear();
@@ -1035,7 +1093,16 @@ void UI() {
 		}
 		else if (D) {
 			delay(1000);
+			myServo2.write(180);
+			delay(100);
 			Spin();
+			delay(UI_Delay);
+		}
+		else if (L) {
+			delay(1000);
+			myServo2.write(180);
+			delay(100);
+			Spin(false);
 			delay(UI_Delay);
 		}
 		break;

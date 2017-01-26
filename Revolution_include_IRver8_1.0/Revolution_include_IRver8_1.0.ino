@@ -139,18 +139,10 @@ void IR_read(uint16_t *f, uint16_t *d) {
 
 void requestEvent() {
 
-  uint8_t buf[4/*5*/];
-  //IR_Force = 234;
-  //IR_Degree = 324;
-if(IR_Force!=0){
-  IR_Force=200;
-}
+  uint8_t buf[4];
   buf[0] = (IR_Force >> 8) & 0x00ff;
   buf[1] = IR_Force & 0x00ff;
   buf[2] = (IR_Degree >> 8) & 0x00ff;
   buf[3] = IR_Degree & 0x00ff;
-//Serial.print(IR_Force);
-//Serial.print("\t");
-//Serial.println(IR_Degree);
   Wire.write(buf, 4);
 }
