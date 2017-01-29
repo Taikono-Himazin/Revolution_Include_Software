@@ -31,15 +31,15 @@ void loop() {
 	LINE_status = 0;
 	for (uint8_t i = 0; i < 8; i++) {
 		LINE[i] = mcp1Get(i);
-		Serial.print(LINE[i]);
-		Serial.print(",");
+		/*Serial.print(LINE[i]);
+		Serial.print(",");*/
 	}
 	for (uint8_t i = 8; i < 16; i++) {
 		LINE[i] = mcp2Get(i - 8);
-		Serial.print(LINE[i]);
-		Serial.print(",");
+		/*Serial.print(LINE[i]);
+		Serial.print(",");*/
 	}
-	Serial.println("");
+	//Serial.println("");
 
 	for (uint8_t i = 0; i < 16; i++) {
 		switch (i)
