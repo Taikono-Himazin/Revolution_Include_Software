@@ -1,6 +1,6 @@
 //////////////////////////////////
 ///RCJ  Revolution_Include 2017///
-///      Main@‰iR˜a÷        ///
+///      Mainã€€æ°¸å±±å’Œæ¨¹        ///
 //////////////////////////////////
 
 
@@ -13,14 +13,14 @@
 #include <Wire.h>
 #include <PID_v1.h>
 #include <LiquidCrystal_I2C.h>
-/*‚±‚±‚Ü‚Å*/
+/*ã“ã“ã¾ã§*/
 
 /*define*/
-#define Gyro_Mode false //ƒWƒƒƒCƒƒ‚[ƒhtrue‚È‚çƒWƒƒƒCƒAfalse‚È‚çƒRƒ“ƒpƒX
+#define Gyro_Mode false //ã‚¸ãƒ£ã‚¤ãƒ­ãƒ¢ãƒ¼ãƒ‰trueãªã‚‰ã‚¸ãƒ£ã‚¤ãƒ­ã€falseãªã‚‰ã‚³ãƒ³ãƒ‘ã‚¹
 #define M_sw 0
 #define SPEAKER A0
 #define BEEP 100
-#define Old_Persent 0.1  //1ˆÈ‰ºI Moter‚Ì‰ß‹‚Ì’l‚ÌŠ„‡ 
+#define Old_Persent 0.1  //1ä»¥ä¸‹ï¼ Moterã®éå»ã®å€¤ã®å‰²åˆ 
 #define L_sw 4 
 #define D_sw 7
 #define R_sw 10
@@ -30,16 +30,16 @@
 #define Check_Delay 100
 #define IR_offset 0
 #define UI_Delay 200
-#define HC_F 11//‘O
-#define HC_B 12//Œã‚ë
-#define HC_L 13//¶
-#define HC_R 5//‰E
+#define HC_F 11//å‰
+#define HC_B 12//å¾Œã‚
+#define HC_L 13//å·¦
+#define HC_R 5//å³
 
 #define LED(a) digitalWrite(a, HIGH)
 #define LEDoff(a) digitalWrite(a, LOW)
-/*‚±‚±‚Ü‚Å*/
+/*ã“ã“ã¾ã§*/
 
-/*ì–ì‚³‚ñ‚©‚çƒRƒsƒyŠÖ”éŒ¾*/
+/*å·é‡ã•ã‚“ã‹ã‚‰ã‚³ãƒ”ãƒšé–¢æ•°å®£è¨€*/
 static double Setpoint, Input, Output;
 static const double Kp = 3.5, Ki = 0, Kd = 0.01;
 #if Gyro_Mode
@@ -53,13 +53,13 @@ static uint8_t mpuIntStatus;
 static bool dmpReady = false;  // set true if DMP init was successful
 static uint16_t packetSize;    // expected DMP packet size (default is 42 bytes)
 PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
-/*‚±‚±‚Ü‚Å*/
+/*ã“ã“ã¾ã§*/
 
-/*ƒŠƒLƒbƒhƒNƒŠƒXƒ^ƒ‹ŠÖ”éŒ¾*/
+/*ãƒªã‚­ãƒƒãƒ‰ã‚¯ãƒªã‚¹ã‚¿ãƒ«é–¢æ•°å®£è¨€*/
 LiquidCrystal_I2C lcd(0x3f, 2, 1, 0, 4, 5, 6, 7, 3, POSITIVE);  // Set the LCD I2C address
-/*‚±‚±‚Ü‚Å*/
+/*ã“ã“ã¾ã§*/
 
-/*•Ï”éŒ¾*/
+/*å¤‰æ•°å®£è¨€*/
 #if Gyro_Mode
 int16_t  Gyro_Now = 0, Gyro = 0, Gyro_Offset = 0;
 uint16_t fifoCount;
@@ -77,21 +77,20 @@ LINE_F = 0, LINE_R = 0, LINE_B = 0, LINE_L = 0, Back_count=0;
 uint16_t IR_F = 0, IR_D = 0, old_Moter_F = 0, M_P,LINE_NOW, F=30, B=30, L=30, R=30;
 
 bool change1 = true, change2 = false,Errer_Flag = false;
-/*‚±‚±‚Ü‚Å*/
+/*ã“ã“ã¾ã§*/
 
-//ƒvƒƒgƒ^ƒCƒvéŒ¾(•s•K—v‚Ì‚½‚ß“r’†‚©‚çƒRƒƒ“ƒgƒAƒEƒg@ƒGƒ‰[‹N‚±‚µ‚½‚ç‚µ‚Ä‚İ‚Ä
+//ãƒ—ãƒ­ãƒˆã‚¿ã‚¤ãƒ—å®£è¨€(ä¸å¿…è¦ã®ãŸã‚é€”ä¸­ã‹ã‚‰ã‚³ãƒ¡ãƒ³ãƒˆã‚¢ã‚¦ãƒˆã€€ã‚¨ãƒ©ãƒ¼èµ·ã“ã—ãŸã‚‰ã—ã¦ã¿ã¦
 extern void setup();
 extern void loop();
-extern void moter(uint8_t Force, int16_t Degree, bool PID = true);
+extern void moter(uint8_t Force, int16_t Degree, bool PID=true);
 extern void GyroGet();
 extern void HMC_Get();
 extern void sleep();
 extern inline void IR_Get();
 extern inline void Motion_System(uint8_t Force, int16_t Degree);
-extern void Spin(bool D = true);
+extern void Spin(bool D=true);
 extern void Melody(uint8_t mode);
-extern void LINE_Get();
-extern uint32_t HC_Get(uint8_t pin);
+extern inline void LINE_Get();
 extern void UI();
 extern inline void lcd_Start(char* ver);
 extern inline void LED_Check();
@@ -99,9 +98,12 @@ extern void Servo_Start();
 extern void Gryo_Start();
 extern void HMC_Start();
 extern void PID_Start();
-/*‚±‚±‚Ü‚Å*/
+extern void LINE_Set(uint16_t val);
+extern uint32_t HC_Get(uint8_t pin);
 
-/*--ƒvƒƒOƒ‰ƒ€--*/
+/*ã“ã“ã¾ã§*/
+
+/*--ãƒ—ãƒ­ã‚°ãƒ©ãƒ --*/
 void setup() {
 	//Serial.begin(115200);
 	Wire.begin();
@@ -109,14 +111,14 @@ void setup() {
 
 	PID_Start();
 
-	M_P = EEPROM.read(1); // M_Pè‡’l“Ç‚İ‚İ
+	M_P = EEPROM.read(1); // M_Pé–¾å€¤èª­ã¿è¾¼ã¿
 
 	uint16_t val = EEPROM.read(4) << 8 | EEPROM.read(5);
 	LINE_Set(val);
 
 	Servo_Start();
 	
-	lcd_Start("2.3.1_Neo");//lcd‰Šú‰»ŠÖ”
+	lcd_Start("2.3.1_Neo");//lcdåˆæœŸåŒ–é–¢æ•°
 
 #if Gyro_Mode
 	Gryo_Start();
@@ -179,8 +181,8 @@ void loop() {
 	}
 }
 
-/*--©ìŠÖ”--*/
-void moter(uint8_t Force, int16_t Degree,bool PID) { //ˆê‰‰ğ“Ç‚µ‚½‚ª‚¢‚¶‚ê‚é‚Ù‚Ç‚Í‚í‚©‚ç‚ñB‚Æ‚è‚ ‚¦‚¸“¯‚¶Œ`‚È‚ç‚»‚Ì‚Ü‚Ü‚¢‚±‚¤
+/*--è‡ªä½œé–¢æ•°--*/
+void moter(uint8_t Force, int16_t Degree,bool PID) { //ä¸€å¿œè§£èª­ã—ãŸãŒã„ã˜ã‚Œã‚‹ã»ã©ã¯ã‚ã‹ã‚‰ã‚“ã€‚ã¨ã‚Šã‚ãˆãšåŒã˜å½¢ãªã‚‰ãã®ã¾ã¾ã„ã“ã†
 
 	static int16_t Gyro_Old;
 
@@ -192,7 +194,7 @@ void moter(uint8_t Force, int16_t Degree,bool PID) { //ˆê‰‰ğ“Ç‚µ‚½‚ª‚¢‚¶‚ê‚é‚Ù‚
 	if (m1_D < 0) m1_D = m1_D + 360;
 	else if (m1_D > 359) m1_D = m1_D - 360;
 
-	m1 = sin((float)m1_D * 0.01745329) * old_Moter_F; // sin ‚Å‚àcos‚¶‚á‚È‚¢‚Æ—‰ğ•s”\
+	m1 = sin((float)m1_D * 0.01745329) * old_Moter_F; // sin ã§ã‚‚cosã˜ã‚ƒãªã„ã¨ç†è§£ä¸èƒ½
 
 	int16_t m2_D = old_Moter_D - 315;
 	if (m2_D < 0) m2_D = m2_D + 360;
@@ -203,24 +205,24 @@ void moter(uint8_t Force, int16_t Degree,bool PID) { //ˆê‰‰ğ“Ç‚µ‚½‚ª‚¢‚¶‚ê‚é‚Ù‚
 	int16_t F_max = abs(m1);
 	if (F_max < abs(m2)) F_max = abs(m2);
 
-	float k = (float)old_Moter_F / F_max;//Šeƒ‚[ƒ^[‚Ì”ä‚ğ•Û‚¿‚È‚ª‚çÅ‘å’l‚ğ225‚É
+	float k = (float)old_Moter_F / F_max;//å„ãƒ¢ãƒ¼ã‚¿ãƒ¼ã®æ¯”ã‚’ä¿ã¡ãªãŒã‚‰æœ€å¤§å€¤ã‚’225ã«
 	m1 = m1 * k;
 	m2 = m2 * k;
 
-	int16_t m3 = -m1;//”½‘Î‚ÉˆÊ’u‚µ‚Ä‚¢‚é‚©‚ç”½“]
+	int16_t m3 = -m1;//åå¯¾ã«ä½ç½®ã—ã¦ã„ã‚‹ã‹ã‚‰åè»¢
 	int16_t m4 = -m2;
 	if (PID){
 #if Gyro_Mode
-		GyroGet();//ƒWƒƒƒCƒ‚Ìƒf[ƒ^‚ğæ“¾
+		GyroGet();//ã‚¸ãƒ£ã‚¤ãƒ­ã®ãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—
 	Input = Gyro;
 #else
 		HMC_Get();
 	Input = HMC_val;
 #endif
-	myPID.Compute(); //pidŒvZ
+	myPID.Compute(); //pidè¨ˆç®—
 }
 
-	m1 = m1 - Output;//pid‚Ìƒf[ƒ^‚ğƒ‚[ƒ^[‚É“Ë‚Á‚Ş
+	m1 = m1 - Output;//pidã®ãƒ‡ãƒ¼ã‚¿ã‚’ãƒ¢ãƒ¼ã‚¿ãƒ¼ã«çªã£è¾¼ã‚€
 	m2 = m2 - Output;
 	m3 = m3 - Output;
 	m4 = m4 - Output;
@@ -239,14 +241,14 @@ void moter(uint8_t Force, int16_t Degree,bool PID) { //ˆê‰‰ğ“Ç‚µ‚½‚ª‚¢‚¶‚ê‚é‚Ù‚
 	lcd.print(m4);
 	lcd.print(",");*/
 
-	uint8_t buf[5];//‘—M
-	bitSet(buf[4], 4); //ƒ‚[ƒ^‚Ì“dŒ¹on
+	uint8_t buf[5];//é€ä¿¡
+	bitSet(buf[4], 4); //ãƒ¢ãƒ¼ã‚¿ã®é›»æºon
 
 	if (m1 < 0) bitSet(buf[4], 0);
 	else bitClear(buf[4], 0);
 	buf[0] = abs(m1);
 
-	if (m2 < 0) bitSet(buf[4], 1);//ƒ‚[ƒ^[‚Ì”zü‚ğŠÔˆá‚¦‚½
+	if (m2 < 0) bitSet(buf[4], 1);//ãƒ¢ãƒ¼ã‚¿ãƒ¼ã®é…ç·šã‚’é–“é•ãˆãŸ
 	else bitClear(buf[4], 1);
 	buf[1] = abs(m2);
 
@@ -322,12 +324,12 @@ void HMC_Get() {
 #endif
 
 void sleep() {
-	uint8_t buf[5];//ƒ‚[ƒ^‚É‘—M
+	uint8_t buf[5];//ãƒ¢ãƒ¼ã‚¿ã«é€ä¿¡
 	buf[0] = 0;
 	buf[1] = 0;
 	buf[2] = 0;
 	buf[3] = 0;
-	bitClear(buf[4], 4); //ƒ‚[ƒ^[“dŒ¹off
+	bitClear(buf[4], 4); //ãƒ¢ãƒ¼ã‚¿ãƒ¼é›»æºoff
 
 	Wire.beginTransmission(10);
 	Wire.write(buf, 5);
@@ -352,10 +354,10 @@ inline void IR_Get() {
 	Serial.println(IR_D);*/
 }
 
-inline void Motion_System(uint8_t Force, int16_t Degree) { //‹““®§Œä Force=IR_F Degree=IR_D
+inline void Motion_System(uint8_t Force, int16_t Degree) { //æŒ™å‹•åˆ¶å¾¡ Force=IR_F Degree=IR_D
 	int16_t M_Degree = 0, Dri1_Power = 0, Dri2_Power = 0;
 	uint8_t	M_Force = M_P;
-	static uint16_t Ball_Count = 0,Count_Reset;
+	static uint16_t Ball_Count = 0, Count_Reset;
 	bool Ball1 = analogRead(A6) >= 1000;
 	//bool Ball2 = analogRead(A7) >= 1000;
 	if (Ball1) {
@@ -369,7 +371,7 @@ inline void Motion_System(uint8_t Force, int16_t Degree) { //‹““®§Œä Force=IR_F
 #define Servo1_Dri Dri1_Power=180;Dri2_Power=85
 #define Servo2_Dri Dri2_Power=140;Dri1_Power=85
 
-	if (Force != 0) {  // Ball Found      //‚±‚±‚©‚ç‹““®§Œä                       //a
+	if (Force != 0) {  // Ball Found      //ã“ã“ã‹ã‚‰æŒ™å‹•åˆ¶å¾¡                       //a
 		Back_count = 0;
 		if ((270 <= Degree) && (Degree < 285)) {					//5
 			M_Degree = 280;
@@ -377,7 +379,7 @@ inline void Motion_System(uint8_t Force, int16_t Degree) { //‹““®§Œä Force=IR_F
 			Servo2_Dri;
 		}
 		else if ((285 <= Degree&&Degree > 290)) {
-			M_Degree = Degree+20;
+			M_Degree = Degree + 20;
 			Servo2_Dri;
 		}
 		else if ((290 <= Degree) && (Degree < 330)) {				//6
@@ -386,7 +388,7 @@ inline void Motion_System(uint8_t Force, int16_t Degree) { //‹““®§Œä Force=IR_F
 			Servo_idel;
 		}
 		else if ((330 <= Degree) && (Degree < 360)) {               //7
-			M_Degree = Degree -60;
+			M_Degree = Degree - 60;
 			Servo_idel;
 		}
 		else if ((0 <= Degree) && (Degree < 20)) {               //d
@@ -398,10 +400,10 @@ inline void Motion_System(uint8_t Force, int16_t Degree) { //‹““®§Œä Force=IR_F
 		else if ((50 <= Degree) && (Degree < 70)) {              //e
 			M_Degree = Degree - 40;
 		}
-		else if ((70  <= Degree) && (Degree < 80)) {              //g
+		else if ((70 <= Degree) && (Degree < 80)) {              //g
 			M_Degree = Degree - 15;
 		}
-		else if ((80 <= Degree) && (Degree < 100)) {               //^‚ñ’†
+		else if ((80 <= Degree) && (Degree < 100)) {               //çœŸã‚“ä¸­
 			M_Degree = 98;
 
 		}
@@ -432,7 +434,7 @@ inline void Motion_System(uint8_t Force, int16_t Degree) { //‹““®§Œä Force=IR_F
 			M_Degree = 280;
 			M_Force = 125;
 			Servo2_Dri;
-		}		//‹““®§Œä
+		}		//æŒ™å‹•åˆ¶å¾¡
 		if (M_Degree < 0) {
 			M_Degree = 360 + M_Degree;
 		}
@@ -510,7 +512,7 @@ inline void Motion_System(uint8_t Force, int16_t Degree) { //‹““®§Œä Force=IR_F
 			Back_count++;
 		}
 		i = HC_Get(HC_L);
-		if ( i> 100) {
+		if (i > 100) {
 			M_Degree = 180;
 			M_Force = 150;
 			Back_count = 0;
@@ -528,25 +530,25 @@ inline void Motion_System(uint8_t Force, int16_t Degree) { //‹““®§Œä Force=IR_F
 
 	if (bitRead(LINE_Status, 4) == 1 && LINE_B == 0 && LINE_F == 0 && LINE_L == 0 && LINE_R == 0) {
 
-#define LINE_EscapeCount 10 //LINE‚Ì“¦‚°‚éƒJƒEƒ“ƒg
+#define LINE_EscapeCount 10 //LINEã®é€ƒã’ã‚‹ã‚«ã‚¦ãƒ³ãƒˆ
 
-		if (bitRead(LINE_Status, 0) == 1) {//‰E
+		if (bitRead(LINE_Status, 0) == 1) {//å³
 			LINE_R = LINE_EscapeCount + 10;
-		}//‘O‚ªo‚é‰ü—Ç
-		if (bitRead(LINE_Status, 1) == 1) {//Œã‚ë
+		}//å‰ãŒå‡ºã‚‹æ”¹è‰¯
+		if (bitRead(LINE_Status, 1) == 1) {//å¾Œã‚
 			LINE_B = LINE_EscapeCount;
 		}
-		if (bitRead(LINE_Status, 2) == 1) {//¶
+		if (bitRead(LINE_Status, 2) == 1) {//å·¦
 			LINE_L = LINE_EscapeCount + 10;
 		}
-		if (bitRead(LINE_Status, 3) == 1) {//‘O
+		if (bitRead(LINE_Status, 3) == 1) {//å‰
 			LINE_F = LINE_EscapeCount + 30;
 		}
 	}
 
-	if (Ball_Count >= 30&&bitRead(LINE_Status,4)==0) {
-		uint32_t i;// = HC_Get(HC_B);
-		//if (i > 100 || i == 0) {
+	if (Ball_Count >= 30 && bitRead(LINE_Status, 4) == 0) {
+		uint32_t i = HC_Get(HC_B);
+		if (i > 100 || i == 0) {
 			if (Ball1 == true) {
 				i = HC_Get(HC_L);
 				if (i != 0 && i < 70) {
@@ -558,94 +560,95 @@ inline void Motion_System(uint8_t Force, int16_t Degree) { //‹““®§Œä Force=IR_F
 				Ball_Count = 0;
 				Errer_Flag_Status = 1000;
 			}
-	//	}
-		/*else if(Degree > 260 && Degree < 280){
-			moter(80, 90);
-		}*/
-	}
-	else {
-		LINE_Get();
-		uint8_t count = 0;
-		if (LINE_R != 0) {//‰E
-			while (count<50)
-			{
-				LINE_Get();
-				if (bitRead(LINE_Status, 1) == 1) {//Œã‚ë
-					M_Degree = 135;
-				}
-				else if(bitRead(LINE_Status, 3) == 1){//‘O
-					M_Degree=225;
-				}
-				else {
-					M_Degree = 180;
-				}
-				moter(255, M_Degree);
-				count++;
-			}
-			LINE_R=0;
+			//	}
+				/*else if(Degree > 260 && Degree < 280){
+					moter(80, 90);
+				}*/
 		}
-		if (LINE_B != 0) {//Œã‚ë
-			while (count<50)
-			{
-				LINE_Get();
-				if (bitRead(LINE_Status, 0) == 1) {//‰E
-					M_Degree = 135;
+		else {
+			LINE_Get();
+			uint8_t count = 0;
+			if (LINE_R != 0) {//å³
+				while (count < 50)
+				{
+					LINE_Get();
+					if (bitRead(LINE_Status, 1) == 1) {//å¾Œã‚
+						M_Degree = 135;
+					}
+					else if (bitRead(LINE_Status, 3) == 1) {//å‰
+						M_Degree = 225;
+					}
+					else {
+						M_Degree = 180;
+					}
+					moter(255, M_Degree);
+					count++;
 				}
-				else if (bitRead(LINE_Status, 2) == 1) {//¶
-					M_Degree = 45;
-				}
-				else {
-					M_Degree = 90;
-				}
-				moter(255, M_Degree);
-				count++;
+				LINE_R = 0;
 			}
-			LINE_B=0;
-		}
-		if (LINE_L != 0) {//¶
-			while (count<70)
-			{
-				LINE_Get();
-				if (bitRead(LINE_Status, 1) == 1) {//Œã‚ë
-					M_Degree = 45;
+			if (LINE_B != 0) {//å¾Œã‚
+				while (count < 50)
+				{
+					LINE_Get();
+					if (bitRead(LINE_Status, 0) == 1) {//å³
+						M_Degree = 135;
+					}
+					else if (bitRead(LINE_Status, 2) == 1) {//å·¦
+						M_Degree = 45;
+					}
+					else {
+						M_Degree = 90;
+					}
+					moter(255, M_Degree);
+					count++;
 				}
-				else if (bitRead(LINE_Status, 3) == 1) {//‘O
-					M_Degree = 315;
-				}
-				else {
-					M_Degree = 0;
-				}
-				moter(255, M_Degree);
-				count++;
+				LINE_B = 0;
 			}
-			LINE_L=0;
-		}
-		if (LINE_F != 0) {//‘O
-			
-			while (count<100)
-			{
-				LINE_Get();
-				if (bitRead(LINE_Status, 0) == 1) {//‰E
-					M_Degree = 215;
+			if (LINE_L != 0) {//å·¦
+				while (count < 70)
+				{
+					LINE_Get();
+					if (bitRead(LINE_Status, 1) == 1) {//å¾Œã‚
+						M_Degree = 45;
+					}
+					else if (bitRead(LINE_Status, 3) == 1) {//å‰
+						M_Degree = 315;
+					}
+					else {
+						M_Degree = 0;
+					}
+					moter(255, M_Degree);
+					count++;
 				}
-				else if (bitRead(LINE_Status, 2) == 1) {//¶
-					M_Degree = 315;
-				}
-				else {
-					M_Degree = 280;
-				}
-				moter(255, M_Degree);
-				count++;
+				LINE_L = 0;
 			}
-			LINE_F=0;
+			if (LINE_F != 0) {//å‰
+
+				while (count < 100)
+				{
+					LINE_Get();
+					if (bitRead(LINE_Status, 0) == 1) {//å³
+						M_Degree = 215;
+					}
+					else if (bitRead(LINE_Status, 2) == 1) {//å·¦
+						M_Degree = 315;
+					}
+					else {
+						M_Degree = 280;
+					}
+					moter(255, M_Degree);
+					count++;
+				}
+				LINE_F = 0;
+			}
+			moter(M_Force, M_Degree);
+			myServo1.write(Dri1_Power);
+			myServo2.write(Dri2_Power);
 		}
-		moter(M_Force, M_Degree);
-		myServo1.write(Dri1_Power);
-		myServo2.write(Dri2_Power);
 	}
 }
 
-void Spin(bool D=true) {
+void Spin(bool D) {
 	myServo2.write(180);
 	int16_t m1, m2, m3, m4;
 	int16_t i[2];
@@ -659,7 +662,7 @@ void Spin(bool D=true) {
 	}
 	uint8_t Spin_Move, Spin_Force;
 	if (D) {
-		Spin_Move = 330, Spin_Force = 30;//Move‚ªŠp“x@Force‚ª‘¬‚³
+		Spin_Move = 330, Spin_Force = 30;//MoveãŒè§’åº¦ã€€ForceãŒé€Ÿã•
 	}
 	else {
 		Spin_Move = 210, Spin_Force = 30;
@@ -668,7 +671,7 @@ void Spin(bool D=true) {
 	if (m1_D < 0) m1_D = m1_D + 360;
 	else if (m1_D > 359) m1_D = m1_D - 360;
 
-	m1 = sin((float)m1_D * 0.01745329) * Spin_Force; // sin ‚Å‚àcos‚¶‚á‚È‚¢‚Æ—‰ğ•s”\
+	m1 = sin((float)m1_D * 0.01745329) * Spin_Force; // sin ã§ã‚‚cosã˜ã‚ƒãªã„ã¨ç†è§£ä¸èƒ½
 
 	int16_t m2_D = Spin_Move - 315;
 	if (m2_D < 0) m2_D = m2_D + 360;
@@ -679,11 +682,11 @@ void Spin(bool D=true) {
 	int16_t F_max = abs(m1);
 	if (F_max < abs(m2)) F_max = abs(m2);
 
-	float k = (float)Spin_Force / F_max;//Šeƒ‚[ƒ^[‚Ì”ä‚ğ•Û‚¿‚È‚ª‚çÅ‘å’l‚ğ225‚É
+	float k = (float)Spin_Force / F_max;//å„ãƒ¢ãƒ¼ã‚¿ãƒ¼ã®æ¯”ã‚’ä¿ã¡ãªãŒã‚‰æœ€å¤§å€¤ã‚’225ã«
 	m1 = m1 * k;
 	m2 = m2 * k;
 
-	m3 = -m1;//”½‘Î‚ÉˆÊ’u‚µ‚Ä‚¢‚é‚©‚ç”½“]
+	m3 = -m1;//åå¯¾ã«ä½ç½®ã—ã¦ã„ã‚‹ã‹ã‚‰åè»¢
 	m4 = -m2;
 
 	m1 += -10;
@@ -696,8 +699,8 @@ void Spin(bool D=true) {
 	m4 = constrain(m4, -255, 255);
 
 
-	uint8_t buf[5];//‘—M
-	bitSet(buf[4], 4); //ƒ‚[ƒ^‚Ì“dŒ¹on
+	uint8_t buf[5];//é€ä¿¡
+	bitSet(buf[4], 4); //ãƒ¢ãƒ¼ã‚¿ã®é›»æºon
 	if (m1 < 0) bitSet(buf[4], 0);
 	else bitClear(buf[4], 0);
 	buf[0] = abs(m1);
@@ -732,7 +735,7 @@ void Spin(bool D=true) {
 		m3 = i[1];
 		m4 = i[1];
 
-		bitSet(buf[4], 4); //ƒ‚[ƒ^‚Ì“dŒ¹on
+		bitSet(buf[4], 4); //ãƒ¢ãƒ¼ã‚¿ã®é›»æºon
 		if (m1 < 0) bitSet(buf[4], 0);
 		else bitClear(buf[4], 0);
 		buf[0] = abs(m1);
@@ -815,7 +818,7 @@ uint32_t HC_Get(uint8_t pin) {
 	delayMicroseconds(10);
 	digitalWrite(pin, LOW);
 	pinMode(pin, INPUT);
-	return (pulseIn(pin, HIGH, 15000) / 58);//75ƒZƒ“ƒ`
+	return (pulseIn(pin, HIGH, 15000) / 58);//75ã‚»ãƒ³ãƒ
 }
 
 void UI() {
@@ -1060,7 +1063,7 @@ void UI() {
 }
 
 
-/*‰Šú‰»ŠÖ”*/
+/*åˆæœŸåŒ–é–¢æ•°*/
 inline void lcd_Start(char* ver) {
 
 	lcd.begin(16, 2);   // initialize the lcd for 16 chars 2 lines, turn on backlight
@@ -1157,3 +1160,4 @@ void LINE_Set(uint16_t val) {
 	EEPROM.write(4, buf[0]);
 	EEPROM.write(5, buf[1]);
 }
+
