@@ -30,23 +30,12 @@ void setup() {
 void loop() {
 	LINE_status = 0;
 	for (uint8_t i = 0; i < 8; i++) {
-		if (i == 4) {
-			LINE[i] = 600;
-		}
-		else
-		{
-			LINE[i] = mcp1Get(i);
-		}
+		LINE[i] = mcp1Get(i);
 		Serial.print(LINE[i]);
 		Serial.print(",");
 	}
 	for (uint8_t i = 8; i < 16; i++) {
-		if (i == 8) {
-			LINE[i] = 600;
-		}
-		else {
 			LINE[i] = mcp2Get(i - 8);
-		}
 		Serial.print(LINE[i]);
 		Serial.print(",");
 	}
@@ -59,7 +48,7 @@ void loop() {
 		case 5:
 		case 6:
 		case 7:
-			if (LINE[i] <LINE_val) {// >黒反応(寮モード) <白反応(大会モード)
+			if (LINE[i] >LINE_val) {// >黒反応(寮モード) <白反応(大会モード)
 				bitSet(LINE_status, 3);
 			}
 			break;
@@ -68,7 +57,7 @@ void loop() {
 		case 1:
 		case 2:
 		case 3:
-			if (LINE[i] < LINE_val) {
+			if (LINE[i] > LINE_val) {
 				bitSet(LINE_status, 2);
 			}
 			break;
@@ -77,7 +66,7 @@ void loop() {
 		case 9:
 		case 10:
 		case 11:
-			if (LINE[i] < LINE_val) {
+			if (LINE[i] > LINE_val) {
 				bitSet(LINE_status, 1);
 			}
 			break;
@@ -86,7 +75,7 @@ void loop() {
 		case 13:
 		case 14:
 		case 15:
-			if (LINE[i] < LINE_val) {
+			if (LINE[i] > LINE_val) {
 				bitSet(LINE_status, 0);
 			}
 			break;
@@ -97,6 +86,7 @@ void loop() {
 			bitSet(LINE_status, 4);
 		}
 	}
+	Serial.println(LINE_status, BIN);
 	Old_LINE = LINE_status;
 }
 
@@ -132,25 +122,9 @@ void requestEvent() {
 
 void receiveEvent(int x) {
 
-	/*uint8_t buf = Wire.read();
-	if (buf == 0) {
-		for (uint8_t i = 0; i < 8; i++) {
-			LINE_val[i] = (LINE_val[i] + mcp1Get(i)) / 2;
-		}
-		for (uint8_t i = 8; i < 16; i++) {
-			LINE_val[i] = (LINE_val[i] + mcp2Get(i - 8)) / 2;
-		}
-	}
-	else if (buf == 1) {
-		for (uint8_t i = 0; i < 16; i++) {
-			LINE_val[i] = 0;
-		}
-	}*/
-
 	LINE_val= (Wire.read() << 8) | Wire.read();
-
 	/*送り方
-	buf[2] = (IR_Degree >> 8) & 0x00ff;
-	buf[3] = IR_Degree & 0x00ff;
+	buf[0] = (IR_Degree >> 8) & 0x00ff;
+	buf[1] = IR_Degree & 0x00ff;
 	*/
 }

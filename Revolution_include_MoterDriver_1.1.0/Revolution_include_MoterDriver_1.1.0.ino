@@ -33,7 +33,7 @@ extern void readEvent(int x);
 void setup() {
   //Serial.begin(9600);
   //Serial.print("Moter_Driver");
-  Wire.begin(80);
+  Wire.begin(10);
   i2c_faster();
  Wire.onReceive(readEvent);
 

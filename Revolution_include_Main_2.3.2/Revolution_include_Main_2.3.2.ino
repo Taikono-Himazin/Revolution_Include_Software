@@ -104,27 +104,23 @@ extern uint16_t HC_Get(uint8_t pin);
 
 /*--プログラム--*/
 void setup() {
-	//Serial.begin(115200);
+	Serial.begin(115200);
 	Wire.begin();
 	i2c_faster();
-
 	PID_Start();
-
 	M_P = EEPROM.read(1); // M_P閾値読み込み
 
 	uint16_t val = EEPROM.read(4) << 8 | EEPROM.read(5);
 	LINE_Set(val);
-
 	Servo_Start();
-	
-	lcd_Start("2.3.1_Neo");//lcd初期化関数
+	lcd_Start("2.3.2_Neo");//lcd初期化関数
 
 #if Gyro_Mode
 	Gryo_Start();
 #else
 	HMC_Start();
 #endif
-
+	
 	while (digitalRead(M_sw) == LOW) {
 		Melody(1);
 		delay(1000);
@@ -136,17 +132,24 @@ void setup() {
 
 	pinMode(A6, INPUT);
 	pinMode(A7, INPUT);
-
+	
 	lcd.setCursor(0, 1);
 	lcd.print("               ");
 	lcd.setCursor(0, 1);
 	lcd.print("ALL OK");
-
+	
 	UI_status = 2;
 	Melody(0);
 }
 
 void loop() {
+	/*Serial.print(HC_Get(HC_R));
+	Serial.print(",");
+	Serial.print(HC_Get(HC_L));
+	Serial.print(",");
+	Serial.print(HC_Get(HC_B));
+	Serial.print(",");
+	Serial.println(HC_Get(HC_F));*/
 	if (digitalRead(M_sw) == LOW&&!Errer_Flag) {
 		if (change1) {
 			lcd.noBacklight();
@@ -356,9 +359,9 @@ inline void IR_Get() {
 inline void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=IR_F Degree=IR_D
 	int16_t M_Degree = 0, Dri1_Power = 0, Dri2_Power = 0;
 	uint8_t	M_Force = M_P;
-	static uint16_t Ball_Count = 0,Count_Reset;
+	static uint16_t Ball_Count = 0, Count_Reset;
 	bool Ball1 = analogRead(A6) >= 1000;
-	//bool Ball2 = analogRead(A7) >= 1000;
+	bool Ball2 = analogRead(A7) >= 850;
 	if (Ball1) {
 		LED(LED_M);
 	}
@@ -366,9 +369,9 @@ inline void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=
 		LEDoff(LED_M);
 	}
 
-#define Servo_idel Dri1_Power=85;Dri2_Power=Dri1_Power
-#define Servo1_Dri Dri1_Power=180;Dri2_Power=85
-#define Servo2_Dri Dri2_Power=140;Dri1_Power=85
+#define Servo_idel Dri1_Power=80;Dri2_Power=Dri1_Power
+#define Servo1_Dri Dri1_Power=180;Dri2_Power=80
+#define Servo2_Dri Dri2_Power=180;Dri1_Power=80
 
 	if (Force != 0) {  // Ball Found      //ここから挙動制御                       //a
 		Back_count = 0;
@@ -378,7 +381,7 @@ inline void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=
 			Servo2_Dri;
 		}
 		else if ((285 <= Degree&&Degree > 290)) {
-			M_Degree = Degree+20;
+			M_Degree = Degree + 20;
 			Servo2_Dri;
 		}
 		else if ((290 <= Degree) && (Degree < 330)) {				//6
@@ -387,7 +390,7 @@ inline void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=
 			Servo_idel;
 		}
 		else if ((330 <= Degree) && (Degree < 360)) {               //7
-			M_Degree = Degree -60;
+			M_Degree = Degree - 60;
 			Servo_idel;
 		}
 		else if ((0 <= Degree) && (Degree < 20)) {               //d
@@ -399,7 +402,7 @@ inline void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=
 		else if ((50 <= Degree) && (Degree < 70)) {              //e
 			M_Degree = Degree - 40;
 		}
-		else if ((70  <= Degree) && (Degree < 80)) {              //g
+		else if ((70 <= Degree) && (Degree < 80)) {              //g
 			M_Degree = Degree - 15;
 		}
 		else if ((80 <= Degree) && (Degree < 100)) {               //真ん中
@@ -511,7 +514,7 @@ inline void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=
 			Back_count++;
 		}
 		i = HC_Get(HC_L);
-		if ( i> 100) {
+		if (i > 100) {
 			M_Degree = 180;
 			M_Force = 150;
 			Back_count = 0;
@@ -535,63 +538,75 @@ inline void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=
 		LINE = false;
 	}
 
-	if (Ball_Count >= 30&&!LINE) {
+	if (Ball_Count >= 30 && !LINE) {
 		uint16_t i;// = HC_Get(HC_B);
 		//if (i > 100 || i == 0) {
-			if (Ball1 == true) {
-				i = HC_Get(HC_L);
-				if (i != 0 && i < 70) {
-					Spin(false);
-				}
-				else {
-					Spin();
-				}
-				Ball_Count = 0;
-				Errer_Flag_Status = 1000;
+		if (Ball1 == true) {
+			i = HC_Get(HC_L);
+			if (i != 0 && i < 70) {
+				Spin(false);
 			}
-	//	}
-		/*else if(Degree > 260 && Degree < 280){
-			moter(80, 90);
-		}*/
+			else {
+				Spin();
+			}
+			Ball_Count = 0;
+			Errer_Flag_Status = 1000;
+		}
+		//	}
+			/*else if(Degree > 260 && Degree < 280){
+				moter(80, 90);
+			}*/
 	}
 	else {
 		if (LINE) {
+			uint16_t count = 0;
+			bool OK_Flag = false;
 			while (true) {
-				LINE_F = HC_Get(HC_F) < 40;
-				LINE_B = HC_Get(HC_B) < 40;
-				LINE_L = HC_Get(HC_L) < 40;
-				LINE_R = HC_Get(HC_R) < 40;
-				M_Force = 255;
-				if (LINE_F) {
-					M_Degree = 270;
-				}
-				if (LINE_B) {
-					M_Degree = 90;
-				}
-				if (LINE_L) {
-					M_Degree = 0;
-				}
-				if (LINE_R) {
-					M_Degree = 180;
-				}
-				if (!LINE_F && !LINE_B && !LINE_R && !LINE_L) {
-					LINE_Get();
-					if (bitRead(LINE_Status, 4) == 0) {
-						break;
+				if (count <= 0) {
+					LINE_F = HC_Get(HC_F) < 40;
+					LINE_B = HC_Get(HC_B) < 40;
+					LINE_L = HC_Get(HC_L) < 40;
+					LINE_R = HC_Get(HC_R) < 40;
+					M_Force = 255;
+					if (LINE_B) {
+						M_Degree = 90;
+					}
+					if (LINE_L) {
+						M_Degree = 0;
+					}
+					if (LINE_R) {
+						M_Degree = 180;
+					}
+					if (LINE_F) {
+						M_Degree = 270;
+					}
+					if (!LINE_F && !LINE_B && !LINE_R && !LINE_L) {
+						LINE_Get();
+						if (bitRead(LINE_Status, 4) == 0) {
+							if (OK_Flag) {
+								break;
+							}
+							else {
+								OK_Flag = true;
+							}
+						}
+						else {
+							OK_Flag = false;
+						}
 					}
 					else {
-						if (HC_Get(HC_F)) {
-
+						OK_Flag = false;
 					}
-					}
+					count = 30;
 				}
+				count--;
 				moter(M_Force, M_Degree);
 			}
 		}
-		moter(M_Force, M_Degree);
-		myServo1.write(Dri1_Power);
-		myServo2.write(Dri2_Power);
 	}
+	moter(M_Force, M_Degree);
+	myServo1.write(Dri1_Power);
+	myServo2.write(Dri2_Power);
 }
 
 void Spin(bool D=true) {
@@ -757,8 +772,9 @@ inline void LINE_Get() {
 }
 
 uint16_t HC_Get(uint8_t pin) {
+	pinMode(pin, OUTPUT);
 	digitalWrite(pin,HIGH);
-	Wire.requestFrom(15, 2);
+	Wire.requestFrom(90, 2);
 	uint16_t val;
 	while (Wire.available()) {
 		val = (Wire.read() << 8) | Wire.read();
@@ -975,7 +991,7 @@ void UI() {
 		lcd.setCursor(0, 1);
 		lcd.print("L:Spin D:Spin2 R:next");
 		if (R) {
-			UI_status = 0;
+			UI_status = 7;
 			lcd.clear();
 			delay(UI_Delay);
 		}
@@ -995,6 +1011,21 @@ void UI() {
 		}
 		myServo2.write(0);
 		sleep();
+		break;
+	case 7:
+		lcd.home();
+		lcd.print("Ball Sensor");
+		lcd.setCursor(0, 1);
+		lcd.print("                ");
+		lcd.setCursor(0, 1);
+		lcd.print(analogRead(A7));
+		lcd.setCursor(4, 1);
+		lcd.print(analogRead(A6));
+		if (R) {
+			UI_status = 0;
+			lcd.clear();
+			delay(UI_Delay);
+		}
 		break;
 	default:
 		lcd.clear();

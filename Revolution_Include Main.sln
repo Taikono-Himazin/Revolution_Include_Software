@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26206.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A76DDDD5-2258-4608-8E23-C2AEEB51808C}"
 	ProjectSection(SolutionItems) = preProject
@@ -51,13 +51,17 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Revolution_Include_Main_2.3
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Revolution_include_Main_2.3.1", "Revolution_include_Main_2.3.1\Revolution_include_Main_2.3.1.vcxproj", "{447E1E01-291B-4DE2-A99C-0ED8FA2AAC18}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HMC5883L_calibrate", "HMC5883L_calibrate\HMC5883L_calibrate.vcxproj", "{A627C50C-8116-472A-9375-CD2B38894ABB}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Revolution_include_Main_2.3.1_NM", "Revolution_include_Main_2.3.1_NM\Revolution_include_Main_2.3.1_NM.vcxproj", "{0EF0FE28-0594-41F1-8B1B-467D5467A936}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Revolution_include_Main_2.3.2", "Revolution_include_Main_2.3.2\Revolution_include_Main_2.3.2.vcxproj", "{659D8851-CD80-40A5-A6D9-846D9BA4E630}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Revolution_include_HC_1.0.0", "Revolution_include_HC_1.0.0\Revolution_include_HC_1.0.0.vcxproj", "{8B73B081-D6AA-4339-A79B-F55CDDABA3A5}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Revolution_include_Main_2.4.0", "Revolution_include_Main_2.4.0\Revolution_include_Main_2.4.0.vcxproj", "{9681084B-55C5-4BBA-B224-075E356BB45C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Revolution_include_HC_1.0.0_G", "Revolution_include_HC_1.0.0_G\Revolution_include_HC_1.0.0_G.vcxproj", "{0A21A70A-DFE9-4B33-9A8E-508E6BF40670}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HMC5883L_calibrate", "HMC5883L_calibrate\HMC5883L_calibrate.vcxproj", "{6C08AD46-93FB-45F8-B439-D2E1B40D4606}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -149,10 +153,6 @@ Global
 		{447E1E01-291B-4DE2-A99C-0ED8FA2AAC18}.Debug|x86.Build.0 = Debug|Win32
 		{447E1E01-291B-4DE2-A99C-0ED8FA2AAC18}.Release|x86.ActiveCfg = Release|Win32
 		{447E1E01-291B-4DE2-A99C-0ED8FA2AAC18}.Release|x86.Build.0 = Release|Win32
-		{A627C50C-8116-472A-9375-CD2B38894ABB}.Debug|x86.ActiveCfg = Debug|Win32
-		{A627C50C-8116-472A-9375-CD2B38894ABB}.Debug|x86.Build.0 = Debug|Win32
-		{A627C50C-8116-472A-9375-CD2B38894ABB}.Release|x86.ActiveCfg = Release|Win32
-		{A627C50C-8116-472A-9375-CD2B38894ABB}.Release|x86.Build.0 = Release|Win32
 		{0EF0FE28-0594-41F1-8B1B-467D5467A936}.Debug|x86.ActiveCfg = Debug|Win32
 		{0EF0FE28-0594-41F1-8B1B-467D5467A936}.Debug|x86.Build.0 = Debug|Win32
 		{0EF0FE28-0594-41F1-8B1B-467D5467A936}.Release|x86.ActiveCfg = Release|Win32
@@ -165,6 +165,18 @@ Global
 		{8B73B081-D6AA-4339-A79B-F55CDDABA3A5}.Debug|x86.Build.0 = Debug|Win32
 		{8B73B081-D6AA-4339-A79B-F55CDDABA3A5}.Release|x86.ActiveCfg = Release|Win32
 		{8B73B081-D6AA-4339-A79B-F55CDDABA3A5}.Release|x86.Build.0 = Release|Win32
+		{9681084B-55C5-4BBA-B224-075E356BB45C}.Debug|x86.ActiveCfg = Debug|Win32
+		{9681084B-55C5-4BBA-B224-075E356BB45C}.Debug|x86.Build.0 = Debug|Win32
+		{9681084B-55C5-4BBA-B224-075E356BB45C}.Release|x86.ActiveCfg = Release|Win32
+		{9681084B-55C5-4BBA-B224-075E356BB45C}.Release|x86.Build.0 = Release|Win32
+		{0A21A70A-DFE9-4B33-9A8E-508E6BF40670}.Debug|x86.ActiveCfg = Debug|Win32
+		{0A21A70A-DFE9-4B33-9A8E-508E6BF40670}.Debug|x86.Build.0 = Debug|Win32
+		{0A21A70A-DFE9-4B33-9A8E-508E6BF40670}.Release|x86.ActiveCfg = Release|Win32
+		{0A21A70A-DFE9-4B33-9A8E-508E6BF40670}.Release|x86.Build.0 = Release|Win32
+		{6C08AD46-93FB-45F8-B439-D2E1B40D4606}.Debug|x86.ActiveCfg = Debug|Win32
+		{6C08AD46-93FB-45F8-B439-D2E1B40D4606}.Debug|x86.Build.0 = Debug|Win32
+		{6C08AD46-93FB-45F8-B439-D2E1B40D4606}.Release|x86.ActiveCfg = Release|Win32
+		{6C08AD46-93FB-45F8-B439-D2E1B40D4606}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

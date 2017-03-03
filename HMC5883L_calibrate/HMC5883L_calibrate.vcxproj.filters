@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\HMC5883L_calibrate\HMC5883L_calibrate.ino" />
+    <None Include="HMC5883L_calibrate.ino" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="__vm\.HMC5883L_calibrate.vsarduino.h">

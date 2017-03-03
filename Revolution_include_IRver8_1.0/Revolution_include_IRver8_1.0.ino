@@ -13,8 +13,6 @@
 #define IR6 A2
 #define IR7 9//赤外線センサ
 
-#define LINE 1//ラインセンサ　この後光センサを組み合わせるがそれはMainで
-
 #define TIMEOUT 10000
 
 
@@ -133,7 +131,9 @@ void IR_read(uint16_t *f, uint16_t *d) {
     *d = 0;
     *f = 0;
   }
-
+//Serial.print(*d);
+//Serial.print(",");
+//Serial.println(*f);
 }
 
 
