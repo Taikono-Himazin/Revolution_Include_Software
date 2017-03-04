@@ -63,6 +63,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Revolution_include_HC_1.0.0
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HMC5883L_calibrate", "HMC5883L_calibrate\HMC5883L_calibrate.vcxproj", "{6C08AD46-93FB-45F8-B439-D2E1B40D4606}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Revolution_include_Main_2.4.0_GC", "Revolution_include_Main_2.4.0_GC\Revolution_include_Main_2.4.0_GC.vcxproj", "{C2DF5D06-7441-4180-A347-04546AAD0162}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -177,6 +179,10 @@ Global
 		{6C08AD46-93FB-45F8-B439-D2E1B40D4606}.Debug|x86.Build.0 = Debug|Win32
 		{6C08AD46-93FB-45F8-B439-D2E1B40D4606}.Release|x86.ActiveCfg = Release|Win32
 		{6C08AD46-93FB-45F8-B439-D2E1B40D4606}.Release|x86.Build.0 = Release|Win32
+		{C2DF5D06-7441-4180-A347-04546AAD0162}.Debug|x86.ActiveCfg = Debug|Win32
+		{C2DF5D06-7441-4180-A347-04546AAD0162}.Debug|x86.Build.0 = Debug|Win32
+		{C2DF5D06-7441-4180-A347-04546AAD0162}.Release|x86.ActiveCfg = Release|Win32
+		{C2DF5D06-7441-4180-A347-04546AAD0162}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

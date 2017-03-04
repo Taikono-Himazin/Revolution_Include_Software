@@ -41,6 +41,7 @@ uint32_t HC_Get(uint8_t pin) {
 }
 
 void Request_Event() {
+	digitalWrite(13, HIGH);
 	if (digitalRead(HC_B_M) == HIGH) {
 		uint8_t buf[2];
 		buf[0] = (B_val >> 8) & 0x00ff;
@@ -71,4 +72,5 @@ void Request_Event() {
 		buf[1] =0;
 		Wire.write(buf, 2);
 	}
+	digitalWrite(13, LOW);
 }
