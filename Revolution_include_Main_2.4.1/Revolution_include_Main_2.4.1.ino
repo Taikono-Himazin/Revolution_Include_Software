@@ -141,14 +141,6 @@ void setup() {
 }
 
 void loop() {
-	/*moter(255, 45, false);
-	delay(10000);
-	moter(255, 135, false);
-	delay(10000);
-	moter(255, 215, false);
-	delay(10000);
-	moter(255, 315, false);
-	delay(10000);*/
 	if (digitalRead(M_sw) == LOW && !Errer_Flag) {
 		if (change1) {
 			lcd.noBacklight();
@@ -410,7 +402,7 @@ inline void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=
 		LEDoff(LED_M);
 	}
 
-#define Servo1_idel Dri2_Power=0;Dri1_Power=50
+#define Servo1_idel Dri2_Power=0;Dri1_Power=90
 #define Servo2_idel Dri1_Power=0;Dri2_Power=50
 #define Servo1_Dri Dri1_Power=180;Dri2_Power=0
 #define Servo2_Dri Dri2_Power=180;Dri1_Power=0
@@ -418,7 +410,7 @@ inline void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=
 	if (Force != 0) {  // Ball Found      //ここから挙動制御                       //a
 		Back_count = 0;
 		if ((270 == Degree)) {
-			M_Degree = 270;
+			M_Degree = 280;
 			M_Force = M_P - 100;
 			Servo2_Dri;
 		}
@@ -456,7 +448,7 @@ inline void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=
 			Servo1_Dri;
 		}
 		else if ((80 <= Degree) && (Degree < 100)) {               //真ん中
-			M_Degree = 90;
+			M_Degree = 95;
 			Servo1_Dri;
 
 		}
@@ -533,31 +525,19 @@ inline void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=
 		static uint16_t Ball_Count2;
 		if ((Degree > 80 && Degree < 100) && Ball1 == true) {
 			uint32_t i = HC_Get(HC_F);
-			if (i < 50) {
+			if (i < 50 && i != 0)
+			{
+				Ball_Count2++;
+			}
+			if (Ball_Count2 > 30) {
 				Spin_F();
+				Ball_Count2 = 0;
 				Gyro_Offset = Gyro_Offset_Difo;
 			}
 		}
-
-		/*	static uint8_t Ball_Count;
-			if (Ball1) {
-				if (Ball_Flag) {
-					Ball_Timer.start();
-					Ball_Flag = false;
-				}
-				M_Degree = 90;
-				M_Force = 100;
-				Ball_Count = 100;
-			}
-			else {
-				Ball_Count--;
-				if (Ball_Count == 0) {
-					Ball_Timer.stop();
-					Ball_Timer.reset();
-					Ball_Flag = true;
-				}
-			}*/
-
+		else {
+			Ball_Count2 = 0;
+		}
 	}
 	else {
 		M_Degree = 90;
@@ -568,7 +548,7 @@ inline void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=
 		if (Gyro > 170 && Gyro < 190) {
 			uint32_t i = HC_Get(HC_F);
 			if (i < 90 && i != 0) {
-				M_Degree = 270;
+				M_Degree = 280;
 				M_Force = 150;
 			}
 			if (i > 130 && i == 0) {
@@ -619,51 +599,51 @@ inline void Motion_System(uint8_t Force, int16_t Degree) { //挙動制御 Force=
 			}*/
 	}
 	else if (LINE) {
-			int16_t LINE_count = 0;
-			bool OK_Flag = false;
-			while (digitalRead(M_sw) == LOW) {
-				if (LINE_count <= 0) {
-					uint16_t i = HC_Get(HC_F);
-					LINE_F = i < 40 && i != 0;
-					i = HC_Get(HC_B);
-					LINE_B = i < 40 && i != 0;
-					i = HC_Get(HC_L);
-					LINE_L = i < 40 && i != 0;
-					i = HC_Get(HC_R);
-					LINE_R = i < 40 && i != 0;
-					M_Force = 255;
-					if (LINE_B) {
-						M_Degree = 90;
-					}
-					if (LINE_L) {
-						M_Degree = 0;
-					}
-					if (LINE_R) {
-						M_Degree = 180;
-					}
-					if (LINE_F) {
-						M_Degree = 270;
-					}
-					if (!LINE_F && !LINE_B && !LINE_R && !LINE_L) {
-						LINE_Get();
-						if (bitRead(LINE_Status, 4) == 0) {
-							if (OK_Flag) {
-								break;
-							}
-							else {
-								OK_Flag = true;
-							}
+		int16_t LINE_count = 0;
+		bool OK_Flag = false;
+		while (digitalRead(M_sw) == LOW) {
+			if (LINE_count <= 0) {
+				uint16_t i = HC_Get(HC_F);
+				LINE_F = i < 40 && i != 0;
+				i = HC_Get(HC_B);
+				LINE_B = i < 40 && i != 0;
+				i = HC_Get(HC_L);
+				LINE_L = i < 40 && i != 0;
+				i = HC_Get(HC_R);
+				LINE_R = i < 40 && i != 0;
+				M_Force = 255;
+				if (LINE_B) {
+					M_Degree = 90;
+				}
+				if (LINE_L) {
+					M_Degree = 0;
+				}
+				if (LINE_R) {
+					M_Degree = 180;
+				}
+				if (LINE_F) {
+					M_Degree = 280;
+				}
+				if (!LINE_F && !LINE_B && !LINE_R && !LINE_L) {
+					LINE_Get();
+					if (bitRead(LINE_Status, 4) == 0) {
+						if (OK_Flag) {
+							break;
+						}
+						else {
+							OK_Flag = true;
 						}
 					}
-					else {
-						OK_Flag = false;
-					}
-					LINE_count = 10;
 				}
-				LINE_count--;
-				moter(M_Force, M_Degree);
+				else {
+					OK_Flag = false;
+				}
+				LINE_count = 10;
 			}
+			LINE_count--;
+			moter(M_Force, M_Degree);
 		}
+	}
 	moter(M_Force, M_Degree);
 	myServo1.write(Dri1_Power);
 	myServo2.write(Dri2_Power);
@@ -788,6 +768,36 @@ void Spin(bool D=true) {
 void Spin_F(bool D = true) {
 	myServo1.write(180);
 	Gyro_Offset = Gyro;
+
+	int16_t m1, m2, m3, m4;
+	uint16_t j = 0;
+	while (bitRead(LINE_Status,4)==0&&j<100) {
+		m1 = 50;
+		m2 = m1;
+		m3 = m2;
+		m4 = m3;
+		uint8_t buf[5];//送信
+		bitSet(buf[4], 4); //モータの電源on
+		if (m1 < 0) bitSet(buf[4], 0);
+		else bitClear(buf[4], 0);
+		buf[0] = abs(m1);
+		if (m2 < 0) bitSet(buf[4], 1);
+		else bitClear(buf[4], 1);
+		buf[1] = abs(m2);
+		if (m3 < 0) bitSet(buf[4], 2);
+		else bitClear(buf[4], 2);
+		buf[2] = abs(m3);
+		if (m4 < 0) bitSet(buf[4], 3);
+		else bitClear(buf[4], 3);
+		buf[3] = abs(m4);
+
+		Wire.beginTransmission(10);
+		Wire.write(buf, 5);
+		Wire.endTransmission();
+		j++;
+	}
+
+
 	uint8_t count = 0;
 	while (digitalRead(M_sw) == LOW&& count < 70)
 	{
@@ -798,7 +808,6 @@ void Spin_F(bool D = true) {
 			return;
 		}
 	}
-		int16_t m1, m2, m3, m4;
 		int16_t i[2];
 		if (D) {
 			i[0] = 40;
@@ -866,7 +875,7 @@ void Spin_F(bool D = true) {
 		Wire.write(buf, 5);
 		Wire.endTransmission();
 
-		uint16_t j = 0;
+		
 		while (j<2500)
 		{
 			LINE_Get();
@@ -956,12 +965,11 @@ inline void LINE_Get() {
 	else {
 		LEDoff(LED_L);
 	}
-	//Serial.println(LINE_Status, BIN);
 }
 
 uint16_t HC_Get(uint8_t pin) {
 	pinMode(pin, OUTPUT);
-	digitalWrite(pin,HIGH);
+	digitalWrite(pin, HIGH);
 	Wire.requestFrom(90, 2);
 	uint16_t val;
 	while (Wire.available()) {
@@ -984,13 +992,13 @@ void UI() {
 		lcd.print("L:1 D:2 R:next");
 		if (L) {
 			LED(LED_R);
-			myServo1.write(50);
+			myServo1.write(180);
 			myServo2.write(0);
 		}
 		else if (D) {
 			LED(LED_R);
 			myServo1.write(0);
-			myServo2.write(50);
+			myServo2.write(180);
 		}
 		else if (R) {
 			LEDoff(LED_R);
