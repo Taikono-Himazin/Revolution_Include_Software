@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26206.0
+VisualStudioVersion = 15.0.26228.9
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A76DDDD5-2258-4608-8E23-C2AEEB51808C}"
 	ProjectSection(SolutionItems) = preProject
@@ -66,6 +66,10 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Revolution_include_Main_2.4.0_GC", "Revolution_include_Main_2.4.0_GC\Revolution_include_Main_2.4.0_GC.vcxproj", "{C2DF5D06-7441-4180-A347-04546AAD0162}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Revolution_include_Main_2.4.1", "Revolution_include_Main_2.4.1\Revolution_include_Main_2.4.1.vcxproj", "{716E13D4-CC81-454F-B253-F1C85AAA1F02}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Revolution_include_Main_2.4.2", "Revolution_include_Main_2.4.2\Revolution_include_Main_2.4.2.vcxproj", "{68518E20-7D57-4F58-9A5D-ECF172A3E219}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Revolution_include_Main_2.4.3", "Revolution_include_Main_2.4.3\Revolution_include_Main_2.4.3.vcxproj", "{EC401D87-05BF-4148-A331-0506FFF65959}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -189,6 +193,14 @@ Global
 		{716E13D4-CC81-454F-B253-F1C85AAA1F02}.Debug|x86.Build.0 = Debug|Win32
 		{716E13D4-CC81-454F-B253-F1C85AAA1F02}.Release|x86.ActiveCfg = Release|Win32
 		{716E13D4-CC81-454F-B253-F1C85AAA1F02}.Release|x86.Build.0 = Release|Win32
+		{68518E20-7D57-4F58-9A5D-ECF172A3E219}.Debug|x86.ActiveCfg = Debug|Win32
+		{68518E20-7D57-4F58-9A5D-ECF172A3E219}.Debug|x86.Build.0 = Debug|Win32
+		{68518E20-7D57-4F58-9A5D-ECF172A3E219}.Release|x86.ActiveCfg = Release|Win32
+		{68518E20-7D57-4F58-9A5D-ECF172A3E219}.Release|x86.Build.0 = Release|Win32
+		{EC401D87-05BF-4148-A331-0506FFF65959}.Debug|x86.ActiveCfg = Debug|Win32
+		{EC401D87-05BF-4148-A331-0506FFF65959}.Debug|x86.Build.0 = Debug|Win32
+		{EC401D87-05BF-4148-A331-0506FFF65959}.Release|x86.ActiveCfg = Release|Win32
+		{EC401D87-05BF-4148-A331-0506FFF65959}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

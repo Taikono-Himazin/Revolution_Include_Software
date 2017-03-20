@@ -15,11 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="__vm\.Revolution_include_Main_2.4.1.vsarduino.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <None Include="Revolution_include_2_4_2.ino" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="Revolution_include_Main_2.4.1.ino" />
-  </ItemGroup>
+ 
 </Project>

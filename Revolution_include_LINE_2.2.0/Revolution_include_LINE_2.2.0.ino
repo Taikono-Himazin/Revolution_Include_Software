@@ -30,7 +30,7 @@ void setup() {
 void loop() {
 	LINE_status = 0;
 	for (uint8_t i = 0; i < 8; i++) {
-		LINE[i] = mcp1Get(i);
+			LINE[i] = mcp1Get(i);
 		Serial.print(LINE[i]);
 		Serial.print(",");
 	}

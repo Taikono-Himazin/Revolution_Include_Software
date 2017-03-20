@@ -111,7 +111,7 @@ void setup() {
 	uint16_t val = EEPROM.read(4) << 8 | EEPROM.read(5);
 	LINE_Set(val);
 	Servo_Start();
-	lcd_Start("2.4.1_Neo");//lcd初期化関数
+	lcd_Start("2.4.1_Neo Gyro");//lcd初期化関数
 
 #if Gyro_Mode
 	Gryo_Start();
@@ -210,8 +210,8 @@ void moter(uint8_t Force, int16_t Degree,bool PID) { //一応解読したがい�
 	
 		HMC_Get();
 	Input = HMC_val;
-#endif
 	myPID.Compute(); //pid計算
+#endif
 }
 
 	GyroGet();
@@ -220,30 +220,6 @@ void moter(uint8_t Force, int16_t Degree,bool PID) { //一応解読したがい�
 		hosei = 0;
 	}
 
-	/*if (Gyro > 300) {
-		hosei = -200;
-	}
-	else if (Gyro > 260) {
-		hosei = -120;
-	}
-	else if (Gyro > 200) {
-		hosei = -60;
-	}
-	else if (Gyro > 190) {
-		hosei = -40;
-	}
-	else if (Gyro < 60) {
-		hosei = 200;
-	}
-	else if (Gyro < 100) {
-		hosei = 120;
-	}
-	else if (Gyro < 160) {
-		hosei = 60;
-	}
-	else if (Gyro < 170) {
-		hosei = 40;
-	}*/
 	m1 = m1 - hosei;//pidのデータをモーターに突っ込む
 	m2 = m2 - hosei;
 	m3 = m3 - hosei;
