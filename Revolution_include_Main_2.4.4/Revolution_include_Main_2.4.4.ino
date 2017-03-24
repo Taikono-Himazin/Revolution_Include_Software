@@ -16,7 +16,7 @@
 /*ここまで*/
 
 /*define*/
-#define Gyro_Mode false //ジャイロモードtrueならジャイロ、falseならコンパス
+#define Gyro_Mode true //ジャイロモードtrueならジャイロ、falseならコンパス
 #define M_sw 0
 #define SPEAKER A0
 #define BEEP 100
@@ -85,7 +85,7 @@ uint16_t IR_F = 0, IR_D = 0, old_Moter_F = 0, M_P, LINE_NOW;
 bool change1 = true, change2 = false, Errer_Flag = false, LINE = false, LINE_F, LINE_R, LINE_B, LINE_L;
 /*ここまで*/
 
-//プロトタイプ宣言(不必要のため途中からコメントアウト　エラー起こしたらしてみて
+//プロトタイプ宣言
 extern void setup();
 extern void loop();
 extern void moter(uint8_t Force, int16_t Degree, bool PID = true);
@@ -827,7 +827,6 @@ inline void LINE_Move() {
 		moter(M_Force, M_Degree);
 	}
 }
-
 
 uint16_t HC_Get(uint8_t pin) {
   pinMode(pin, OUTPUT);
