@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.9
+VisualStudioVersion = 15.0.26403.7
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A76DDDD5-2258-4608-8E23-C2AEEB51808C}"
 	ProjectSection(SolutionItems) = preProject
@@ -72,6 +72,10 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Revolution_Include_Main_2.4.3", "Revolution_Include_Main_2.4.3\Revolution_Include_Main_2.4.3.vcxproj", "{08CCE52F-7C33-4253-891E-BF23B0B3E7D8}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Revolution_include_Main_2.4.4", "Revolution_include_Main_2.4.4\Revolution_include_Main_2.4.4.vcxproj", "{F17680BB-4749-4BAE-9A19-E197DD5278F6}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Revolution_include_Main_2.4.6_G_FW", "Revolution_include_Main_2.4.6_G_FW\Revolution_include_Main_2.4.6_G_FW.vcxproj", "{BA4D420F-DE2F-4F38-ABFB-33519A1ACAB9}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Revolution_include_Main_2.4.5", "Revolution_include_Main_2.4.5\Revolution_include_Main_2.4.5.vcxproj", "{9D2356B5-7673-42B8-989B-490AC3C58F47}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -209,6 +213,14 @@ Global
 		{F17680BB-4749-4BAE-9A19-E197DD5278F6}.Debug|x86.Build.0 = Debug|Win32
 		{F17680BB-4749-4BAE-9A19-E197DD5278F6}.Release|x86.ActiveCfg = Release|Win32
 		{F17680BB-4749-4BAE-9A19-E197DD5278F6}.Release|x86.Build.0 = Release|Win32
+		{BA4D420F-DE2F-4F38-ABFB-33519A1ACAB9}.Debug|x86.ActiveCfg = Debug|Win32
+		{BA4D420F-DE2F-4F38-ABFB-33519A1ACAB9}.Debug|x86.Build.0 = Debug|Win32
+		{BA4D420F-DE2F-4F38-ABFB-33519A1ACAB9}.Release|x86.ActiveCfg = Release|Win32
+		{BA4D420F-DE2F-4F38-ABFB-33519A1ACAB9}.Release|x86.Build.0 = Release|Win32
+		{9D2356B5-7673-42B8-989B-490AC3C58F47}.Debug|x86.ActiveCfg = Debug|Win32
+		{9D2356B5-7673-42B8-989B-490AC3C58F47}.Debug|x86.Build.0 = Debug|Win32
+		{9D2356B5-7673-42B8-989B-490AC3C58F47}.Release|x86.ActiveCfg = Release|Win32
+		{9D2356B5-7673-42B8-989B-490AC3C58F47}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

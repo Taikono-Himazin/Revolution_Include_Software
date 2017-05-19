@@ -1,6 +1,0 @@
-MyTimer	KEYWORD1
-start	KEYWORD2
-stop	KEYWORD2
-reset	KEYWORD2
-read_ms	KEYWORD2
-read_us	KEYWORD2
